@@ -1,0 +1,73 @@
+name:                glushkov-automata
+version:             0.1.0.0
+github:              "githubuser/glushkov-automata"
+license:             BSD-3-Clause
+author:              "Author name here"
+maintainer:          "example@example.com"
+copyright:           "2024 Author name here"
+
+extra-source-files:
+- README.md
+- CHANGELOG.md
+
+default-extensions:
+- OverloadedStrings
+- DeriveFoldable
+- DeriveFunctor
+- DeriveTraversable
+
+description:         Please see the README on GitHub at <https://github.com/githubuser/glushkov-automata#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Widentities
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wmissing-export-lists
+- -Wmissing-home-modules
+- -Wpartial-fields
+- -Wredundant-constraints
+
+library:
+  source-dirs: src
+  dependencies:
+  - array
+  - base
+  - text
+  - containers
+  - mtl
+  - fgl
+  - graphviz
+  build-tools:
+  - alex
+  - happy
+
+executables:
+  glushkov-automata-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - glushkov-automata
+    - text
+    - containers
+    - graphviz
+    - fgl
+
+tests:
+  glushkov-automata-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - glushkov-automata

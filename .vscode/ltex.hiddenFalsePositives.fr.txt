@@ -1,0 +1,1 @@
+{"rule":"APOS_TYP","sentence":"^\\QSans prendre en compte les déclarations d'instance des types \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q et \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q (\\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q a été instancié à l'aide de l'extension de langage \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q).\\E$"}
