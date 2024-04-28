@@ -23,38 +23,43 @@ import Data.Maybe ( fromJust )
 --   let positions = etats gg
 --   putStrLn $ displayNFA gg
 
-import           Data.Graph.Inductive
-import           Data.GraphViz
-import Data.GraphViz.Printing
-import           Data.GraphViz.Attributes.Complete
+-- import           Data.Graph.Inductive
+-- import           Data.GraphViz
+-- import           Data.GraphViz.Printing
+-- import           Data.GraphViz.Attributes.Complete
 import qualified Data.Text.Lazy.IO as TIO
-import  qualified         Data.Text.Lazy                    as L
+import qualified Data.Text.Lazy                    as L
+import Data.GraphViz
+import Data.GraphViz.Attributes.Complete
+import Data.Graph.Inductive.Graph
+import Data.Graph.Inductive.PatriciaTree
 
--- Définition de votre graphe
--- exGraph :: Gr Text Text
-ex1 :: Gr L.Text L.Text
-ex1 = mkGraph [ (1,"one")
-              , (3,"three")
-              ]
-              [ (1,3,"edge label") ]
+-- Définition d'un type pour les états, les labels des transitions et si l'état est final
+type AutomatonNode = (String, Bool)  -- (Nom de l'état, Est-ce un état final?)
 
-ex1Params :: GraphvizParams n L.Text L.Text () L.Text
-ex1Params = nonClusteredParams { globalAttributes = ga
-                               , fmtNode          = fn
-                               , fmtEdge          = fe
-                               }
-  where fn (_,l)   = [textLabel l]
-        fe (_,_,l) = [textLabel l]
+-- Création d'un automate exemple
+automaton :: Gr AutomatonNode String
+automaton = mkGraph nodes edges
+  where
+    nodes = [(1, ("S0", False)), (2, ("S1", True)), (3, ("S2", False))]
+    edges = [(1, 2, "a"), (2, 3, "b"), (1, 3, "c")]
 
-        ga = [ GraphAttrs [ RankDir   FromLeft
-                          ]
-             , NodeAttrs  [ shape      DoubleCircle --shape     DoubleCircle
-                          ]
-             ]
+-- Fonction pour définir le style des nœuds
+nodeAttributes' :: AutomatonNode -> Attributes
+nodeAttributes' (_, isFinal) = 
+  [ shape $ if isFinal then DoubleCircle else Circle
+  -- , style $ if isFinal then shape DoubleCircle else shape Circle
+  ]
 
--- Fonction principale pour transformer le graphe en DOT et l'afficher
+-- Fonction pour convertir l'automate en graph DOT
+automatonToDot :: Gr AutomatonNode String -> DotGraph Node
+automatonToDot aut = graphToDot params aut
+  where
+    params = nonClusteredParams { globalAttributes = [GraphAttrs [RankDir FromLeft]]
+                                , fmtNode = \(_, label) -> nodeAttributes' label
+                                , fmtEdge = \(_, _, l) -> [Label $ StrLabel $ L.pack l]
+                                }
+
 main :: IO ()
-main = do
-  -- let params = nonClusteredParams { fmtNode = \(_, l) -> [Label $ toLabelValue l]
-  --                                 , fmtEdge = \(_, _, l) -> [Label $ toLabelValue l] }
-  TIO.putStrLn $ renderDot $ toDot $ graphToDot ex1Params ex1
+main = TIO.putStr $ printDotGraph $ automatonToDot automaton
+
