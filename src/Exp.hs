@@ -92,7 +92,7 @@ followE (Plus e e') s
 followE (Star e) s =
   if Set.member s (lastE e)
     then Set.union (firstE e) (followE e s)
-    else firstE e
+    else followE e s
 followE (Point e e') s
   | Map.member s (posE e') = followE e' s
   | Map.member s (posE e) =

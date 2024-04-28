@@ -57,7 +57,11 @@ automatonToDot a = graphToDot params graph
       nonClusteredParams
         { globalAttributes = [GraphAttrs [RankDir FromLeft]]
         , fmtNode =
-            \node -> [Shape $ shapeOf node, FillColor [toWColor $ colorOf node], Style [SItem Filled []]]
+            \node ->
+              [ Shape $ shapeOf node
+              , FillColor [toWColor $ colorOf node]
+              , Style [SItem Filled []]
+              ]
         , fmtEdge = \(_, _, l) -> [Label $ StrLabel $ LT.fromStrict l]
         }
     shapeOf (val, _)
