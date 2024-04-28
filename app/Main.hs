@@ -18,7 +18,7 @@ import           Data.Graph.Inductive.Graph
 import           Data.Graph.Inductive.PatriciaTree
 import           Data.GraphViz
 import           Data.GraphViz.Attributes.Complete
-import           Data.Text.Internal.Lazy
+import           Data.Text.Internal.Lazy           as LTIO
 import qualified Data.Text.Lazy                    as L
 import qualified Data.Text.Lazy.IO                 as TIO
 

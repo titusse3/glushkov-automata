@@ -56,10 +56,13 @@ automatonToDot a = graphToDot params graph
     params =
       nonClusteredParams
         { globalAttributes = [GraphAttrs [RankDir FromLeft]]
-        , fmtNode = \node -> [Shape $ shapeOf node]
+        , fmtNode =
+            \node -> [Shape $ shapeOf node, FillColor [toWColor $ colorOf node], Style [SItem Filled []]]
         , fmtEdge = \(_, _, l) -> [Label $ StrLabel $ LT.fromStrict l]
         }
-    shapeOf (val, _) =
-      if isFinal a val
-        then DoubleCircle
-        else Circle
+    shapeOf (val, _)
+      | isFinal a val = DoubleCircle
+      | otherwise = Circle
+    colorOf (val, _)
+      | isStart a val = Green
+      | otherwise = White
