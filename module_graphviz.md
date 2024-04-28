@@ -38,3 +38,6 @@ GraphvizParams values, a cluster is a grouping of nodes; the isDotCluster
 function lets you specify whether it is a cluster in the Dot sense or just a 
 sub-graph.
 ```
+
+- La fonction `nonClusteredParams :: GraphvizParams n nl el () nl `, permet de 
+  ne pas se soucier des `Cluster`. 
