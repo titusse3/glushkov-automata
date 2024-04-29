@@ -25,7 +25,7 @@ import qualified Data.Text.Lazy.IO                 as TIO
 main :: IO ()
 main = do
   -- let t = "(a+b).a*.b*.(a+b)*"
-  let t = "(a.(a.b)*)*+(b.a)*"
+  let t = "(a+b).a*.b*"
   -- t <- TIO.getLine
   let expT = fromJust $ H.parseExp (A.alexScanTokens t)
   let gluskov = glushkov expT

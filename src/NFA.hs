@@ -29,6 +29,19 @@ isFinal a = flip Set.member (final a)
 isStart :: Ord state => NFA state transition -> state -> Bool
 isStart a = flip Set.member (premier a)
 
+accept :: Ord state => NFA state transition  -> [transition] -> Bool
+accept a = accept'  i
+  where d = delta a
+        i = premier a
+        f = final a
+
+        -- accept' :: Set.Set state -> [transition] -> Bool
+        accept' s [] = not $ Set.null $ Set.intersection s f
+        accept' s (t:ts) = if Set.null s then 
+          False 
+          else 
+            accept' (Set.foldl (\s' x -> Set.union s' $ d x t) Set.empty s) ts
+
 automataToGraph ::
      (Ord state, Show state, Show transition)
   => NFA state transition
