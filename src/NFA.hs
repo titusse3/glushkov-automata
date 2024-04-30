@@ -4,18 +4,21 @@ module NFA
   , isFinal
   , isStart
   , automatonToDot
+  , automatonToDotClustered
   , accept
   ) where
 
 import           Data.Graph.Inductive
-import Data.Graph.Inductive.Query.DFS
-
-import           Data.GraphViz                     
+import           Data.GraphViz
 import           Data.GraphViz.Attributes.Complete
-import           Data.Maybe                        (fromMaybe)
 import qualified Data.Set                          as Set
 import qualified Data.Text                         as T
-import qualified Data.Text.Lazy                    as LT
+
+import           Data.Graph.Inductive.Query.DFS    (scc)
+import qualified Data.Text.Lazy                    as TL
+
+import           Data.List                         (findIndex)
+import           Data.Maybe
 
 data NFA state transition = NFA
   { sigma   :: Set.Set transition
@@ -40,9 +43,8 @@ accept a = accept' i
         -- accept' :: Set.Set state -> [transition] -> Bool
     accept' s [] = not $ Set.null $ Set.intersection s f
     accept' s (t:ts) =
-      if Set.null s
-        then False
-        else accept' (Set.foldl (\s' x -> Set.union s' $ d x t) Set.empty s) ts
+      not (Set.null s)
+        && accept' (Set.foldl (\s' x -> Set.union s' $ d x t) Set.empty s) ts
 
 automataToGraph ::
      (Ord state, Show state, Show transition)
@@ -59,7 +61,8 @@ automataToGraph a = mkGraph nodesList edgesList
       ]
     states = Set.toList $ etats a
     indices = [0 ..]
-    stateIndex state = fromMaybe (-1) (lookup state $ zip states indices)
+    stateIndex state =
+      Data.Maybe.fromMaybe (-1) (lookup state $ zip states indices)
     stateTrans = [(s, sigma a) | s <- states]
     deltaFun = delta a
     formatText = T.filter (/= '\'')
@@ -75,10 +78,10 @@ automatonToDot a = graphToDot params graph
             \node ->
               [ Shape $ shapeOf node
               , FillColor [toWColor $ colorOf node]
+              , Color [toWColor Red]
               , Style [SItem Filled []]
-              , ExtraAttrs [("style", if isComponentNode node then "rounded,filled" else "filled")]
               ]
-        , fmtEdge = \(_, _, l) -> [Label $ StrLabel $ LT.fromStrict l]
+        , fmtEdge = \(_, _, l) -> [Label $ StrLabel $ TL.fromStrict l]
         }
     shapeOf (val, _)
       | isFinal a val = DoubleCircle
@@ -86,4 +89,34 @@ automatonToDot a = graphToDot params graph
     colorOf (val, _)
       | isStart a val = Green
       | otherwise = White
-    isComponentNode node = any (elem node) scc
+
+automatonToDotClustered ::
+     Show transition => NFA Node transition -> DotGraph Node
+automatonToDotClustered a = graphToDot params graph
+  where
+    graph = automataToGraph a
+    sccs = Data.Graph.Inductive.Query.DFS.scc graph
+    params =
+      defaultParams
+        { globalAttributes = [GraphAttrs [RankDir FromLeft]]
+        , fmtNode =
+            \node ->
+              [ Shape $ shapeOf node
+              , FillColor [toWColor $ colorOf node]
+              -- , Color [toWColor Red]
+              , Style [SItem Filled []]
+              ]
+        , fmtEdge = \(_, _, l) -> [Label $ StrLabel $ TL.fromStrict l]
+        , isDotCluster = const True
+        , clusterBy = clusterLogic
+        , clusterID = Num . Int
+        }
+    clusterLogic (n, l) = C (nodeClusterId n) $ N (n, l)
+    -- nodeClusterId: on sait qu'un noeud est fortement connexe avec lui même
+    nodeClusterId node = fromJust $ findIndex (elem node) sccs
+    shapeOf (val, _)
+      | isFinal a val = DoubleCircle
+      | otherwise = Circle
+    colorOf (val, _)
+      | isStart a val = Green
+      | otherwise = White
