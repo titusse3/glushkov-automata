@@ -41,3 +41,31 @@ sub-graph.
 
 - La fonction `nonClusteredParams :: GraphvizParams n nl el () nl `, permet de 
   ne pas se soucier des `Cluster`. 
+
+# Ajout des `Cluster`
+
+- On doit donc utilisé la fonction `defaultParams :: GraphvizParams n nl el cl nl `, 
+  car on doit ajouter des clusters.
+- De ce constat, on doit implémenter `clusterBy` et `clusterID`.
+
+# Paramettre de `GraphvizParams`
+
+`isDirected :: Bool` True if the graph is directed; False otherwise.
+
+`globalAttributes :: [GlobalAttributes]` The top-level global Attributes for the 
+entire graph.
+
+`clusterBy :: (n, nl) -> NodeCluster cl (n, l)` A function to specify which 
+cluster a particular node is in.
+
+`isDotCluster :: cl -> Bool` Is this "cluster" actually a cluster, or just a 
+sub-graph?
+
+`clusterID :: cl -> GraphID` The name/identifier for a cluster.
+
+`fmtCluster :: cl -> [GlobalAttributes]` Specify which global attributes are 
+applied in the given cluster.
+
+`fmtNode :: (n, l) -> Attributes` The specific Attributes for a node.
+
+`fmtEdge :: (n, n, el) -> Attributes` The specific Attributes for an edge.
