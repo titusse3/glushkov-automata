@@ -29,11 +29,11 @@ data NFA state transition = NFA
   }
 
 isFinal :: Ord state => NFA state transition -> state -> Bool
-isFinal a = flip Set.member (final a)
+isFinal = flip Set.member . final
 
 isStart :: Ord state => NFA state transition -> state -> Bool
-isStart a = flip Set.member (premier a)
-
+isStart = flip Set.member . premier
+-- décomposer à l'aide de fold
 accept :: Ord state => NFA state transition -> [transition] -> Bool
 accept a = accept' i
   where
