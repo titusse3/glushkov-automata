@@ -17,8 +17,8 @@ import qualified Data.Text                         as T
 import           Data.Graph.Inductive.Query.DFS    (scc)
 import qualified Data.Text.Lazy                    as TL
 
-import           Data.List                         (findIndex)
-import           Data.Maybe
+import           Data.List                         (findIndex, foldl')
+import           Data.Maybe                        (fromJust, fromMaybe)
 
 data NFA state transition = NFA
   { sigma   :: Set.Set transition
@@ -33,18 +33,17 @@ isFinal = flip Set.member . final
 
 isStart :: Ord state => NFA state transition -> state -> Bool
 isStart = flip Set.member . premier
--- décomposer à l'aide de fold
-accept :: Ord state => NFA state transition -> [transition] -> Bool
-accept a = accept' i
+
+accept ::
+     forall state transition. Ord state
+  => NFA state transition
+  -> [transition]
+  -> Bool
+accept (NFA _ _ prem fin delt) l =
+  not $ Set.null $ Set.intersection fin $ foldl' accept' prem l
   where
-    d = delta a
-    i = premier a
-    f = final a
-        -- accept' :: Set.Set state -> [transition] -> Bool
-    accept' s [] = not $ Set.null $ Set.intersection s f
-    accept' s (t:ts) =
-      not (Set.null s)
-        && accept' (Set.foldl (\s' x -> Set.union s' $ d x t) Set.empty s) ts
+    accept' :: Set.Set state -> transition -> Set.Set state
+    accept' s t = foldr (\s' acc -> Set.union acc $ delt s' t) Set.empty s
 
 automataToGraph ::
      (Ord state, Show state, Show transition)
@@ -112,7 +111,6 @@ automatonToDotClustered a = graphToDot params graph
         , clusterID = Num . Int
         }
     clusterLogic (n, l) = C (nodeClusterId n) $ N (n, l)
-    -- nodeClusterId: on sait qu'un noeud est fortement connexe avec lui même
     nodeClusterId node = fromJust $ findIndex (elem node) sccs
     shapeOf (val, _)
       | isFinal a val = DoubleCircle
