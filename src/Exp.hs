@@ -41,13 +41,8 @@ linearisation e = evalState (linearisation' e) 1
           put $ n + 1
           return (x, n)
 
--- le faire avec un foldMap
 alphabet :: Ord a => Exp a -> Set.Set a
-alphabet Epsilon      = Set.empty
-alphabet (Sym a)      = Set.singleton a
-alphabet (Plus e e')  = Set.union (alphabet e) (alphabet e')
-alphabet (Star e)     = alphabet e
-alphabet (Point e e') = Set.union (alphabet e) (alphabet e')
+alphabet = foldMap Set.singleton
 
 isNull :: Exp a -> Bool
 isNull Epsilon      = True
