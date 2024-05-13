@@ -9,6 +9,8 @@ module NFA
   , addTransition
   , removeTransition
   , isHomogeneous
+  , addState
+  , removeState
   ) where
 
 import           Data.Graph.Inductive
@@ -50,6 +52,23 @@ isHomogeneous (NFA sig etat _ _ delt) =
              else Nothing)
         (Just Set.empty)
         sig
+
+addState :: Ord state => NFA state transition -> state -> NFA state transition
+addState (NFA sig e prem fin delt) s = NFA sig (Set.insert s e) prem fin delt
+
+removeState ::
+     Ord state => NFA state transition -> state -> NFA state transition
+removeState (NFA sig e prem fin delt) s =
+  if Set.member s e
+    then let e' = Set.delete s e
+             p = Set.delete s prem
+             f = Set.delete s fin
+             update n a =
+               if n == s
+                 then Set.empty
+                 else Set.delete s $ delt n a
+          in NFA sig e' p f update
+    else NFA sig e prem fin delt
 
 addTransition ::
      (Ord transition, Ord state)
@@ -101,7 +120,7 @@ automataToGraph ::
   -> Gr T.Text T.Text
 automataToGraph a = mkGraph nodesList edgesList
   where
-    nodesList = zip indices $ map (T.pack . show) states
+    nodesList = [(stateIndex s, T.pack $ show s) | s <- states]
     edgesList =
       [ (stateIndex s, stateIndex t, formatText $ T.pack $ show tr)
       | (s, trs) <- stateTrans
@@ -109,9 +128,9 @@ automataToGraph a = mkGraph nodesList edgesList
       , t <- Set.toList (deltaFun s tr)
       ]
     states = Set.toList $ etats a
-    indices = [0 ..]
     stateIndex state =
       Data.Maybe.fromMaybe (-1) (lookup state $ zip states indices)
+    indices = [0 ..]
     stateTrans = [(s, sigma a) | s <- states]
     deltaFun = delta a
     formatText = T.filter (/= '\'')
@@ -127,8 +146,8 @@ automatonToDot a = graphToDot params graph
             \node ->
               [ Shape $ shapeOf node
               , FillColor [toWColor $ colorOf node]
-              , Color [toWColor Red]
               , Style [SItem Filled []]
+              , Label $ StrLabel $ TL.fromStrict $ snd node
               ]
         , fmtEdge = \(_, _, l) -> [Label $ StrLabel $ TL.fromStrict l]
         }
@@ -152,8 +171,8 @@ automatonToDotClustered a = graphToDot params graph
             \node ->
               [ Shape $ shapeOf node
               , FillColor [toWColor $ colorOf node]
-              -- , Color [toWColor Red]
               , Style [SItem Filled []]
+              , Label $ StrLabel $ TL.fromStrict $ snd node
               ]
         , fmtEdge = \(_, _, l) -> [Label $ StrLabel $ TL.fromStrict l]
         , isDotCluster = const True
