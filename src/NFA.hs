@@ -11,6 +11,8 @@ module NFA
   , isHomogeneous
   , addState
   , removeState
+  , makeFinal
+  , makeInit
   ) where
 
 import           Data.Graph.Inductive
@@ -52,6 +54,16 @@ isHomogeneous (NFA sig etat _ _ delt) =
              else Nothing)
         (Just Set.empty)
         sig
+
+makeFinal :: Ord state => NFA state transition -> state -> NFA state transition
+makeFinal (NFA sig e prem fin delt) s = (NFA sig e prem fin' delt)
+  where
+    fin' = Set.insert s fin
+
+makeInit :: Ord state => NFA state transition -> state -> NFA state transition
+makeInit (NFA sig e prem fin delt) s = (NFA sig e prem' fin delt)
+  where
+    prem' = Set.insert s prem
 
 addState :: Ord state => NFA state transition -> state -> NFA state transition
 addState (NFA sig e prem fin delt) s = NFA sig (Set.insert s e) prem fin delt
