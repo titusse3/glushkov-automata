@@ -51,9 +51,9 @@ isNull (Plus e e')  = isNull e || isNull e'
 isNull (Star _)     = True
 isNull (Point e e') = isNull e && isNull e'
 
-firstE :: Exp (a, Int) -> Set.Set Int
+firstE :: Ord a => Exp a -> Set.Set a
 firstE Epsilon = Set.empty
-firstE (Sym (_, n)) = Set.singleton n
+firstE (Sym a) = Set.singleton a
 firstE (Plus e e') = Set.union (firstE e) (firstE e')
 firstE (Star e) = firstE e
 firstE (Point e e') =
@@ -61,9 +61,9 @@ firstE (Point e e') =
     then Set.union (firstE e) (firstE e')
     else firstE e
 
-lastE :: Exp (a, Int) -> Set.Set Int
+lastE :: Ord a => Exp a -> Set.Set a
 lastE Epsilon = Set.empty
-lastE (Sym (_, n)) = Set.singleton n
+lastE (Sym a) = Set.singleton a
 lastE (Plus e e') = Set.union (lastE e) (lastE e')
 lastE (Star e) = lastE e
 lastE (Point e e') =
@@ -78,7 +78,7 @@ posE (Plus e e')  = Map.union (posE e) (posE e')
 posE (Point e e') = Map.union (posE e) (posE e')
 posE (Sym (a, n)) = Map.singleton n a
 
-followE :: Ord a => Exp (a, Int) -> (Int -> Set.Set Int)
+followE :: Ord a => Exp (a, Int) -> (Int -> Set.Set (a, Int))
 followE Epsilon _ = Set.empty
 followE (Sym _) _ = Set.empty
 followE (Plus e e') s
@@ -86,13 +86,13 @@ followE (Plus e e') s
   | Map.member s (posE e') = followE e' s
   | otherwise = Set.empty
 followE (Star e) s =
-  if Set.member s (lastE e)
+  if Set.member s (lastE $ snd <$> e)
     then Set.union (firstE e) (followE e s)
     else followE e s
 followE (Point e e') s
   | Map.member s (posE e') = followE e' s
   | Map.member s (posE e) =
-    if Set.member s (lastE e)
+    if Set.member s (lastE $ snd <$> e)
       then Set.union f (firstE e')
       else f
   | otherwise = Set.empty
@@ -109,7 +109,7 @@ glushkov e = NFA sigma' q i f trans
         then Set.insert 0 l
         else l
     linear = linearisation e
-    l = lastE linear
+    l = Set.map snd $ lastE linear
     allStates = posE linear
     q = Set.union i $ Set.fromList $ Map.keys allStates
     fist = firstE linear
@@ -120,4 +120,4 @@ glushkov e = NFA sigma' q i f trans
             then fist
             else followE linear s
         z = Set.map fst $ Set.filter (\(_, a) -> a == t) nexts
-        nexts = Set.map (\n -> (n, fromJust $ Map.lookup n allStates)) sFollow
+        nexts = Set.map (\(_, n) -> (n, fromJust $ Map.lookup n allStates)) sFollow

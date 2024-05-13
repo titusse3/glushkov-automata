@@ -29,7 +29,6 @@ library
       ExpHp
       ExpLex
       NFA
-      NGraph
   other-modules:
       Paths_glushkov_automata
   autogen-modules:
