@@ -26,9 +26,12 @@ les symboles apparaissant au moins une fois dans \(e\).
 \begin{equation*}
   \begin{split}
   & first(e) :: E_Q \to F \text{, tel que } F \subset Q \\
-  & last(e) :: E_Q \to F \text{, tel que } F \subset Q
+  & last(e) :: E_Q \to F \text{, tel que } F \subset Q \\
+  & follow(e) :: E_{(Q, \mathbb{N})} \to \mathbb{N} \to S 
   \end{split}
 \end{equation*}
+avec \(S\) représentant l'ensemble des symboles qui peuvent suivre le symbole 
+d'indice donner.
 
 La fonction qui permet de récuprer la lettre associé a son indice pour une 
 expression indicé est définie de la façon suivante~:
@@ -36,5 +39,21 @@ expression indicé est définie de la façon suivante~:
 \[
 indexE :: E_{(Q, \mathbb{N})} \to \mathbb{N} \to Q
 \]
+
+Nous représenterons un automate de la façon suivante~: 
+\(M = (\Sigma, Q, P, F, \delta)\) avec \(\Sigma\), l'ensemble ...; \(Q\) 
+l'ensemble des états de l'automate~; \(P\) l'ensemble des états initiaux de 
+l'automate tel que \(P \subset Q\)~; \(F\) l'ensemble des états finaux de 
+l'automate tel que \(F \subset Q\)~; \(delta\), une fonction tel que
+\[
+  delta :: Q \to \Sigma \to Q
+\]
+
+De cette définition viens la fonction~:
+\[
+  glushkov :: E_{\Sigma} \to M \text{ avec, } M = (\Sigma, Q, P, F, \delta)
+\]
+qui permet la transformation d'une expression rationnelle en automate de 
+\textit{glushkov}.
 
 \end{document}

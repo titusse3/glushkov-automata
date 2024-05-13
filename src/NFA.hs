@@ -13,6 +13,7 @@ module NFA
   , removeState
   , makeFinal
   , makeInit
+  , isHammock
   ) where
 
 import           Data.Graph.Inductive
@@ -42,7 +43,7 @@ isFinal = flip Set.member . final
 isStart :: Ord state => NFA state transition -> state -> Bool
 isStart = flip Set.member . premier
 
-isHomogeneous :: Ord a => NFA a transition -> Bool
+isHomogeneous :: Ord state => NFA state transition -> Bool
 isHomogeneous (NFA sig etat _ _ delt) =
   not . isNothing
     $ foldl
@@ -54,6 +55,9 @@ isHomogeneous (NFA sig etat _ _ delt) =
              else Nothing)
         (Just Set.empty)
         sig
+
+isHammock :: Ord state => NFA state transition -> Bool
+isHammock _ = False
 
 makeFinal :: Ord state => NFA state transition -> state -> NFA state transition
 makeFinal (NFA sig e prem fin delt) s = (NFA sig e prem fin' delt)
