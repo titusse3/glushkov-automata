@@ -1,13 +1,40 @@
 \documentclass{article}
+\usepackage{amsfonts}
+\usepackage{amsmath}
 
 \begin{document}
 
-\(\sigma, Q\) des ensembles finies.
-\(E_\sigma\) ensemble d'expression régulière 
+Soit \(\Sigma, Q\) des ensembles finies. On notera, \(E_{\Sigma}\) l'ensemble 
+des d'expression régulière sur \(\Sigma\)
 
-Soit \(e\), une expression rationnelle,
+Sera noté \(E_{(Q, \mathbb{N})}\), l'ensemble des expressions régulières de 
+\(E_Q\) auquelle on aura associé à chaque charactère son indice d'apparition 
+dans l'ordre de l'écture gauche-droite en commensant à un de l'expression.
+
+Soit \(R\) un ensemble finie et \(e \in E_R\),
+
+\begin{equation*}
+  \begin{split}
+  & linearisation(e) :: E_R \to E_{(R, \mathbb{N})} \\
+  & alphabet(e) :: E_R \to V \text{, avec } V \subset Q
+  \end{split}
+\end{equation*}
+
+La fonction \(alphabet\) renvoie le sous ensemble de \(R\) correspondant à tous 
+les symboles apparaissant au moins une fois dans \(e\).
+
+\begin{equation*}
+  \begin{split}
+  & first(e) :: E_Q \to F \text{, tel que } F \subset Q \\
+  & last(e) :: E_Q \to F \text{, tel que } F \subset Q
+  \end{split}
+\end{equation*}
+
+La fonction qui permet de récuprer la lettre associé a son indice pour une 
+expression indicé est définie de la façon suivante~:
+
 \[
-  linearisation(e) :: ER \to \overline{ER}
+indexE :: E_{(Q, \mathbb{N})} \to \mathbb{N} \to Q
 \]
 
 \end{document}

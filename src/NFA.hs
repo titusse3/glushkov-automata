@@ -6,6 +6,9 @@ module NFA
   , automatonToDot
   , automatonToDotClustered
   , accept
+  , addTransition
+  , removeTransition
+  , isHomogeneous
   ) where
 
 import           Data.Graph.Inductive
@@ -18,7 +21,8 @@ import           Data.Graph.Inductive.Query.DFS    (scc)
 import qualified Data.Text.Lazy                    as TL
 
 import           Data.List                         (findIndex, foldl')
-import           Data.Maybe                        (fromJust, fromMaybe)
+import           Data.Maybe                        (fromJust, fromMaybe,
+                                                    isNothing)
 
 data NFA state transition = NFA
   { sigma   :: Set.Set transition
@@ -33,6 +37,52 @@ isFinal = flip Set.member . final
 
 isStart :: Ord state => NFA state transition -> state -> Bool
 isStart = flip Set.member . premier
+
+isHomogeneous :: Ord a => NFA a transition -> Bool
+isHomogeneous (NFA sig etat _ _ delt) =
+  not . isNothing
+    $ foldl
+        (\s lettre -> do
+           let inner =
+                 foldl (\s' t -> Set.union (delt t lettre) s') Set.empty etat
+           if not (isNothing s) && (Set.disjoint inner $ fromJust s)
+             then pure $ Set.union inner $ fromJust s
+             else Nothing)
+        (Just Set.empty)
+        sig
+
+addTransition ::
+     (Ord transition, Ord state)
+  => NFA state transition
+  -> (state, state, transition)
+  -> NFA state transition
+addTransition (NFA sig e prem fin delt) (i, o, l) =
+  if Set.member i e && Set.member o e
+    then NFA sig' e prem fin delt'
+    else NFA sig e prem fin delt
+  where
+    sig' = Set.insert l sig
+    delt' =
+      (\s t ->
+         if s == i && l == t
+           then Set.insert o $ delt s t
+           else delt s t)
+
+removeTransition ::
+     (Ord transition, Ord state)
+  => NFA state transition
+  -> (state, state, transition)
+  -> NFA state transition
+removeTransition (NFA sig e prem fin delt) (i, o, l) =
+  if Set.member i e && Set.member o e
+    then NFA sig e prem fin delt'
+    else NFA sig e prem fin delt
+  where
+    delt' =
+      (\s t ->
+         if s == i && l == t
+           then Set.delete o $ delt s t
+           else delt s t)
 
 accept ::
      forall state transition. Ord state
