@@ -28,6 +28,7 @@ library
       Exp
       ExpHp
       ExpLex
+      JsonToNFA
       NFA
   other-modules:
       Paths_glushkov_automata
@@ -46,8 +47,10 @@ library
       alex
     , happy
   build-depends:
-      array
+      aeson
+    , array
     , base
+    , bytestring
     , containers
     , fgl
     , graphviz
@@ -72,6 +75,7 @@ executable glushkov-automata-exe
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , bytestring
     , containers
     , fgl
     , glushkov-automata

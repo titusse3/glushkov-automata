@@ -43,6 +43,8 @@ library:
   - mtl
   - fgl
   - graphviz
+  - aeson
+  - bytestring
   build-tools:
   - alex
   - happy
@@ -61,6 +63,7 @@ executables:
     - containers
     - graphviz
     - fgl
+    - bytestring
 
 tests:
   glushkov-automata-test:

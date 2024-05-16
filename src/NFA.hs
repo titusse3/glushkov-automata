@@ -14,6 +14,11 @@ module NFA
   , makeFinal
   , makeInit
   , isHammock
+  , directSucc
+  , directPred
+  , maximalOrbit
+  , orbitIn
+  , orbitOut
   ) where
 
 import           Data.Graph.Inductive
@@ -26,8 +31,11 @@ import           Data.Graph.Inductive.Query.DFS    (scc)
 import qualified Data.Text.Lazy                    as TL
 
 import           Data.List                         (findIndex, foldl')
+import qualified Data.Map                          as Map
 import           Data.Maybe                        (fromJust, fromMaybe,
                                                     isNothing)
+
+import           Debug.Trace
 
 data NFA state transition = NFA
   { sigma   :: Set.Set transition
@@ -118,6 +126,58 @@ removeTransition (NFA sig e prem fin delt) (i, o, l) =
          if s == i && l == t
            then Set.delete o $ delt s t
            else delt s t)
+
+directSucc :: Ord state => NFA state transition -> state -> Set.Set state
+directSucc (NFA sig _ _ _ delt) e =
+  foldl (\s a -> Set.union s (delt e a)) Set.empty sig
+
+directPred :: Ord state => NFA state transition -> state -> Set.Set state
+directPred (NFA sig etat _ _ delt) e =
+  foldl
+    (\s a -> Set.union s $ Set.filter (\q -> Set.member e $ delt q a) etat)
+    Set.empty
+    sig
+
+maximalOrbit ::
+     forall state transition. (Ord state, Show state, Show transition)
+  => NFA state transition
+  -> [Set.Set state]
+maximalOrbit a =
+  map (\l -> Set.fromList $ map (fromJust . flip Map.lookup mapNode) l) orbitM
+  where
+    graph = automataToGraph a
+    sccs = Data.Graph.Inductive.Query.DFS.scc graph
+    orbitM = filter (\x -> not $ 1 == length x) sccs
+    mapNode :: Map.Map Node state
+    states = Set.toList $ etats a
+    mapNode = Map.fromList [(stateIndex s, s) | s <- states]
+    stateIndex state =
+      Data.Maybe.fromMaybe (-1) (lookup state $ zip states indices)
+    indices = [0 ..]
+
+orbitIn ::
+     forall state transition. Ord state
+  => NFA state transition
+  -> Set.Set state
+  -> Set.Set state
+orbitIn a o = foldl f Set.empty o
+  where
+    f s x =
+      if Set.difference (directPred a x) o == Set.empty
+        then s
+        else Set.insert x s
+
+orbitOut ::
+     forall state transition. Ord state
+  => NFA state transition
+  -> Set.Set state
+  -> Set.Set state
+orbitOut a o = foldl f Set.empty o
+  where
+    f s x =
+      if Set.difference (directSucc a x) o == Set.empty
+        then s
+        else Set.insert x s
 
 accept ::
      forall state transition. Ord state
