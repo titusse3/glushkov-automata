@@ -35,8 +35,6 @@ import qualified Data.Map                          as Map
 import           Data.Maybe                        (fromJust, fromMaybe,
                                                     isNothing)
 
-import           Debug.Trace
-
 data NFA state transition = NFA
   { sigma   :: Set.Set transition
   , etats   :: Set.Set state
@@ -207,14 +205,16 @@ automataToGraph a = mkGraph nodesList edgesList
       , t <- Set.toList (deltaFun s tr)
       ]
     states = Set.toList $ etats a
-    stateIndex state =
-      Data.Maybe.fromMaybe (-1) (lookup state $ zip states indices)
+    stateIndex state = fromJust $ lookup state $ zip states indices
     indices = [0 ..]
     stateTrans = [(s, sigma a) | s <- states]
     deltaFun = delta a
     formatText = T.filter (/= '\'')
 
-automatonToDot :: Show transition => NFA Node transition -> DotGraph Node
+automatonToDot ::
+     forall state transition. (Show transition, Show state, Ord state)
+  => NFA state transition
+  -> DotGraph Node
 automatonToDot a = graphToDot params graph
   where
     graph = automataToGraph a
@@ -230,19 +230,33 @@ automatonToDot a = graphToDot params graph
               ]
         , fmtEdge = \(_, _, l) -> [Label $ StrLabel $ TL.fromStrict l]
         }
-    shapeOf (val, _)
-      | isFinal a val = DoubleCircle
-      | otherwise = Circle
-    colorOf (val, _)
-      | isStart a val = Green
-      | otherwise = White
+    states = Set.toList $ etats a
+    mapNode :: Map.Map Node state
+    mapNode = Map.fromList [(stateIndex s, s) | s <- states]
+    stateIndex state =
+      Data.Maybe.fromMaybe (-1) (lookup state $ zip states indices)
+    indices = [0 ..]
+    shapeOf (val, _) =
+      if isFinal a n
+        then DoubleCircle
+        else Circle
+      where
+        n = (fromJust $ Map.lookup val mapNode)
+    colorOf (val, _) =
+      if isStart a n
+        then Green
+        else White
+      where
+        n = (fromJust $ Map.lookup val mapNode)
 
 automatonToDotClustered ::
-     Show transition => NFA Node transition -> DotGraph Node
-automatonToDotClustered a = graphToDot params graph
+     forall state transition. (Show transition, Show state, Ord state)
+  => NFA state transition
+  -> [Set.Set state]
+  -> DotGraph Node
+automatonToDotClustered a ls = graphToDot params graph
   where
     graph = automataToGraph a
-    sccs = Data.Graph.Inductive.Query.DFS.scc graph
     params =
       defaultParams
         { globalAttributes = [GraphAttrs [RankDir FromLeft]]
@@ -258,11 +272,28 @@ automatonToDotClustered a = graphToDot params graph
         , clusterBy = clusterLogic
         , clusterID = Num . Int
         }
-    clusterLogic (n, l) = C (nodeClusterId n) $ N (n, l)
-    nodeClusterId node = fromJust $ findIndex (elem node) sccs
-    shapeOf (val, _)
-      | isFinal a val = DoubleCircle
-      | otherwise = Circle
-    colorOf (val, _)
-      | isStart a val = Green
-      | otherwise = White
+    clusterLogic (n, l) =
+      case nodeClusterId n of
+        Just cid -> C cid $ N (n, l)
+        Nothing -> N (n, l)
+    nodeClusterId node = findIndex (Set.member n') ls
+          where
+            n' = fromJust $ Map.lookup node mapNode
+    states = Set.toList $ etats a
+    mapNode :: Map.Map Node state
+    mapNode = Map.fromList [(stateIndex s, s) | s <- states]
+    stateIndex state =
+      Data.Maybe.fromMaybe (-1) (lookup state $ zip states indices)
+    indices = [0 ..]
+    shapeOf (val, _) =
+      if isFinal a n
+        then DoubleCircle
+        else Circle
+      where
+        n = (fromJust $ Map.lookup val mapNode)
+    colorOf (val, _) =
+      if isStart a n
+        then Green
+        else White
+      where
+        n = (fromJust $ Map.lookup val mapNode)

@@ -35,4 +35,4 @@ main = do
     y <- Set.toList inO
     return (x, y)
   print $ N.maximalOrbit z'
-  void $ addExtension (runGraphviz (N.automatonToDotClustered z')) Png "testPNG"
+  void $ addExtension (runGraphviz (N.automatonToDotClustered z' $ N.maximalOrbit z')) Png "testPNG"
