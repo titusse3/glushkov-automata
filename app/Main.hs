@@ -25,11 +25,13 @@ main = do
   -- let t = "(a+b).a*.b*.(a+b)*"
   -- let expT = fromJust $ H.parseExp (A.alexScanTokens t)
   -- let gluskov = glushkov expT
-  jsonStr <- B.readFile "automaton.json"
+  jsonStr <- B.readFile "automaton2.json"
   let z = JNFA.parseNFA jsonStr :: Maybe (N.NFA Int T.Text)
   let z' = fromJust z
-  let inO =  N.orbitIn z' $ Set.fromList [5, 6, 7]
-  let outO =  N.orbitOut z' $ Set.fromList [5, 6, 7]
-  print $ N.maximalOrbit z'
-  print $ N.isStableOrbit z' $ Set.fromList [5, 6, 7]
-  void $ addExtension (runGraphviz (N.automatonToDotClustered z' $ N.maximalOrbit z')) Png "testPNG"
+  let o = head $ N.maximalOrbit z'
+  print $ N.isStronglyOrbit z' o
+  -- void
+  --   $ addExtension
+  --       (runGraphviz (N.automatonToDotClustered a ))
+  --       Png
+  --       "testPNG"

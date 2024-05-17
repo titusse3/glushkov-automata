@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
 module NFA
   ( NFA(..)
   , automataToGraph
@@ -20,6 +21,8 @@ module NFA
   , orbitIn
   , orbitOut
   , isStableOrbit
+  , extractOrbitAutomata
+  , isStronglyOrbit
   ) where
 
 import           Data.Graph.Inductive
@@ -31,10 +34,15 @@ import qualified Data.Text                         as T
 import           Data.Graph.Inductive.Query.DFS    (scc)
 import qualified Data.Text.Lazy                    as TL
 
+import           Data.List
 import           Data.List                         (findIndex, foldl')
 import qualified Data.Map                          as Map
 import           Data.Maybe                        (fromJust, fromMaybe,
                                                     isNothing)
+
+import Debug.Trace
+
+type Orbit state = Set.Set state
 
 data NFA state transition = NFA
   { sigma   :: Set.Set transition
@@ -43,6 +51,45 @@ data NFA state transition = NFA
   , final   :: Set.Set state
   , delta   :: state -> transition -> Set.Set state
   }
+
+instance (Show state, Show transition, Ord state, Ord transition) =>
+         Show (NFA state transition) where
+  show nfa =
+    "Sigma: "
+      ++ showSet (sigma nfa)
+      ++ "\n"
+      ++ "Etats: "
+      ++ showSet (etats nfa)
+      ++ "\n"
+      ++ "Premier: "
+      ++ showSet (premier nfa)
+      ++ "\n"
+      ++ "Final: "
+      ++ showSet (final nfa)
+      ++ "\n"
+      ++ "Delta:\n"
+      ++ showDelta (etats nfa) (sigma nfa) (delta nfa)
+    where
+      showSet :: (Show a) => Set.Set a -> String
+      showSet = show . Set.toList
+      showDelta ::
+           (Show state, Show transition)
+        => Set.Set state
+        -> Set.Set transition
+        -> (state -> transition -> Set.Set state)
+        -> String
+      showDelta states transitions deltaFun =
+        intercalate
+          "\n"
+          [ "  δ("
+            ++ show s
+            ++ ", "
+            ++ show t
+            ++ ") = "
+            ++ showSet (deltaFun s t)
+          | s <- Set.toList states
+          , t <- Set.toList transitions
+          ]
 
 isFinal :: Ord state => NFA state transition -> state -> Bool
 isFinal = flip Set.member . final
@@ -130,6 +177,14 @@ removeTransition (NFA sig e prem fin delt) (i, o, l) =
            then Set.delete o $ delt s t
            else delt s t)
 
+removeTransitions ::
+     (Ord transition, Ord state)
+  => NFA state transition
+  -> (state, state)
+  -> NFA state transition
+removeTransitions a (x, x') =
+  foldl (\n l -> removeTransition n (x, x', l)) a $ sigma a
+
 directSucc :: Ord state => NFA state transition -> state -> Set.Set state
 directSucc (NFA sig _ _ _ delt) e =
   foldl (\s a -> Set.union s (delt e a)) Set.empty sig
@@ -144,7 +199,7 @@ directPred (NFA sig etat _ _ delt) e =
 maximalOrbit ::
      forall state transition. (Ord state, Show state, Show transition)
   => NFA state transition
-  -> [Set.Set state]
+  -> [Orbit state]
 maximalOrbit a =
   map (\l -> Set.fromList $ map (fromJust . flip Map.lookup mapNode) l) orbitM
   where
@@ -161,10 +216,22 @@ maximalOrbit a =
       Data.Maybe.fromMaybe (-1) (lookup state $ zip states indices)
     indices = [0 ..]
 
+extractOrbitAutomata ::
+     Ord state => NFA state transition -> Orbit state -> NFA state transition
+extractOrbitAutomata (NFA sig e prem fin delt) o =
+  let e' = Set.intersection e o
+      prem' = Set.intersection prem o
+      fin' = Set.intersection fin o
+      delt' s t =
+        if Set.member s o
+          then Set.intersection o $ delt s t
+          else Set.empty
+   in (NFA sig e' prem' fin' delt')
+
 orbitIn ::
      forall state transition. Ord state
   => NFA state transition
-  -> Set.Set state
+  -> Orbit state
   -> Set.Set state
 orbitIn a o = foldl f Set.empty o
   where
@@ -176,7 +243,7 @@ orbitIn a o = foldl f Set.empty o
 orbitOut ::
      forall state transition. Ord state
   => NFA state transition
-  -> Set.Set state
+  -> Orbit state
   -> Set.Set state
 orbitOut a o = foldl f Set.empty o
   where
@@ -185,7 +252,7 @@ orbitOut a o = foldl f Set.empty o
         then s
         else Set.insert x s
 
-isStableOrbit :: Ord state => NFA state transition -> Set.Set state -> Bool
+isStableOrbit :: Ord state => NFA state transition -> Orbit state -> Bool
 isStableOrbit a o = inOut == filter (\(x, x') -> transExist a x x') inOut
   where
     inO = orbitIn a o
@@ -194,6 +261,28 @@ isStableOrbit a o = inOut == filter (\(x, x') -> transExist a x x') inOut
       x <- Set.toList outO
       y <- Set.toList inO
       return (x, y)
+
+isStronglyOrbit ::
+     (Ord state, Ord transition, Show state, Show transition)
+  => NFA state transition
+  -> Orbit state
+  -> Bool
+isStronglyOrbit a o =
+  if not $ isStableOrbit a o
+    then False
+    else foldl (\acc o' -> acc && isStronglyOrbit a' o') True $ maximalOrbit a
+  where
+    inO = orbitIn a o
+    outO = orbitOut a o
+    inOut = do
+      x <- Set.toList outO
+      y <- Set.toList inO
+      return (x, y)
+    a' =
+      foldl
+        (\n (x, x') -> removeTransitions n (x, x'))
+        (extractOrbitAutomata a o)
+        inOut
 
 accept ::
      forall state transition. Ord state
