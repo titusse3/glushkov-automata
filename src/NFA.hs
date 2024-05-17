@@ -19,6 +19,7 @@ module NFA
   , maximalOrbit
   , orbitIn
   , orbitOut
+  , isStableOrbit
   ) where
 
 import           Data.Graph.Inductive
@@ -64,6 +65,10 @@ isHomogeneous (NFA sig etat _ _ delt) =
 
 isHammock :: Ord state => NFA state transition -> Bool
 isHammock _ = False
+
+transExist :: Ord state => NFA state transition -> state -> state -> Bool
+transExist (NFA sig _ _ _ delt) s s' =
+  foldl (\b a -> b || (Set.member s' $ delt s a)) False sig
 
 makeFinal :: Ord state => NFA state transition -> state -> NFA state transition
 makeFinal (NFA sig e prem fin delt) s = (NFA sig e prem fin' delt)
@@ -180,6 +185,16 @@ orbitOut a o = foldl f Set.empty o
         then s
         else Set.insert x s
 
+isStableOrbit :: Ord state => NFA state transition -> Set.Set state -> Bool
+isStableOrbit a o = inOut == filter (\(x, x') -> transExist a x x') inOut
+  where
+    inO = orbitIn a o
+    outO = orbitOut a o
+    inOut = do
+      x <- Set.toList outO
+      y <- Set.toList inO
+      return (x, y)
+
 accept ::
      forall state transition. Ord state
   => NFA state transition
@@ -275,10 +290,10 @@ automatonToDotClustered a ls = graphToDot params graph
     clusterLogic (n, l) =
       case nodeClusterId n of
         Just cid -> C cid $ N (n, l)
-        Nothing -> N (n, l)
+        Nothing  -> N (n, l)
     nodeClusterId node = findIndex (Set.member n') ls
-          where
-            n' = fromJust $ Map.lookup node mapNode
+      where
+        n' = fromJust $ Map.lookup node mapNode
     states = Set.toList $ etats a
     mapNode :: Map.Map Node state
     mapNode = Map.fromList [(stateIndex s, s) | s <- states]
