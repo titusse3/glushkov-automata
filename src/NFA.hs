@@ -147,9 +147,12 @@ maximalOrbit a =
   where
     graph = automataToGraph a
     sccs = Data.Graph.Inductive.Query.DFS.scc graph
-    orbitM = filter (\x -> not $ 1 == length x) sccs
-    mapNode :: Map.Map Node state
+    orbitM =
+      filter
+        (\x -> not (1 == length x) || (hasEdge graph (head x, head x)))
+        sccs
     states = Set.toList $ etats a
+    mapNode :: Map.Map Node state
     mapNode = Map.fromList [(stateIndex s, s) | s <- states]
     stateIndex state =
       Data.Maybe.fromMaybe (-1) (lookup state $ zip states indices)
