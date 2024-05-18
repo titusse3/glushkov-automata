@@ -1,5 +1,3 @@
-{-# OPTIONS_GHC -Wno-redundant-constraints #-}
-
 module NFA
   ( NFA(..)
   , automataToGraph
@@ -25,24 +23,20 @@ module NFA
   , extractOrbitAutomata
   , isStronglyOrbit
   , isTransversOrbit
+  , isStronglyTransversOrbit
   ) where
 
 import           Data.Graph.Inductive
+import           Data.Graph.Inductive.Query.DFS    (scc)
 import           Data.GraphViz
 import           Data.GraphViz.Attributes.Complete
-import qualified Data.Set                          as Set
-import qualified Data.Text                         as T
-
-import           Data.Graph.Inductive.Query.DFS    (scc)
-import qualified Data.Text.Lazy                    as TL
-
-import           Data.List
-import           Data.List                         (findIndex, foldl')
+import           Data.List                         (findIndex, intercalate)
 import qualified Data.Map                          as Map
 import           Data.Maybe                        (fromJust, fromMaybe,
                                                     isNothing)
-
-import           Debug.Trace
+import qualified Data.Set                          as Set
+import qualified Data.Text                         as T
+import qualified Data.Text.Lazy                    as TL
 
 type Orbit state = Set.Set state
 
@@ -75,8 +69,7 @@ instance (Show state, Show transition, Ord state, Ord transition) =>
       showSet :: (Show a) => Set.Set a -> String
       showSet = show . Set.toList
       showDelta ::
-           (Show state, Show transition)
-        => Set.Set state
+           Set.Set state
         -> Set.Set transition
         -> (state -> transition -> Set.Set state)
         -> String
@@ -286,16 +279,34 @@ isStronglyOrbit a o =
         (extractOrbitAutomata a o)
         inOut
 
-isTransversOrbit ::
+isTransversOrbit :: Ord state => NFA state transition -> Orbit state -> Bool
+isTransversOrbit a o =
+  all (== head lOut) (tail lOut) && all (== head lIn) (tail lIn)
+  where
+    lOut = map (directSucc a) $ Set.toList $ orbitOut a o
+    lIn = map (directPred a) $ Set.toList $ orbitIn a o
+
+isStronglyTransversOrbit ::
      (Ord state, Ord transition, Show state, Show transition)
   => NFA state transition
   -> Orbit state
   -> Bool
-isTransversOrbit a s =
-  all (== head lOut) (tail lOut) && all (== head lIn) (tail lIn)
+isStronglyTransversOrbit a o =
+  if not $ isTransversOrbit a o
+    then False
+    else foldl (\acc o' -> acc && isStronglyOrbit a' o') True $ maximalOrbit a
   where
-    lOut = map (directSucc a) $ Set.toList $ orbitOut a s
-    lIn = map (directPred a) $ Set.toList $ orbitIn a s
+    inO = orbitIn a o
+    outO = orbitOut a o
+    inOut = do
+      x <- Set.toList outO
+      y <- Set.toList inO
+      return (x, y)
+    a' =
+      foldl
+        (\n (x, x') -> removeTransitions n (x, x'))
+        (extractOrbitAutomata a o)
+        inOut
 
 accept ::
      forall state transition. Ord state
@@ -303,7 +314,7 @@ accept ::
   -> [transition]
   -> Bool
 accept (NFA _ _ prem fin delt) l =
-  not $ Set.null $ Set.intersection fin $ foldl' accept' prem l
+  not $ Set.null $ Set.intersection fin $ foldl accept' prem l
   where
     accept' :: Set.Set state -> transition -> Set.Set state
     accept' s t = foldr (\s' acc -> Set.union acc $ delt s' t) Set.empty s
