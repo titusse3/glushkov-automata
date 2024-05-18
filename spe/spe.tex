@@ -65,7 +65,29 @@ qui permet la transformation d'une expression rationnelle en automate de
 \section{Automate}
 
 À un automate quelquonc \(M\), on peut appliquer les opérations d'ajout (resp. 
-supression) de tansition et d'état.
+supression) de tansition et d'état. On définit un orbite noté \(\mathcal{O}\), 
+comme étant un sous-ensemble de \(Q\) tel que pour \((x, x') \in Q^2\), il 
+existe une suite de transition partant de \(x\) vers \(x'\).
+
+Un orbit est dit \textit{maximal} si et seulement si, pour tout 
+\(x \in \mathcal{O}\) et \(x' \notin \mathcal{O}\), il n'existe qu'une suite de 
+transition de \(x\) vers \(x'\) ou de \(x'\) vers \(x\).
+
+On définit l'automate d'un orbite noté \(M_{\mathcal{O}}\), tel que 
+\(M_{\mathcal{O}} = (\Sigma, Q \cap \mathcal{O}, P \cap \mathcal{O}, F \cap \mathcal{O}, 
+\delta')\) avec \(s \in Q, t \in \Sigma\)~:
+
+\[
+  \delta'(s, t) =    \left \{
+    \begin{array}{r c l}
+      delta(s, t) \cap \mathcal{O} \text{, si } s \in Q \\ 
+      \emptyset \text{, sinon} \\
+    \end{array}
+    \right .
+\]
+
+Soit \(x \in Q\), on note \(Q^{+}(x)\) (respectivement \(Q^{-}(x)\)) les 
+succéseurs (resp. prédécésseur) directe de l'état \(x\). 
 
 
 \end{document}

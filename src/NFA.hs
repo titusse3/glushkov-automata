@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
+
 module NFA
   ( NFA(..)
   , automataToGraph
@@ -23,6 +24,7 @@ module NFA
   , isStableOrbit
   , extractOrbitAutomata
   , isStronglyOrbit
+  , isTransversOrbit
   ) where
 
 import           Data.Graph.Inductive
@@ -40,7 +42,7 @@ import qualified Data.Map                          as Map
 import           Data.Maybe                        (fromJust, fromMaybe,
                                                     isNothing)
 
-import Debug.Trace
+import           Debug.Trace
 
 type Orbit state = Set.Set state
 
@@ -283,6 +285,17 @@ isStronglyOrbit a o =
         (\n (x, x') -> removeTransitions n (x, x'))
         (extractOrbitAutomata a o)
         inOut
+
+isTransversOrbit ::
+     (Ord state, Ord transition, Show state, Show transition)
+  => NFA state transition
+  -> Orbit state
+  -> Bool
+isTransversOrbit a s =
+  all (== head lOut) (tail lOut) && all (== head lIn) (tail lIn)
+  where
+    lOut = map (directSucc a) $ Set.toList $ orbitOut a s
+    lIn = map (directPred a) $ Set.toList $ orbitIn a s
 
 accept ::
      forall state transition. Ord state
