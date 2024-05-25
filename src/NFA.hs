@@ -13,7 +13,6 @@ module NFA
   , removeState
   , makeFinal
   , makeInit
-  , isHammock
   , directSucc
   , directPred
   , maximalOrbit
@@ -104,9 +103,6 @@ isHomogeneous (NFA sig etat _ _ delt) =
              else Nothing)
         (Just Set.empty)
         sig
-
-isHammock :: Ord state => NFA state transition -> Bool
-isHammock _ = False
 
 transExist :: Ord state => NFA state transition -> state -> state -> Bool
 transExist (NFA sig _ _ _ delt) s s' =

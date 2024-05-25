@@ -64,6 +64,7 @@ executables:
     - graphviz
     - fgl
     - bytestring
+    - aeson
 
 tests:
   glushkov-automata-test:

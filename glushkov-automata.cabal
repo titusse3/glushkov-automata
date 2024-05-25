@@ -28,6 +28,8 @@ library
       Exp
       ExpHp
       ExpLex
+      GetExp
+      GetNFA
       JsonToNFA
       NFA
   other-modules:
@@ -74,7 +76,8 @@ executable glushkov-automata-exe
       ScopedTypeVariables
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      aeson
+    , base >=4.7 && <5
     , bytestring
     , containers
     , fgl

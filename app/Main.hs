@@ -2,36 +2,22 @@ module Main
   ( main
   ) where
 
-import           Data.GraphViz          (printDotGraph)
-import           Data.Maybe             (fromJust)
-import qualified Data.Text.Lazy.IO      as TIO
-
-import qualified Data.ByteString.Lazy   as B
-import           Exp                    (glushkov)
-import qualified ExpHp                  as H
-import qualified ExpLex                 as A
-import qualified JsonToNFA              as JNFA
-import qualified NFA                    as N
-
 import           Control.Monad          (void)
 import           Data.GraphViz.Commands (GraphvizOutput (Png), addExtension,
                                          runGraphviz)
-
-import qualified Data.Set               as Set
-import qualified Data.Text              as T
+import           Data.Maybe             (fromJust)
+import qualified Exp                    as E
+import           GetExp                 (fromText)
+-- import           GetNFA                 (fromJson)
+import qualified NFA                    as N
 
 main :: IO ()
 main = do
-  -- let t = "(a+b).a*.b*.(a+b)*"
-  -- let expT = fromJust $ H.parseExp (A.alexScanTokens t)
-  -- let gluskov = glushkov expT
-  jsonStr <- B.readFile "automaton1.json"
-  let z = JNFA.parseNFA jsonStr :: Maybe (N.NFA Int T.Text)
-  let z' = fromJust z
-  let o = head $ N.maximalOrbit z'
-  print $ N.isTransversOrbit z' $ Set.fromList [4, 5, 6, 7]
-  void
-    $ addExtension
-        (runGraphviz (N.automatonToDot z'))
-        Png
-        "testPNG"
+  let t = "(a+b).a*.b*.(a+b)*"
+  let expT = fromJust $ fromText t
+  let z' = E.glushkov expT
+  -- z <- fromJson "automaton1.json"
+  -- let z' = fromJust z :: N.NFA Int T.Text
+  -- let o = head $ N.maximalOrbit z'
+  -- print $ N.isTransversOrbit z' $ Set.fromList [4, 5, 6, 7]
+  void $ addExtension (runGraphviz (N.automatonToDot z')) Png "testPNG"
