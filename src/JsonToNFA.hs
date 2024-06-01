@@ -9,6 +9,8 @@ import qualified Data.ByteString.Lazy as B
 import qualified Data.Map             as Map
 import qualified Data.Set             as Set
 
+-- regarde de façon automatique, template haskell, quasiquote
+
 type Transition state transition = (state, state, transition)
 
 data JSONNFA state transition = JSONNFA

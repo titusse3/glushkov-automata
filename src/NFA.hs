@@ -15,12 +15,12 @@ module NFA
   , makeInit
   , directSucc
   , directPred
-  , maximalOrbit
+  , maximalOrbits
   , orbitIn
   , orbitOut
   , isStableOrbit
   , extractOrbitAutomata
-  , isStronglyOrbit
+  , isStronglyStableOrbit
   , isTransversOrbit
   , isStronglyTransversOrbit
   ) where
@@ -46,6 +46,9 @@ data NFA state transition = NFA
   , final   :: Set.Set state
   , delta   :: state -> transition -> Set.Set state
   }
+-- passe au garage de l'automateMap.Map 
+-- se reisenger sur la memoization
+-- f :: NFA state transition -> Map.Map (lettre, etat) (Map.Map etat) -> f'
 
 instance (Show state, Show transition, Ord state, Ord transition) =>
          Show (NFA state transition) where
@@ -91,6 +94,7 @@ isFinal = flip Set.member . final
 isStart :: Ord state => NFA state transition -> state -> Bool
 isStart = flip Set.member . premier
 
+-- écrire l'algo
 isHomogeneous :: Ord state => NFA state transition -> Bool
 isHomogeneous (NFA sig etat _ _ delt) =
   not . isNothing
@@ -121,6 +125,7 @@ makeInit (NFA sig e prem fin delt) s = (NFA sig e prem' fin delt)
 addState :: Ord state => NFA state transition -> state -> NFA state transition
 addState (NFA sig e prem fin delt) s = NFA sig (Set.insert s e) prem fin delt
 
+-- redéfinir sigma
 removeState ::
      Ord state => NFA state transition -> state -> NFA state transition
 removeState (NFA sig e prem fin delt) s =
@@ -134,6 +139,8 @@ removeState (NFA sig e prem fin delt) s =
                  else Set.delete s $ delt n a
           in NFA sig e' p f update
     else NFA sig e prem fin delt
+
+-- mémoriwation des fonctions 
 
 addTransition ::
      (Ord transition, Ord state)
@@ -151,6 +158,8 @@ addTransition (NFA sig e prem fin delt) (i, o, l) =
          if s == i && l == t
            then Set.insert o $ delt s t
            else delt s t)
+
+-- pas perfomant 
 
 removeTransition ::
      (Ord transition, Ord state)
@@ -187,17 +196,18 @@ directPred (NFA sig etat _ _ delt) e =
     Set.empty
     sig
 
-maximalOrbit ::
+maximalOrbits ::
      forall state transition. (Ord state, Show state, Show transition)
   => NFA state transition
   -> [Orbit state]
-maximalOrbit a =
+maximalOrbits a =
   map (\l -> Set.fromList $ map (fromJust . flip Map.lookup mapNode) l) orbitM
   where
     graph = automataToGraph a
     sccs = Data.Graph.Inductive.Query.DFS.scc graph
     orbitM =
       filter
+      -- filtrage de motife pour pas du linéaire par length
         (\x -> not (1 == length x) || (hasEdge graph (head x, head x)))
         sccs
     states = Set.toList $ etats a
@@ -207,10 +217,13 @@ maximalOrbit a =
       Data.Maybe.fromMaybe (-1) (lookup state $ zip states indices)
     indices = [0 ..]
 
+-- dire que pas tester
+-- dans spé parler d'extract automaton, automate a partir du'ne liste d'état
+
 extractOrbitAutomata ::
      Ord state => NFA state transition -> Orbit state -> NFA state transition
 extractOrbitAutomata (NFA sig e prem fin delt) o =
-  let e' = Set.intersection e o
+  let e' = o
       prem' = Set.intersection prem o
       fin' = Set.intersection fin o
       delt' s t =
@@ -230,7 +243,7 @@ orbitIn a o = foldl f Set.empty o
       if Set.difference (directPred a x) o == Set.empty
         then s
         else Set.insert x s
-
+-- prendre en compte finalité 
 orbitOut ::
      forall state transition. Ord state
   => NFA state transition
@@ -253,19 +266,20 @@ isStableOrbit a o = inOut == filter (\(x, x') -> transExist a x x') inOut
       y <- Set.toList inO
       return (x, y)
 
-isStronglyOrbit ::
+isStronglyStableOrbit ::
      (Ord state, Ord transition, Show state, Show transition)
   => NFA state transition
   -> Orbit state
   -> Bool
-isStronglyOrbit a o =
+isStronglyStableOrbit a o =
   if not $ isStableOrbit a o
     then False
-    else foldl (\acc o' -> acc && isStronglyOrbit a' o') True $ maximalOrbit a
+    else foldl (\acc o' -> acc && isStronglyStableOrbit a' o') True $ maximalOrbits autoOrbit
   where
+    autoOrbit = extractOrbitAutomata a
     inO = orbitIn a o
     outO = orbitOut a o
-    inOut = do
+    outIn = do
       x <- Set.toList outO
       y <- Set.toList inO
       return (x, y)
@@ -273,8 +287,8 @@ isStronglyOrbit a o =
       foldl
         (\n (x, x') -> removeTransitions n (x, x'))
         (extractOrbitAutomata a o)
-        inOut
-
+        outIn
+-- prendre en compte finalité des états
 isTransversOrbit :: Ord state => NFA state transition -> Orbit state -> Bool
 isTransversOrbit a o =
   all (== head lOut) (tail lOut) && all (== head lIn) (tail lIn)
@@ -290,11 +304,12 @@ isStronglyTransversOrbit ::
 isStronglyTransversOrbit a o =
   if not $ isTransversOrbit a o
     then False
-    else foldl (\acc o' -> acc && isStronglyOrbit a' o') True $ maximalOrbit a
+    else foldl (\acc o' -> acc && isStronglyStableOrbit a' o') True $ maximalOrbits autoOrbit
   where
+    autoOrbit = extractOrbitAutomata a
     inO = orbitIn a o
     outO = orbitOut a o
-    inOut = do
+    outIn = do
       x <- Set.toList outO
       y <- Set.toList inO
       return (x, y)
@@ -302,7 +317,7 @@ isStronglyTransversOrbit a o =
       foldl
         (\n (x, x') -> removeTransitions n (x, x'))
         (extractOrbitAutomata a o)
-        inOut
+        outIn
 
 accept ::
      forall state transition. Ord state
