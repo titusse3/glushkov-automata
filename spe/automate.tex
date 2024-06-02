@@ -30,5 +30,150 @@
 \end{Definition}
 
 \begin{Definition}
-  
+  Un automate est dit \textbf{homogène} si et seulement si toutes les 
+  transitions qui arrivent sur un état sont sur le même symbole de l'alphabet.
+\end{Definition}
+
+\begin{Definition}
+  Un automate \(M = (\Sigma, Q, I, F, \delta)\) est dit \textbf{standard} si et 
+  seulement si~:
+  \begin{itemize}
+    \item \(|I| = 1\)
+    \item \(\{q \in Q | \exists a \in \Sigma, \delta(q, a) \in I\} = \emptyset\)
+  \end{itemize}
+\end{Definition}
+
+\begin{Definition}
+  On peut supprimer d'un automate \(M = (\Sigma, Q, I, F, \delta)\) un 
+  \textbf{état}. À l'aide de la fonction~:
+  \[
+    removeState((\Sigma, Q, I, F, \delta), q) = (\Sigma, Q/\{q\}, I/\{q\}, 
+    F/\{q\}, \delta') 
+  \]
+  Avec \(\delta'(e, a) = \left \{
+    \begin{array}{r c l}
+      \emptyset, \text{ si } e = q\\
+      \delta(e, a)/\{q\}, \text{ sinon } \\
+    \end{array}
+    \right . \)
+  On peut aussi supprimer une \textbf{transition} \(q, q', a\) avec \((q, q') 
+  \in Q^2, a \in \Sigma\). 
+  \[
+    removeTransition((\Sigma, Q, I, F, \delta), (q, q', a)) = 
+    (\Sigma, Q, I, F, \delta')
+  \]
+  Avec \(\delta'(e, a') = \left \{
+    \begin{array}{r c l}
+      \delta(e, a)/\{q'\}, \text{ si } e = q \land a' = a\\
+      \delta(e, a), \text{ sinon } \\
+    \end{array}
+    \right .\)
+  On éteint cette suppression à la surpression de toutes les transitions entre 
+  deux n\oe uds de la façon suivante~:
+  \[
+    removeTransitions((\Sigma, Q, I, F, \delta), (q, q')) =
+    (\Sigma, Q, I, F, \delta')
+  \]
+  Avec \(\delta'(e, a') = \left \{
+    \begin{array}{r c l}
+      \delta(e, a)/\{q'\}, \text{ si } e = q\\
+      \delta(e, a), \text{ sinon } \\
+    \end{array}
+    \right .\)
+\end{Definition}
+
+\begin{Remark}
+  Les fonctions \(removeState, removeTransition\) et \(removeTransitions\)
+  augment le nombre d'opérations faites sur la fonction \(\delta\) de 
+  l'automate. Il serait donc intéressant dans le cas d'une implémentation de 
+  cette méthode, de donner à cette implémentation une opération de 
+  \textbf{mémoization} qui permettrait quand voulu de réduire le temps de calcul 
+  de la fonction \(\delta\).
+\end{Remark}
+
+\begin{Definition}
+  On définit la fonction \(\Omega^{+}(q)\) (respectivement \(\Omega^{-}(q)\)) 
+  sur l'ensemble des états d'un automate \(M = (\Sigma, Q, I, F, \delta)\), 
+  comme étant l'ensemble des directes successeurs (respectivement prédécesseur) 
+  d'un état \(q\) tel que \(q \in Q\).
+\end{Definition}
+
+\begin{Definition}
+  On peut construire en extrayant d'un automate tous les états n'appartenant pas 
+  à une liste d'état. On appellera cette automate, un 
+  \textbf{sous-automate d'état}. On définit alors la fonction 
+  \(extractListStateAutomata\), permettant d'obtenir le \(sous-automate\) de 
+  \(M = (\Sigma, Q, I, F, \delta)\) ne contenant que les états de la liste 
+  \(L = (q_0, \dots, q_{n-1})\).
+  \[
+    extractListStateAutomata(M, L) = (\Sigma, Q \cap L, I \cap L, F \cap L, 
+    \delta')
+  \]
+  Avec \(\delta'(q, a) = \left \{
+    \begin{array}{r c l}
+      \emptyset, \text{ si } q \notin L\\
+      \delta(q, a) \cup L, \text{ sinon } \\
+    \end{array}
+    \right .\)
+\end{Definition}
+
+\begin{Definition}
+  Soit un automate \(M = (\Sigma, Q, I, F, \delta)\), une \textbf{orbite} est un 
+  sous-ensemble de \(Q\) tel que, 
+  \[
+    \forall (q, q') \in Q^2, \text{ il existe un chemin non trivial de } q 
+    \text{ vers } q' \text{ et de } q' \text{ vers } q.
+  \]
+\end{Definition}
+
+\begin{Definition}
+  Une \textbf{orbite} d'un automate \(M = (\Sigma, Q, I, F, \delta), \mathcal{O} 
+  \subset Q\) est dite \textbf{maximal} si et seulement si, 
+  \(\forall q \in \mathcal{O}, \forall q' \notin \mathcal{O}\), il n'existe pas 
+  en même temps de chemin de q vers q' et de q' vers q.  
+\end{Definition}
+
+\begin{Definition}
+  Pour une \textbf{orbite} \(\mathcal{O}\) d'un automate \(M = (\Sigma, Q, I, F, 
+  \delta)\), on définit les \textbf{portes d'entrée} (respectivement de 
+  \textbf{sortie}), noté \(In(\mathcal{O})\) (respectivement 
+  \(Out(\mathcal{O})\)) de la façon suivante~:
+  \[
+    In(\mathcal{O}) = \{x \in \mathcal{O} | x \in I \lor \Omega^{-}(x) \neq
+    \emptyset\}\\
+  \]
+  \[
+    Out(\mathcal{O}) = \{x \in \mathcal{O} | x \in F \lor \Omega^{+}(x) \neq
+    \emptyset\}
+  \]
+\end{Definition}
+
+\begin{Definition}
+  Une \textbf{orbite} \(\mathcal{O}\) d'un automate \(M = (\Sigma, Q, I, F, 
+  \delta)\) est dit \textbf{stable} si et seulement si, \(In(\mathcal{O}) 
+  \times Out(\mathcal{O}) \subset \{(q, q') | \forall q \in Q, \forall a \in 
+  \Sigma, \delta(q, a) = q'\}\).
+\end{Definition}
+
+\begin{Definition}
+  Une \textbf{orbite maximale} \(\mathcal{O}\) d'un automate \(M = (\Sigma, Q, 
+  I, F, \delta)\) est dite \textbf{hautement stable} si et seulement si, 
+  \(\mathcal{O}\) est stable et qu’après avoir supprimé toutes les transitions 
+  des états présents dans \(In(\mathcal{O}) \times Out(\mathcal{O})\), chaque 
+  sous-orbite maximal obtenu est \textbf{hautement stable}.
+\end{Definition}
+
+\begin{Definition}
+  Une \textbf{orbite} \(\mathcal{O}\) d'un automate \(M = (\Sigma, Q, I, F, 
+  \delta)\) est dite \textbf{transverse} si et seulement si, \(\forall (q, q') 
+  \in Out(\mathcal{O}), \Omega^{+}(x) = \Omega^{+}(y)\) et \(\forall (q, q') \in 
+  In(\mathcal{O}), \Omega^{-}(x) = \Omega^{-}(y)\).
+\end{Definition}
+
+\begin{Definition}
+  Une \textbf{orbite maximale} \(\mathcal{O}\) d'un automate \(M = (\Sigma, Q, 
+  I, F, \delta)\) est dite \textbf{hautement transverse} si \(\mathcal{O}\) est 
+  \textbf{transverse} et que chaque sous-orbite \textbf{maximale} est 
+  \textbf{hautement transverse} une fois les transitions d'états 
+  \(In(\mathcal{O}) \times Out(\mathcal{O})\) supprimer.
 \end{Definition}
