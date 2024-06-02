@@ -222,7 +222,7 @@ maximalOrbits a =
 
 extractOrbitAutomata ::
      Ord state => NFA state transition -> Orbit state -> NFA state transition
-extractOrbitAutomata (NFA sig e prem fin delt) o =
+extractOrbitAutomata (NFA sig _ prem fin delt) o =
   let e' = o
       prem' = Set.intersection prem o
       fin' = Set.intersection fin o

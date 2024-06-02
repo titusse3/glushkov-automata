@@ -1,0 +1,121 @@
+\section{Expressions régulières}
+
+\begin{Definition}
+  Un \textbf{alphabet} est un ensemble fini de symbole appelé \textbf{lettre}.
+  On prend souvent la notation \(\Sigma\) pour représenter un \textbf{alphabet}.
+\end{Definition}
+
+\begin{Definition}
+  Un \textbf{langage} sur un alphabet \(\Sigma\), noté \(L\) est un 
+  sous-ensemble de \(\Sigma*\).
+\end{Definition}
+
+\begin{Definition}
+  Soit \(\Sigma\) un alphabet, les \textbf{expressions régulières} sur 
+  \(\Sigma\) sont définis récursivement comme suit.
+
+  \noindent\textbf{Cas de base~:}
+
+  \begin{itemize}
+    \item \(\emptyset\), est l'\textbf{expression} représentant l'ensemble vide,
+    \item \(\epsilon\) est l'\textbf{expression} représentant l'ensemble 
+    \(\{\epsilon\}\),
+    \item \(\forall a \in \Sigma\), \(a\) est l'\textbf{expression} représentant 
+    l'ensemble \(\{a\}\),
+  \end{itemize}
+
+  \noindent\textbf{Cas héréditaire~:}
+
+  Soit \(r, r'\) deux \textbf{expressions régulières} représentant 
+  respectivement les langages \(R, R' \in (\Sigma^*)^2\), on a définie les 
+  opérateurs ci-dessous sur l'ensemble des \textbf{expressions régulières} de 
+  \(\Sigma\) que l'on note \(E_{\Sigma}\), 
+
+  \begin{itemize}
+    \item \(r + r'\) représente le langage dénoté par \(R \cup R'\),
+    \item \(r . r'\) représente le langage dénoté par \(R . R'\),
+    \item \(r^*\) représente le langage dénoté par \(R^*\).
+  \end{itemize}
+\end{Definition}
+
+\begin{Definition}
+  Sera noté \(E_{(\Sigma, \mathbb{N})}\), l'ensemble des 
+  \textbf{expressions régulières} sur l'alphabet \(\Sigma\) au quelle aura été 
+  associé à chaque lettre son indice d'apparition dans l'ordre de lecture 
+  gauche-droite de chacune des expressions.
+\end{Definition}
+
+\begin{Definition}
+  Avec \(r \in E_{Q}\), on note \(L(r)\), le \textbf{langage} représenté par 
+  l'\textbf{expression régulière} \(r\).
+\end{Definition}
+
+\begin{Definition}
+  On définit la fonction \textbf{linéarisation} de la façon suivante,
+  \[
+    linearisation :: E_{\Sigma} \to E_{(\Sigma, \mathbb{N})}
+  \]
+\end{Definition}
+
+\begin{Definition}
+  Sur une \textit{expression régulière} \(r \in E_{Q}\), on note la fonction 
+  renvoyant l'ensemble des premières lettres du langage représenter par \(r\) 
+  comme étant \(first(r)\). Cette fonction est définie de récursivement comme 
+  suit~:
+
+  \begin{equation*}
+    \begin{split}
+    & first(\emptyset) = first(\epsilon) = \emptyset\\
+    & first(x) = \{x\}, x \in Q\\
+    & first(f + g) = first(f) \cup first(g)\\
+    & first(f.g) = \left \{
+      \begin{array}{r c l}
+        first(f), \text{ si } \epsilon \notin L(f)\\
+        first(f) \cup first(g), \text{ si } \epsilon \in L(f)\\
+      \end{array}
+      \right . \\
+    & first(f^*) = first(f)
+    \end{split}
+  \end{equation*}
+  Avec \((f,g) \in (E_{Q})^2\)
+\end{Definition}
+
+\begin{Definition}
+  De même, on définit la fonction \(last(r)\) permettant de renvoyer à partir 
+  d'une \textbf{expression régulière} l'ensemble des dernières lettres de tous 
+  les mots du langage représenter par \(r\).
+  Tout comme la fonction \(first\), \(last\) est définie de la même façon 
+  récursivement sauf pour le cas suivant~:
+
+  \[
+    last(f.g) = \left \{
+      \begin{array}{r c l}
+        last(g), \text{ si } \epsilon \notin L(g)\\
+        last(f) \cup last(g), \text{ si } \epsilon \in L(g)\\
+      \end{array}
+      \right . \\
+  \]
+\end{Definition}
+
+\begin{Definition}
+  Nous définissons là fonction \(index\), comme prenant en paramètre une 
+  expression régulière indexé et retournant une table permettant d'obtenir la 
+  fonction suivante~:
+  \[
+    lookup :: Map(Int, \Sigma) \to Int \to Maybe(\Sigma) 
+  \]
+  Renvoyant \(Nothing\), en cas de nom présence de l'indice passer en paramètre 
+  dans l'expression, sinon renvoie \(Just\) la valeur d'indice associé dans 
+  l'expression.
+\end{Definition}
+
+\begin{Definition}
+  On définit la fonction \(follow\), comme un moyen d'obtenir les possibles 
+  symboles qui peuvent suivre une certaine lettre dans une 
+  \textbf{expression régulière}. Cette fonction à la signature suivante~:
+  \[
+    follow :: E_{(\Sigma, \mathbb{N})} \to (Int \to 2^{\Sigma \times \mathbb{N}})
+  \]
+  Retournant pour l'indice d'un élément d'une \textbf{expression régulière}, 
+  l'ensemble des éléments indicé qui peuvent le suivre.
+\end{Definition}

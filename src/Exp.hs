@@ -16,7 +16,8 @@ import qualified Data.Set                 as Set
 import           NFA                      (NFA (..))
 
 data Exp a
-  = Epsilon
+  = Empty
+  | Epsilon
   | Star (Exp a)
   | Plus (Exp a) (Exp a)
   | Point (Exp a) (Exp a)
@@ -24,6 +25,7 @@ data Exp a
   deriving (Foldable, Functor, Traversable)
 
 instance (Show a) => Show (Exp a) where
+  show Empty        = "∅"
   show Epsilon      = "ε"
   show (Star e)     = mconcat ["(", show e, ")*"]
   show (Plus e e')  = mconcat ["(", show e, "+", show e', ")"]
@@ -45,6 +47,7 @@ alphabet :: Ord a => Exp a -> Set.Set a
 alphabet = foldMap Set.singleton
 
 isNull :: Exp a -> Bool
+isNull Empty        = False
 isNull Epsilon      = True
 isNull (Sym _)      = False
 isNull (Plus e e')  = isNull e || isNull e'
@@ -52,6 +55,7 @@ isNull (Star _)     = True
 isNull (Point e e') = isNull e && isNull e'
 
 firstE :: Ord a => Exp a -> Set.Set a
+firstE Empty   = Set.empty
 firstE Epsilon = Set.empty
 firstE (Sym a) = Set.singleton a
 firstE (Plus e e') = Set.union (firstE e) (firstE e')
@@ -62,6 +66,7 @@ firstE (Point e e') =
     else firstE e
 
 lastE :: Ord a => Exp a -> Set.Set a
+lastE Empty   = Set.empty
 lastE Epsilon = Set.empty
 lastE (Sym a) = Set.singleton a
 lastE (Plus e e') = Set.union (lastE e) (lastE e')
@@ -75,6 +80,7 @@ indexE :: Exp (a, Int) -> Map.Map Int a
 indexE = foldMap (\(a, n) -> Map.singleton n a)
 
 followE :: Ord a => Exp (a, Int) -> (Int -> Set.Set (a, Int))
+followE Empty _ = Set.empty
 followE Epsilon _ = Set.empty
 followE (Sym _) _ = Set.empty
 followE (Plus e e') s

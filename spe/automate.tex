@@ -1,0 +1,34 @@
+\section{Automate fini}
+
+\begin{Definition}
+  On définit un \textbf{automate fini}, comme étant un cinq-uplet. On note 
+  généralement l'\textbf{automate} \(M\), \(M = (\Sigma, Q, I, F, \delta)\).
+  \begin{itemize}
+    \item \(\Sigma\), est l'alphabet d'entrée,
+    \item \(Q\), l'ensemble des états,
+    \item \(I\), est un sous-ensemble de \(Q\), il s'agit des états initiaux de 
+    l'\textbf{automate},
+    \item \(F\), est un sous-ensemble de \(Q\), il s'agit des états finaux de 
+    l'\textbf{automate},
+    \item \(\delta\) est la fonction de transition définie de la façon 
+    suivante~:
+    \[
+      \delta :: Q \times \Sigma \to 2^Q
+    \]
+  \end{itemize}
+\end{Definition}
+
+\begin{Definition}
+  Un mot est accepté par un \textbf{automate}, \(M = (\Sigma, Q, I, F, \delta)\) 
+  si et seulement si, il existe au moins une suite de d'état tel que 
+  \(m = (p_0, \dots, p_{n-1})\) tel que \(p_0 \in I\) et \(p_{n-1} \in F\).
+\end{Definition}
+
+\begin{Definition}
+  On définit le langage d'un automate \(M = (\Sigma, Q, I, F, \delta)\), comme 
+  étant \(L(M) = \{w \in \Sigma^* | w \text{ est reconnu par } M\}\)
+\end{Definition}
+
+\begin{Definition}
+  
+\end{Definition}
