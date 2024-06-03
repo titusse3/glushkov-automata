@@ -295,9 +295,9 @@ isStronglyStableOrbit a o =
   if not $ isStableOrbit a o
     then False
     else foldl (\acc o' -> acc && isStronglyStableOrbit a' o') True
-           $ maximalOrbits <$> autoOrbit
+           $ maximalOrbits autoOrbit
   where
-    autoOrbit = extractListStateAutomata a o
+    autoOrbit = fromJust $ extractListStateAutomata a o
     inO = orbitIn a o
     outO = orbitOut a o
     outIn = do
@@ -307,10 +307,9 @@ isStronglyStableOrbit a o =
     a' =
       foldl
         (\n (x, x') -> removeTransitions n (x, x'))
-        (extractListStateAutomata a o)
+        (fromJust $ extractListStateAutomata a o)
         outIn
 
--- prendre en compte finalité des états
 isTransversOrbit :: Ord state => NFA state transition -> Orbit state -> Bool
 isTransversOrbit a o =
   all (== head lOut) (tail lOut) && all (== head lIn) (tail lIn)
@@ -329,7 +328,7 @@ isStronglyTransversOrbit a o =
     else foldl (\acc o' -> acc && isStronglyStableOrbit a' o') True
            $ maximalOrbits autoOrbit
   where
-    autoOrbit = extractListStateAutomata a
+    autoOrbit = fromJust $ extractListStateAutomata a o
     inO = orbitIn a o
     outO = orbitOut a o
     outIn = do
@@ -339,7 +338,7 @@ isStronglyTransversOrbit a o =
     a' =
       foldl
         (\n (x, x') -> removeTransitions n (x, x'))
-        (extractListStateAutomata a o)
+        (fromJust $ extractListStateAutomata a o)
         outIn
 
 accept ::
