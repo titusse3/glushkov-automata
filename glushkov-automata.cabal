@@ -44,6 +44,7 @@ library
       DeriveFunctor
       DeriveTraversable
       ScopedTypeVariables
+      OverloadedLabels
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-tools:
       alex
@@ -74,15 +75,19 @@ executable glushkov-automata-exe
       DeriveFunctor
       DeriveTraversable
       ScopedTypeVariables
+      OverloadedLabels
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      aeson
-    , base >=4.7 && <5
+      base >=4.7 && <5
     , bytestring
     , containers
     , fgl
+    , gi-gdk
+    , gi-gdkpixbuf
+    , gi-gtk
     , glushkov-automata
     , graphviz
+    , haskell-gi-base
     , text
   default-language: Haskell2010
 
@@ -101,6 +106,7 @@ test-suite glushkov-automata-test
       DeriveFunctor
       DeriveTraversable
       ScopedTypeVariables
+      OverloadedLabels
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5

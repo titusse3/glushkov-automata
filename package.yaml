@@ -16,6 +16,7 @@ default-extensions:
 - DeriveFunctor
 - DeriveTraversable
 - ScopedTypeVariables
+- OverloadedLabels
 
 description:         Please see the README on GitHub at <https://github.com/githubuser/glushkov-automata#readme>
 
@@ -59,12 +60,15 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - glushkov-automata
+    - haskell-gi-base
+    - gi-gtk
+    - gi-gdk
+    - gi-gdkpixbuf
     - text
     - containers
     - graphviz
     - fgl
     - bytestring
-    - aeson
 
 tests:
   glushkov-automata-test:
