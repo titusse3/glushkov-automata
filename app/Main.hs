@@ -11,6 +11,9 @@ import qualified Exp as E
 import Data.GraphViz.Commands
     ( addExtension, runGraphviz, GraphvizOutput(Svg) )
 import System.Process (callCommand)
+import System.Directory (doesFileExist)
+import qualified JsonToNFA as JNFA
+import qualified Data.Text as T
 
 main :: IO ()
 main = do
@@ -19,7 +22,6 @@ main = do
     _ <- on window #destroy Gtk.mainQuit
 
     Gtk.windowSetIconFromFile window "logo.png"
-
     #setDefaultSize window 800 600
 
     vbox <- new Gtk.Box [ #orientation := Gtk.OrientationVertical ]
@@ -29,6 +31,7 @@ main = do
 
     entry <- new Gtk.Entry []
     button <- new Gtk.Button [ #label := "Envoyer" ]
+    importButton <- new Gtk.Button [ #label := "Importer" ]
     label <- new Gtk.Label [ #label := "Entrée une expression régulière" ]
     choiceButton <- new Gtk.Button [ #label := "Options" ]
     comboBox <- new Gtk.ComboBoxText []
@@ -39,10 +42,21 @@ main = do
     -- Initialize the combo box with "Non-clustered" as the default option
     Gtk.comboBoxTextAppendText comboBox "Non-clustered"
     Gtk.comboBoxTextAppendText comboBox "Clustered"
-    Gtk.comboBoxSetActive comboBox 0  -- Set "Non-clustered" as the active item
+    Gtk.comboBoxSetActive comboBox 0 -- Set "Non-clustered" as the active item
 
     -- Initially hide the options box by not packing it into inputBox
     #packStart optionsBox comboBox False False 5
+
+    let updateImage svgFile = do
+          newImage <- Gtk.imageNewFromFile svgFile
+          Gtk.widgetSetSizeRequest newImage 500 500
+          currentImage <- readIORef imageRef
+          case currentImage of
+            Just img -> #remove vbox img
+            Nothing -> return ()
+          writeIORef imageRef (Just newImage)
+          #packStart vbox newImage False False 5
+          #showAll window
 
     let performAutomata = do
           text <- Gtk.entryGetText entry
@@ -62,32 +76,73 @@ main = do
                               _ -> False
             let automate = E.glushkov validText
             let automataDot = if clustered
-                              then N.automatonToDotClustered automate $ N.maximalOrbits automate
+                              then N.automatonToDotClustered automate 
+                                   (N.maximalOrbits automate)
                               else N.automatonToDot automate
             let svgFile = "automate.svg"
             _ <- addExtension (runGraphviz automataDot) Svg "automate"
+            callCommand $ "rsvg-convert -w 700 " ++ svgFile ++ " -o " ++ svgFile
+            updateImage svgFile
 
-            callCommand $ "rsvg-convert -w 500 " ++ svgFile ++ " -o " ++ svgFile
-            -- Create an image widget from the resized PNG file
-            newImage <- Gtk.imageNewFromFile svgFile
-            Gtk.widgetSetSizeRequest newImage 500 500
-            -- Replace the current image with the new one
-            currentImage <- readIORef imageRef
-            case currentImage of
-              Just img -> #remove vbox img
-              Nothing -> return ()
-            writeIORef imageRef (Just newImage)
-            -- Add the new image to the vertical box
-            #packStart vbox newImage False False 5
-            #showAll window
+    let importAutomata = do
+          dialog <- Gtk.new Gtk.FileChooserDialog 
+            [ #title := "Importer Automate"
+            , #action := Gtk.FileChooserActionOpen
+            , #transientFor := window
+            , #modal := True
+            ]
+          _ <- Gtk.dialogAddButton dialog "Cancel" 
+               (fromIntegral $ fromEnum Gtk.ResponseTypeCancel)
+          _ <- Gtk.dialogAddButton dialog "Open" 
+               (fromIntegral $ fromEnum Gtk.ResponseTypeAccept)
+          _ <- Gtk.dialogRun dialog
+          filename <- Gtk.fileChooserGetFilename dialog
+          Gtk.widgetDestroy dialog
+          case filename of
+            Nothing -> return ()
+            Just path -> do
+              exists <- doesFileExist path
+              if not exists then
+                Gtk.labelSetText label "Fichier non trouvé"
+              else do
+                parsed <- JNFA.parseNFA path 
+                  :: IO (Either String (N.NFA Int T.Text))
+                case parsed of
+                  Left err -> Gtk.labelSetText label $ T.pack err
+                  Right nfa -> do
+                    Gtk.labelSetText label "Automate importé"
+                    activeText <- Gtk.comboBoxTextGetActiveText comboBox
+                    let clustered = case activeText of
+                                      Just "Clustered" -> True
+                                      _ -> False
+                    let automataDot = if clustered
+                                      then N.automatonToDotClustered nfa 
+                                           (N.maximalOrbits nfa)
+                                      else N.automatonToDot nfa
+                    let svgFile = "imported_automate.svg"
+                    _ <- addExtension (runGraphviz automataDot) Svg 
+                         "imported_automate"
+                    callCommand $ "rsvg-convert -w 700 " ++ svgFile ++ " -o " 
+                                  ++ svgFile
+                    updateImage svgFile
 
     _ <- on button #clicked performAutomata
+    _ <- on importButton #clicked importAutomata
 
     _ <- on entry #keyPressEvent $ \eventKey -> do
             keyval <- Gdk.getEventKeyKeyval eventKey
             -- Check if the Enter key was pressed
             if keyval == Gdk.KEY_Return then
                 performAutomata >> return True
+            else
+                return False
+
+    _ <- on window #keyPressEvent $ \eventKey -> do
+            state <- Gdk.getEventKeyState eventKey
+            keyval <- Gdk.getEventKeyKeyval eventKey
+            let ctrlPressed = Gdk.ModifierTypeControlMask `elem` state
+            if ctrlPressed && keyval == Gdk.KEY_o then
+                importAutomata >> return True
             else
                 return False
 
@@ -103,6 +158,7 @@ main = do
 
     #packStart hbox entry True True 5
     #packStart hbox button False False 5
+    #packStart hbox importButton False False 5
     #packStart hbox choiceButton False False 5
     #packStart inputBox hbox False False 5
     #packStart vbox inputBox False False 5

@@ -17,6 +17,8 @@ default-extensions:
 - DeriveTraversable
 - ScopedTypeVariables
 - OverloadedLabels
+- QuasiQuotes
+- DeriveGeneric
 
 description:         Please see the README on GitHub at <https://github.com/githubuser/glushkov-automata#readme>
 
@@ -71,6 +73,8 @@ executables:
     - bytestring
     - gi-cairo
     - process
+    - filepath
+    - directory
 
 tests:
   glushkov-automata-test:

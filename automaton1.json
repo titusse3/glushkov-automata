@@ -1,5 +1,5 @@
 {
-  "Node": [
+  "nodes": [
     0,
     1,
     2,
@@ -10,13 +10,13 @@
     7,
     8
   ],
-  "First": [
+  "first": [
     0
   ],
-  "Final": [
+  "final": [
     8
   ],
-  "Transition": [
+  "transitions": [
     [
       0,
       2,

@@ -2,64 +2,52 @@ module JsonToNFA
   ( parseNFA
   ) where
 
-import qualified NFA                  as N
-
 import           Data.Aeson
 import qualified Data.ByteString.Lazy as B
-import qualified Data.Map             as Map
 import qualified Data.Set             as Set
+import           GHC.Generics
+import qualified NFA                  as N
 
--- regarde de façon automatique, template haskell, quasiquote
-
-type Transition state transition = (state, state, transition)
-
-data JSONNFA state transition = JSONNFA
+data NFAJson state transition = NFAJson
   { nodes       :: [state]
   , first       :: [state]
   , final       :: [state]
-  , transitions :: [Transition state transition]
-  }
+  , transitions :: [(state, state, transition)]
+  } deriving (Generic, Show)
 
-instance (Ord state, FromJSON state, FromJSON transition) =>
-         FromJSON (JSONNFA state transition) where
-  parseJSON =
-    withObject "JSONNFA" $ \v ->
-      JSONNFA
-        <$> v .: "Node"
-        <*> v .: "First"
-        <*> v .: "Final"
-        <*> v .: "Transition"
+instance (Ord state, Ord transition, FromJSON state, FromJSON transition) =>
+         FromJSON (NFAJson state transition)
 
-jsonToNFA ::
+instance (Ord state, Ord transition, ToJSON state, ToJSON transition) =>
+         ToJSON (NFAJson state transition)
+
+buildNFA ::
      (Ord state, Ord transition)
-  => JSONNFA state transition
+  => NFAJson state transition
   -> N.NFA state transition
-jsonToNFA (JSONNFA ns fs fl tr) =
+buildNFA (NFAJson nodes first final transitions) =
   N.NFA
-    { N.sigma = Set.fromList $ map (\(_, _, l) -> l) tr
-    , N.etats = Set.fromList ns
-    , N.premier = Set.fromList fs
-    , N.final = Set.fromList fl
-    , N.delta = buildDelta tr
+    { N.sigma = Set.fromList $ map (\(_, _, t) -> t) transitions
+    , N.etats = Set.fromList nodes
+    , N.premier = Set.fromList first
+    , N.final = Set.fromList final
+    , N.delta =
+        \s t ->
+          Set.fromList
+            [s' | (s1, s2, t') <- transitions, s1 == s, t' == t, let s' = s2]
     }
-
-buildDelta ::
-     (Ord state, Ord transition)
-  => [Transition state transition]
-  -> (state -> transition -> Set.Set state)
-buildDelta trs = \s t -> Map.findWithDefault Set.empty (s, t) m
-  where
-    m =
-      foldl
-        (\acc (n, n', l) ->
-           Map.insertWith Set.union (n, l) (Set.singleton n') acc)
-        Map.empty
-        trs
 
 parseNFA ::
      (Ord state, Ord transition, FromJSON state, FromJSON transition)
-  => B.ByteString
-  -> Maybe (N.NFA state transition)
-parseNFA jsonData = do
-  jsonNFA <- decode jsonData
-  return $ jsonToNFA jsonNFA
+  => FilePath
+  -> IO (Either String (N.NFA state transition))
+parseNFA filePath = do
+  jsonData <- B.readFile filePath
+  let parsed =
+        eitherDecode jsonData :: ( Ord state
+                                 , Ord transition
+                                 , FromJSON state
+                                 , FromJSON transition
+                                 ) =>
+          Either String (NFAJson state transition)
+  return $ fmap buildNFA parsed
