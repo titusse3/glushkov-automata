@@ -9,7 +9,8 @@ import Data.Maybe (fromJust, isNothing)
 import qualified NFA as N
 import qualified Exp as E
 import Data.GraphViz.Commands
-    ( addExtension, runGraphviz, GraphvizOutput(Png) )
+    ( addExtension, runGraphviz, GraphvizOutput(Svg) )
+import System.Process (callCommand)
 
 main :: IO ()
 main = do
@@ -17,14 +18,31 @@ main = do
     window <- new Gtk.Window [ #title := "Glushkov Automata" ]
     _ <- on window #destroy Gtk.mainQuit
 
+    Gtk.windowSetIconFromFile window "logo.png"
+
+    #setDefaultSize window 800 600
+
     vbox <- new Gtk.Box [ #orientation := Gtk.OrientationVertical ]
+    inputBox <- new Gtk.Box [ #orientation := Gtk.OrientationVertical ]
     hbox <- new Gtk.Box [ #orientation := Gtk.OrientationHorizontal ]
+    optionsBox <- new Gtk.Box [ #orientation := Gtk.OrientationVertical ]
 
     entry <- new Gtk.Entry []
     button <- new Gtk.Button [ #label := "Envoyer" ]
     label <- new Gtk.Label [ #label := "Entrée une expression régulière" ]
+    choiceButton <- new Gtk.Button [ #label := "Options" ]
+    comboBox <- new Gtk.ComboBoxText []
 
     imageRef <- newIORef (Nothing :: Maybe Gtk.Image)
+    showOptions <- newIORef False
+
+    -- Initialize the combo box with "Non-clustered" as the default option
+    Gtk.comboBoxTextAppendText comboBox "Non-clustered"
+    Gtk.comboBoxTextAppendText comboBox "Clustered"
+    Gtk.comboBoxSetActive comboBox 0  -- Set "Non-clustered" as the active item
+
+    -- Initially hide the options box by not packing it into inputBox
+    #packStart optionsBox comboBox False False 5
 
     let performAutomata = do
           text <- Gtk.entryGetText entry
@@ -38,14 +56,21 @@ main = do
           else do
             let validText = fromJust result
             Gtk.labelSetText label "Voici votre Automate"
+            activeText <- Gtk.comboBoxTextGetActiveText comboBox
+            let clustered = case activeText of
+                              Just "Clustered" -> True
+                              _ -> False
             let automate = E.glushkov validText
-            let automataDot = N.automatonToDotClustered automate
-                              $ N.maximalOrbits automate
-            let pngFile = "automate.png"
-            _ <- addExtension (runGraphviz automataDot) Png "automate"
-            -- Create an image widget from the PNG file
-            newImage <- Gtk.imageNewFromFile pngFile
-            Gtk.widgetSetSizeRequest newImage 150 150
+            let automataDot = if clustered
+                              then N.automatonToDotClustered automate $ N.maximalOrbits automate
+                              else N.automatonToDot automate
+            let svgFile = "automate.svg"
+            _ <- addExtension (runGraphviz automataDot) Svg "automate"
+
+            callCommand $ "rsvg-convert -w 500 " ++ svgFile ++ " -o " ++ svgFile
+            -- Create an image widget from the resized PNG file
+            newImage <- Gtk.imageNewFromFile svgFile
+            Gtk.widgetSetSizeRequest newImage 500 500
             -- Replace the current image with the new one
             currentImage <- readIORef imageRef
             case currentImage of
@@ -66,9 +91,21 @@ main = do
             else
                 return False
 
+    _ <- on choiceButton #clicked $ do
+            currentShowOptions <- readIORef showOptions
+            if currentShowOptions then do
+                #remove inputBox optionsBox
+                writeIORef showOptions False
+            else do
+                #packStart inputBox optionsBox False False 5
+                writeIORef showOptions True
+            #showAll window
+
     #packStart hbox entry True True 5
     #packStart hbox button False False 5
-    #packStart vbox hbox False False 5
+    #packStart hbox choiceButton False False 5
+    #packStart inputBox hbox False False 5
+    #packStart vbox inputBox False False 5
     #packStart vbox label False False 5
 
     -- Add the vertical box to the window

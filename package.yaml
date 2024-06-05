@@ -69,6 +69,8 @@ executables:
     - graphviz
     - fgl
     - bytestring
+    - gi-cairo
+    - process
 
 tests:
   glushkov-automata-test:
