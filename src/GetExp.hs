@@ -1,5 +1,5 @@
 module GetExp
-  ( fromText
+  ( expFromText
   ) where
 
 import qualified Data.Text as T
@@ -7,5 +7,5 @@ import qualified Exp       as E
 import qualified ExpHp     as H
 import qualified ExpLex    as A
 
-fromText :: T.Text -> Maybe (E.Exp Char)
-fromText = H.parseExp . A.alexScanTokens
+expFromText :: T.Text -> Maybe (E.Exp Char)
+expFromText = H.parseExp . A.alexScanTokens

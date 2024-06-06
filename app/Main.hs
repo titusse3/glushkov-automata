@@ -5,39 +5,58 @@ import qualified GI.Gtk as Gtk
 import qualified GI.Gdk as Gdk
 import Data.IORef (newIORef, readIORef, writeIORef)
 import qualified GetExp as GE
-import Data.Maybe (fromJust, isNothing)
+import Data.Maybe (isJust, fromJust, isNothing)
 import qualified NFA as N
 import qualified Exp as E
-import Data.GraphViz.Commands
-    ( addExtension, runGraphviz, GraphvizOutput(Svg) )
+import Data.GraphViz.Commands (addExtension, runGraphviz, GraphvizOutput(Svg))
 import System.Process (callCommand)
 import System.Directory (doesFileExist)
 import qualified JsonToNFA as JNFA
 import qualified Data.Text as T
+import Text.Read
+
+
+import qualified Data.Set as Set
 
 main :: IO ()
 main = do
     _ <- Gtk.init Nothing
-    window <- new Gtk.Window [ #title := "Glushkov Automata" ]
+    window <- new Gtk.Window [#title := "Glushkov Automata"]
     _ <- on window #destroy Gtk.mainQuit
 
     Gtk.windowSetIconFromFile window "logo.png"
     #setDefaultSize window 800 600
+    Gtk.windowSetResizable window False
 
-    vbox <- new Gtk.Box [ #orientation := Gtk.OrientationVertical ]
-    inputBox <- new Gtk.Box [ #orientation := Gtk.OrientationVertical ]
-    hbox <- new Gtk.Box [ #orientation := Gtk.OrientationHorizontal ]
-    optionsBox <- new Gtk.Box [ #orientation := Gtk.OrientationVertical ]
+    -- Load CSS
+    provider <- Gtk.cssProviderNew
+    Gtk.cssProviderLoadFromPath provider "style.css"
+    screen <- Gdk.screenGetDefault
+    case screen of
+        Just scr -> Gtk.styleContextAddProviderForScreen scr provider (fromIntegral Gtk.STYLE_PROVIDER_PRIORITY_USER)
+        Nothing -> putStrLn "Error: Could not get default screen."
+
+    mainVBox <- new Gtk.Box [#orientation := Gtk.OrientationVertical]
+    contentVBox <- new Gtk.Box [#orientation := Gtk.OrientationVertical]
+    scrolledWindow <- new Gtk.ScrolledWindow []
+    #setPolicy scrolledWindow Gtk.PolicyTypeAutomatic Gtk.PolicyTypeAutomatic
+
+    inputBox <- new Gtk.Box [#orientation := Gtk.OrientationVertical]
+    hbox <- new Gtk.Box [#orientation := Gtk.OrientationHorizontal]
+    optionsBox <- new Gtk.Box [#orientation := Gtk.OrientationVertical]
 
     entry <- new Gtk.Entry []
-    button <- new Gtk.Button [ #label := "Envoyer" ]
-    importButton <- new Gtk.Button [ #label := "Importer" ]
-    label <- new Gtk.Label [ #label := "Entrée une expression régulière" ]
-    choiceButton <- new Gtk.Button [ #label := "Options" ]
+    button <- new Gtk.Button [#label := "Envoyer"]
+    importButton <- new Gtk.Button [#label := "Importer"]
+    label <- new Gtk.Label [#label := "Entrée une expression régulière"]
+    choiceButton <- new Gtk.Button [#label := "Options"]
     comboBox <- new Gtk.ComboBoxText []
 
     imageRef <- newIORef (Nothing :: Maybe Gtk.Image)
     showOptions <- newIORef False
+
+    automataRef <- newIORef (Nothing :: Maybe (N.NFA Int Char))
+    orbitRef <- newIORef (Nothing :: Maybe (N.Orbit Int))
 
     -- Initialize the combo box with "Non-clustered" as the default option
     Gtk.comboBoxTextAppendText comboBox "Non-clustered"
@@ -47,46 +66,153 @@ main = do
     -- Initially hide the options box by not packing it into inputBox
     #packStart optionsBox comboBox False False 5
 
+    -- Create radio buttons for orbit selection
+    radioButtonManual <- new Gtk.RadioButton []
+    #setLabel radioButtonManual "Orbit manuel"
+    radioButtonMaximal <- new Gtk.RadioButton [#group := radioButtonManual]
+    #setLabel radioButtonMaximal "Orbit maximal"
+
+    -- Create input and dropdown for orbit selection
+    manualInput <- new Gtk.Entry []
+    maximalDropdown <- new Gtk.ComboBoxText []
+
+    -- Create frame for the image
+    imageFrame <- new Gtk.Frame [#label := "Image"]
+    imageInFrame <- new Gtk.Image []
+    Gtk.containerAdd imageFrame imageInFrame
+
+    -- Increase the size of the image frame
+    Gtk.widgetSetSizeRequest imageFrame 400 (-1)
+
+    -- Create properties grid
+    propertiesGrid <- new Gtk.Grid []
+    #setHexpand propertiesGrid True
+    #setVexpand propertiesGrid True
+    #setBorderWidth propertiesGrid 10
+
+    let properties = ["Orbit", "In", "Out", "Stable", "Transverse", "Strongly Stable", "Strongly Transverse"]
+    let propertyValues = [True, True, False, True, False, True, False] -- Replace with actual values as needed
+
+    mapM_ (\(i, prop) -> do
+             propLabel <- new Gtk.Label [#label := prop]
+             valueLabel <- new Gtk.Label [#label := if propertyValues !! i then "Vrai" else "Faux"]
+             -- Set background color based on value
+             let valueClass = if propertyValues !! i then "true" else "false"
+             Gtk.widgetSetName valueLabel valueClass
+             -- Add custom class to both labels for border
+             Gtk.widgetSetName propLabel "custom-label"
+             Gtk.widgetSetName valueLabel "custom-label"
+             -- Attach labels to grid
+             Gtk.gridAttach propertiesGrid propLabel 0 (fromIntegral i) 1 1
+             Gtk.gridAttach propertiesGrid valueLabel 1 (fromIntegral i) 1 1
+             -- Get style context and add classes
+             propStyleContext <- Gtk.widgetGetStyleContext propLabel
+             valueStyleContext <- Gtk.widgetGetStyleContext valueLabel
+             Gtk.styleContextAddClass propStyleContext "custom-label"
+             Gtk.styleContextAddClass valueStyleContext "custom-label"
+             Gtk.styleContextAddClass valueStyleContext valueClass
+          ) (zip [0..] properties)
+
+    -- Box to contain image frame and properties grid
+    infoBox <- new Gtk.Box [#orientation := Gtk.OrientationHorizontal]
+    #packStart infoBox imageFrame True True 5
+    #packStart infoBox propertiesGrid False False 5
+
+    manualInputMessage <- new Gtk.Label [#label := ""]
+
+    -- Box to contain orbit selection input or dropdown
+    orbitBox <- new Gtk.Box [#orientation := Gtk.OrientationVertical]
+    #packStart orbitBox manualInput False False 5
+    #packStart orbitBox maximalDropdown False False 5
+    #packStart orbitBox manualInputMessage False False 5
+    #packStart orbitBox infoBox False False 5
+    #setVisible manualInput False
+    #setVisible maximalDropdown False
+
+    -- Center the radio buttons
+    #setHalign radioButtonManual Gtk.AlignCenter
+    #setHalign radioButtonMaximal Gtk.AlignCenter
+
+    -- Box to contain radio buttons and orbit selection
+    radioButtonsBox <- new Gtk.Box [#orientation := Gtk.OrientationHorizontal]
+    #packStart radioButtonsBox radioButtonManual True True 5
+    #packStart radioButtonsBox radioButtonMaximal True True 5
+
+    radioBox <- new Gtk.Box [#orientation := Gtk.OrientationVertical]
+    #packStart radioBox radioButtonsBox False False 5
+    #packStart radioBox orbitBox False False 5
+    
+    -- Box to conditionally display radio buttons
+    radioBoxContainer <- new Gtk.Box [#orientation := Gtk.OrientationVertical]
+
+    let updateRadioBoxVisibility = do
+          currentAutomata <- readIORef automataRef
+          if isJust currentAutomata
+            then do
+              #packStart radioBoxContainer radioBox False False 5
+            else do
+              Gtk.containerForeach radioBoxContainer $ \child -> do
+                Gtk.containerRemove radioBoxContainer child
+          #showAll window
+
+    let updateOrbitSelection = do
+          activeButton <- Gtk.toggleButtonGetActive radioButtonManual
+          if activeButton
+            then do
+              #setVisible manualInput True
+              #setVisible maximalDropdown False
+            else do
+              #setVisible manualInput False
+              #setVisible maximalDropdown True
+
     let updateImage svgFile = do
           newImage <- Gtk.imageNewFromFile svgFile
           Gtk.widgetSetSizeRequest newImage 500 500
           currentImage <- readIORef imageRef
           case currentImage of
-            Just img -> #remove vbox img
+            Just img -> #remove contentVBox img
             Nothing -> return ()
           writeIORef imageRef (Just newImage)
-          #packStart vbox newImage False False 5
-          #showAll window
+          #packStart contentVBox newImage False False 5
+          updateRadioBoxVisibility
+          updateOrbitSelection
+
+    let updateMaximalOrbitsDropdown nfa = do
+          Gtk.comboBoxTextRemoveAll maximalDropdown
+          let orbits = N.maximalOrbits nfa
+          mapM_ (\(n, x) -> Gtk.comboBoxTextAppendText maximalDropdown $ (T.pack (show n)) <> ". " <> N.orbitToText x) $ zip ([1 .. ] :: [Int])orbits
 
     let performAutomata = do
           text <- Gtk.entryGetText entry
-          let result = GE.fromText text
+          let result = GE.expFromText text
           if isNothing result then do
             Gtk.labelSetText label "Erreur"
             currentImage <- readIORef imageRef
             case currentImage of
-              Just img -> #remove vbox img
+              Just img -> #remove contentVBox img
               Nothing -> return ()
           else do
-            let validText = fromJust result
+            let validText = fromJust result :: E.Exp Char
             Gtk.labelSetText label "Voici votre Automate"
             activeText <- Gtk.comboBoxTextGetActiveText comboBox
             let clustered = case activeText of
                               Just "Clustered" -> True
                               _ -> False
             let automate = E.glushkov validText
+            writeIORef automataRef (Just automate)
+            updateMaximalOrbitsDropdown automate
             let automataDot = if clustered
                               then N.automatonToDotClustered automate 
                                    (N.maximalOrbits automate)
                               else N.automatonToDot automate
             let svgFile = "automate.svg"
             _ <- addExtension (runGraphviz automataDot) Svg "automate"
-            callCommand $ "rsvg-convert -w 700 " ++ svgFile ++ " -o " ++ svgFile
+            callCommand $ "rsvg-convert -w 600 " ++ svgFile ++ " -o " ++ svgFile
             updateImage svgFile
 
     let importAutomata = do
           dialog <- Gtk.new Gtk.FileChooserDialog 
-            [ #title := "Importer Automate"
+            [#title := "Importer Automate"
             , #action := Gtk.FileChooserActionOpen
             , #transientFor := window
             , #modal := True
@@ -105,11 +231,13 @@ main = do
               if not exists then
                 Gtk.labelSetText label "Fichier non trouvé"
               else do
-                parsed <- JNFA.parseNFA path 
-                  :: IO (Either String (N.NFA Int T.Text))
+                parsed <- JNFA.parseNFA path
+                  :: IO (Either String (N.NFA Int Char))
                 case parsed of
                   Left err -> Gtk.labelSetText label $ T.pack err
                   Right nfa -> do
+                    writeIORef automataRef (Just nfa)
+                    updateMaximalOrbitsDropdown nfa
                     Gtk.labelSetText label "Automate importé"
                     activeText <- Gtk.comboBoxTextGetActiveText comboBox
                     let clustered = case activeText of
@@ -126,8 +254,22 @@ main = do
                                   ++ svgFile
                     updateImage svgFile
 
+    let onManualInputChanged = do
+            text <- Gtk.entryGetText manualInput
+            let parsed = textToSet text
+            case parsed of
+              Just orbit -> do
+                Gtk.labelSetText manualInputMessage "Orbit valide."
+                writeIORef orbitRef (Just orbit)
+              _ -> do
+                Gtk.labelSetText manualInputMessage "Erreur : Orbit invalide."
+                writeIORef orbitRef Nothing
+
     _ <- on button #clicked performAutomata
     _ <- on importButton #clicked importAutomata
+    _ <- on radioButtonManual #toggled updateOrbitSelection
+    _ <- on radioButtonMaximal #toggled updateOrbitSelection
+    _ <- on manualInput #changed onManualInputChanged
 
     _ <- on entry #keyPressEvent $ \eventKey -> do
             keyval <- Gdk.getEventKeyKeyval eventKey
@@ -161,12 +303,31 @@ main = do
     #packStart hbox importButton False False 5
     #packStart hbox choiceButton False False 5
     #packStart inputBox hbox False False 5
-    #packStart vbox inputBox False False 5
-    #packStart vbox label False False 5
+    #packStart contentVBox inputBox False False 5
+    #packStart contentVBox label False False 5
+    #packStart mainVBox contentVBox False False 5
 
-    -- Add the vertical box to the window
-    #add window vbox
+    -- Add the main vertical box to the scrolled window
+    #add scrolledWindow mainVBox
+
+    -- Add the radio buttons container to the main vertical box
+    #packEnd mainVBox radioBoxContainer False False 5
+
+    -- Add the scrolled window to the main window
+    #add window scrolledWindow
 
     -- Show all widgets in the window
     #showAll window
+
+    -- Update visibility based on the initial state of automataRef
+    updateRadioBoxVisibility
+
     Gtk.main
+
+textToSet :: T.Text -> Maybe (N.Orbit Int)
+textToSet text = do
+    let trimmed = T.strip text
+    let withoutBraces = T.filter (\x -> x /= '{' || x /= '}') trimmed
+    let elements = T.splitOn "," withoutBraces
+    parsedElements <- mapM (readMaybe . T.unpack . T.strip) elements
+    return $ Set.fromList parsedElements

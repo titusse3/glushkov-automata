@@ -1,5 +1,7 @@
 module NFA
   ( NFA(..)
+  , Orbit
+  , orbitToText
   , automataToGraph
   , isFinal
   , isStart
@@ -24,6 +26,7 @@ module NFA
   , isStronglyStableOrbit
   , isTransversOrbit
   , isStronglyTransversOrbit
+  , isOrbit
   ) where
 
 import           Data.Graph.Inductive
@@ -32,7 +35,7 @@ import           Data.GraphViz
 import           Data.GraphViz.Attributes.Complete
 import           Data.List                         (findIndex, intercalate)
 import qualified Data.Map                          as Map
-import           Data.Maybe                        (fromJust, fromMaybe,
+import           Data.Maybe                        (fromJust, fromMaybe, isJust,
                                                     isNothing)
 import qualified Data.Set                          as Set
 import qualified Data.Text                         as T
@@ -89,12 +92,17 @@ instance (Show state, Show transition, Ord state, Ord transition) =>
           , t <- Set.toList transitions
           ]
 
+orbitToText :: (Show state) => (Orbit state) -> T.Text
+orbitToText o =
+  mconcat ["{", (T.intercalate "," $ map (T.pack . show) $ Set.toList o), "}"]
+
 isFinal :: Ord state => NFA state transition -> state -> Bool
 isFinal = flip Set.member . final
 
 isStart :: Ord state => NFA state transition -> state -> Bool
 isStart = flip Set.member . premier
 
+-- faire doc
 isHomogeneous :: Ord state => NFA state transition -> Bool
 isHomogeneous (NFA sig etat _ _ delt) =
   not . isNothing
@@ -240,8 +248,8 @@ maximalOrbits a =
     graph = automataToGraph a
     sccs = Data.Graph.Inductive.Query.DFS.scc graph
     filterFun []     = False
-    filterFun (_:[]) = False
-    filterFun (x':_) = hasEdge graph (x', x')
+    filterFun (x:[]) = hasEdge graph (x, x)
+    filterFun _      = True
     orbitM = filter filterFun sccs
     states = Set.toList $ etats a
     mapNode :: Map.Map Node state
@@ -249,6 +257,23 @@ maximalOrbits a =
     stateIndex state =
       Data.Maybe.fromMaybe (-1) (lookup state $ zip states indices)
     indices = [0 ..]
+
+isOrbit ::
+     (Ord state, Show state, Show transition)
+  => NFA state transition
+  -> Orbit state
+  -> Bool
+isOrbit a o = firstTest l && isJust g && hasOneElem fc
+  where
+    l = Set.toList o
+    firstTest []  = False
+    firstTest [x] = not $ transExist a x x
+    firstTest _   = True
+    hasOneElem [_] = True
+    hasOneElem _ = False
+    a' = extractListStateAutomata a o
+    g = automataToGraph <$> a'
+    fc = fromJust $ Data.Graph.Inductive.Query.DFS.scc <$> g
 
 orbitIn ::
      forall state transition. Ord state
@@ -352,6 +377,7 @@ accept (NFA _ _ prem fin delt) l =
     accept' :: Set.Set state -> transition -> Set.Set state
     accept' s t = foldr (\s' acc -> Set.union acc $ delt s' t) Set.empty s
 
+-- new type, dérivation pour enlever les "", redéfinir le show
 automataToGraph ::
      (Ord state, Show state, Show transition)
   => NFA state transition

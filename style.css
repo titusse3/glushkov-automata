@@ -1,3 +1,13 @@
-#label-error {
-  color: red;
+.custom-label {
+  border: 1px solid black;
+  font-size: 23px;
+  padding:2px;
+}
+
+.true {
+  background-color: green;
+}
+
+.false {
+  background-color: red;
 }

@@ -25,16 +25,16 @@ buildNFA ::
      (Ord state, Ord transition)
   => NFAJson state transition
   -> N.NFA state transition
-buildNFA (NFAJson nodes first final transitions) =
+buildNFA (NFAJson n p f ts) =
   N.NFA
-    { N.sigma = Set.fromList $ map (\(_, _, t) -> t) transitions
-    , N.etats = Set.fromList nodes
-    , N.premier = Set.fromList first
-    , N.final = Set.fromList final
+    { N.sigma = Set.fromList $ map (\(_, _, t) -> t) ts
+    , N.etats = Set.fromList n
+    , N.premier = Set.fromList p
+    , N.final = Set.fromList f
     , N.delta =
         \s t ->
           Set.fromList
-            [s' | (s1, s2, t') <- transitions, s1 == s, t' == t, let s' = s2]
+            [s' | (s1, s2, t') <- ts, s1 == s, t' == t, let s' = s2]
     }
 
 parseNFA ::
