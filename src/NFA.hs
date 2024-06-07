@@ -41,8 +41,6 @@ import qualified Data.Set                          as Set
 import qualified Data.Text                         as T
 import qualified Data.Text.Lazy                    as TL
 
-import Debug.Trace
-
 type Orbit state = Set.Set state
 
 data NFA state transition = NFA
@@ -317,8 +315,8 @@ isStableOrbit ::
 isStableOrbit a o =
   isOrbit a o && inOut == filter (\(x, x') -> transExist a x x') inOut
   where
-    inO = trace (show $ orbitIn a o) $ orbitIn a o
-    outO = trace (show $ orbitOut a o) $ orbitOut a o
+    inO = orbitIn a o
+    outO = orbitOut a o
     inOut = do
       x <- Set.toList outO
       y <- Set.toList inO
@@ -334,7 +332,7 @@ isStronglyStableOrbit a o =
     && if not $ isStableOrbit a o
          then False
          else foldl (\acc o' -> acc && isStronglyStableOrbit a' o') True
-                $ maximalOrbits autoOrbit
+                $ maximalOrbits a'
   where
     autoOrbit = fromJust $ extractListStateAutomata a o
     inO = orbitIn a o
@@ -343,25 +341,19 @@ isStronglyStableOrbit a o =
       x <- Set.toList outO
       y <- Set.toList inO
       return (x, y)
-    a' =
-      foldl
-        (\n (x, x') -> removeTransitions n (x, x'))
-        (fromJust $ extractListStateAutomata a o)
-        outIn
+    a' = foldl (\n (x, x') -> removeTransitions n (x, x')) autoOrbit outIn
 
 isTransversOrbit ::
      (Ord state, Show state, Show transition)
   => NFA state transition
   -> Orbit state
   -> Bool
-isTransversOrbit a o =
-  isOrbit a o
-    && all (not . null) [lOut, lIn]
-    && all (== head lOut) (tail lOut)
-    && all (== head lIn) (tail lIn)
+isTransversOrbit a o = isOrbit a o && Set.size sIn <= 1 && Set.size sOut <= 1
   where
-    lOut = map (directSucc a) $ Set.toList $ orbitOut a o
-    lIn = map (directPred a) $ Set.toList $ orbitIn a o
+    oIn = orbitIn a o
+    oOut = orbitOut a o
+    sIn = Set.map (\x -> Set.difference (directPred a x) o) oIn
+    sOut = Set.map (\x -> Set.difference (directSucc a x) o) oOut
 
 isStronglyTransversOrbit ::
      (Ord state, Ord transition, Show state, Show transition)
@@ -373,7 +365,7 @@ isStronglyTransversOrbit a o =
     && if not $ isTransversOrbit a o
          then False
          else foldl (\acc o' -> acc && isStronglyStableOrbit a' o') True
-                $ maximalOrbits autoOrbit
+                $ maximalOrbits a'
   where
     autoOrbit = fromJust $ extractListStateAutomata a o
     inO = orbitIn a o
@@ -382,11 +374,7 @@ isStronglyTransversOrbit a o =
       x <- Set.toList outO
       y <- Set.toList inO
       return (x, y)
-    a' =
-      foldl
-        (\n (x, x') -> removeTransitions n (x, x'))
-        (fromJust $ extractListStateAutomata a o)
-        outIn
+    a' = foldl (\n (x, x') -> removeTransitions n (x, x')) autoOrbit outIn
 
 accept ::
      forall state transition. Ord state

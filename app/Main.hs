@@ -8,8 +8,7 @@ import qualified GetExp as GE
 import Data.Maybe (isJust, fromJust, isNothing)
 import qualified NFA as N
 import qualified Exp as E
-import Data.GraphViz.Commands (addExtension, runGraphviz, 
-                               GraphvizOutput(Svg))
+import Data.GraphViz.Commands (addExtension, runGraphviz, GraphvizOutput(Svg))
 import System.Process (callCommand)
 import System.Directory (doesFileExist)
 import qualified JsonToNFA as JNFA
@@ -17,16 +16,16 @@ import qualified Data.Text as T
 import Text.Read
 import qualified Data.Set as Set
 
-import Debug.Trace
-
 main :: IO ()
 main = do
     _ <- Gtk.init Nothing
     window <- new Gtk.Window [#title := "Glushkov Automata"]
     _ <- on window #destroy Gtk.mainQuit
 
+    Gtk.windowSetPosition window Gtk.WindowPositionCenter
+
     Gtk.windowSetIconFromFile window "logo.png"
-    #setDefaultSize window 800 600
+    #setDefaultSize window 1080 720
     Gtk.windowSetResizable window False
 
     -- Load CSS
@@ -41,8 +40,7 @@ main = do
     mainVBox <- new Gtk.Box [#orientation := Gtk.OrientationVertical]
     contentVBox <- new Gtk.Box [#orientation := Gtk.OrientationVertical]
     scrolledWindow <- new Gtk.ScrolledWindow []
-    #setPolicy scrolledWindow Gtk.PolicyTypeAutomatic 
-                              Gtk.PolicyTypeAutomatic
+    #setPolicy scrolledWindow Gtk.PolicyTypeAutomatic Gtk.PolicyTypeAutomatic
 
     inputBox <- new Gtk.Box [#orientation := Gtk.OrientationVertical]
     hbox <- new Gtk.Box [#orientation := Gtk.OrientationHorizontal]
@@ -77,7 +75,9 @@ main = do
 
     -- Create input and dropdown for orbit selection
     manualInput <- new Gtk.Entry []
+    manualApplyButton <- new Gtk.Button [#label := "Appliquer"] 
     maximalDropdown <- new Gtk.ComboBoxText []
+    dropdownApplyButton <- new Gtk.Button [#label := "Appliquer"]
 
     -- Create frame for the image
     imageFrame <- new Gtk.Frame [#label := "Image"]
@@ -85,7 +85,7 @@ main = do
     Gtk.containerAdd imageFrame imageInFrame
 
     -- Increase the size of the image frame
-    Gtk.widgetSetSizeRequest imageFrame 400 (-1)
+    Gtk.widgetSetSizeRequest imageFrame 500 (-1)
 
     -- Create properties grid
     propertiesGrid <- new Gtk.Grid []
@@ -95,26 +95,21 @@ main = do
 
     -- properties table
     let properties = ["Orbit", "Stable", "Transverse", "Strongly Stable", 
-                        "Strongly Transverse", "In", "Out"]
+                      "Strongly Transverse", "In", "Out"]
 
     propLabels <- mapM (\prop -> new Gtk.Label [#label := prop]) properties
-    valueLabels <- mapM (\_ -> new Gtk.Label [#label := "Unknow"]) properties
+    valueLabels <- mapM (\_ -> new Gtk.Label [#label := "Unknown"]) properties
     mapM_ (\(i, (propLabel, valueLabel)) -> do
-             -- Set background color based on value
-             Gtk.widgetSetName valueLabel "unknow"
-             -- Add custom class to both labels for border
+             Gtk.widgetSetName valueLabel "unknown"
              Gtk.widgetSetName propLabel "custom-label"
              Gtk.widgetSetName valueLabel "custom-label"
              Gtk.gridAttach propertiesGrid propLabel 0 (fromIntegral i) 1 1
              Gtk.gridAttach propertiesGrid valueLabel 1 (fromIntegral i) 1 1
-             -- Get style context and add classes
              propStyleContext <- Gtk.widgetGetStyleContext propLabel
              valueStyleContext <- Gtk.widgetGetStyleContext valueLabel
              Gtk.styleContextAddClass propStyleContext "custom-label"
              Gtk.styleContextAddClass valueStyleContext "custom-label"
-            --  Gtk.styleContextAddClass valueStyleContext "unknow"
-          ) (zip [0..] (zip propLabels valueLabels))
-    -- ===========
+          ) (zip ([0..] :: [Int]) (zip propLabels valueLabels))
 
     -- Box to contain image frame and properties grid
     infoBox <- new Gtk.Box [#orientation := Gtk.OrientationHorizontal]
@@ -125,12 +120,20 @@ main = do
 
     -- Box to contain orbit selection input or dropdown
     orbitBox <- new Gtk.Box [#orientation := Gtk.OrientationVertical]
-    #packStart orbitBox manualInput False False 5
-    #packStart orbitBox maximalDropdown False False 5
+    manualInputBox <- new Gtk.Box [#orientation := Gtk.OrientationHorizontal]
+    dropdownBox <- new Gtk.Box [#orientation := Gtk.OrientationHorizontal]
+
+    #packStart manualInputBox manualInput True True 5
+    #packStart manualInputBox manualApplyButton False False 5
+    #packStart dropdownBox maximalDropdown True True 5
+    #packStart dropdownBox dropdownApplyButton False False 5
+
+    #packStart orbitBox manualInputBox False False 5
+    #packStart orbitBox dropdownBox False False 5
     #packStart orbitBox manualInputMessage False False 5
     #packStart orbitBox infoBox False False 5
-    #setVisible manualInput False
-    #setVisible maximalDropdown False
+    #setVisible manualInputBox False
+    #setVisible dropdownBox False
 
     -- Center the radio buttons
     #setHalign radioButtonManual Gtk.AlignCenter
@@ -144,7 +147,7 @@ main = do
     radioBox <- new Gtk.Box [#orientation := Gtk.OrientationVertical]
     #packStart radioBox radioButtonsBox False False 5
     #packStart radioBox orbitBox False False 5
-    
+
     -- Box to conditionally display radio buttons
     radioBoxContainer <- new Gtk.Box [#orientation := Gtk.OrientationVertical]
 
@@ -162,11 +165,11 @@ main = do
           activeButton <- Gtk.toggleButtonGetActive radioButtonManual
           if activeButton
             then do
-              #setVisible manualInput True
-              #setVisible maximalDropdown False
+              #setVisible manualInputBox True
+              #setVisible dropdownBox False
             else do
-              #setVisible manualInput False
-              #setVisible maximalDropdown True
+              #setVisible manualInputBox False
+              #setVisible dropdownBox True
 
     let updateImage svgFile = do
           newImage <- Gtk.imageNewFromFile svgFile
@@ -212,8 +215,7 @@ main = do
                               else N.automatonToDot automate
             let svgFile = "automate.svg"
             _ <- addExtension (runGraphviz automataDot) Svg "automate"
-            callCommand $ "rsvg-convert -w 600 " ++ svgFile ++ " -o " ++ 
-                          svgFile
+            callCommand $ "rsvg-convert -w 600 " ++ svgFile ++ " -o " ++ svgFile
             updateImage svgFile
 
     let importAutomata = do
@@ -237,7 +239,7 @@ main = do
               if not exists then
                 Gtk.labelSetText label "Fichier non trouvé"
               else do
-                parsed <- JNFA.parseNFA path
+                parsed <- JNFA.parseNFA path 
                   :: IO (Either String (N.NFA Int Char))
                 case parsed of
                   Left err -> Gtk.labelSetText label $ T.pack err
@@ -255,34 +257,51 @@ main = do
                                       else N.automatonToDot nfa
                     let svgFile = "imported_automate.svg"
                     _ <- addExtension (runGraphviz automataDot) Svg 
-                         "imported_automate"
-                    callCommand $ "rsvg-convert -w 700 " ++ svgFile ++ 
-                                  " -o " ++ svgFile
+                        "imported_automate"
+                    callCommand $ "rsvg-convert -w 700 " ++ svgFile ++ " -o " 
+                                  ++ svgFile
                     updateImage svgFile
 
     let onOrbitChange selectedOrbit = do
             maybeNfa <- readIORef automataRef
             case maybeNfa of
-              Just (nfa) -> do
+              Just nfa -> do
                 let propertiesValues = [
                       N.isOrbit nfa selectedOrbit,
-                      N.isStableOrbit nfa selectedOrbit]
-                      -- N.isTransversOrbit nfa selectedOrbit,
-                      -- N.isStronglyStableOrbit nfa selectedOrbit,
-                      -- N.isStronglyTransversOrbit nfa selectedOrbit]
+                      N.isStableOrbit nfa selectedOrbit,
+                      N.isTransversOrbit nfa selectedOrbit,
+                      N.isStronglyStableOrbit nfa selectedOrbit,
+                      N.isStronglyTransversOrbit nfa selectedOrbit]
                 mapM_ (\(i, value) -> do
-                  let valueText = trace (if value then "Vrai" else "Faux") $ if value then "Vrai" else "Faux" :: T.Text
+                  let valueText = if value then "Vrai" else "Faux" :: T.Text
                   _ <- #setLabel (valueLabels !! i) valueText
-                  -- Update label color based on value
                   let valueClass = if value then "true" else "false"
                   Gtk.widgetSetName (valueLabels !! i) valueClass
-                  valueStyleContext <- Gtk.widgetGetStyleContext (valueLabels !! i)
+                  valueStyleContext <- Gtk.widgetGetStyleContext 
+                        (valueLabels !! i)
                   Gtk.styleContextRemoveClass valueStyleContext "true"
                   Gtk.styleContextRemoveClass valueStyleContext "false"
                   Gtk.styleContextAddClass valueStyleContext valueClass
                   ) (zip [0..] propertiesValues)
-              Nothing -> return ()
+                #setLabel (valueLabels !! 5) $ 
+                  N.orbitToText $ N.orbitIn nfa selectedOrbit
+                #setLabel (valueLabels !! 6) $ 
+                  N.orbitToText $ N.orbitOut nfa selectedOrbit
+                let a' = N.extractListStateAutomata nfa selectedOrbit
+                case a' of 
+                  Just automata' -> do
+                    let automataDot = N.automatonToDot automata'
+                    let svgFile = "orbit.svg"
+                    _ <- addExtension (runGraphviz automataDot) Svg "orbit"
+                    callCommand $ "rsvg-convert -w 500 " ++ svgFile ++ " -o " 
+                      ++ svgFile
 
+                    -- Mettre l'image dans le cadre destiné
+                    Gtk.imageClear imageInFrame
+                    Gtk.imageSetFromFile imageInFrame (Just svgFile)
+                    -- Gtk.widgetSetSizeRequest imageInFrame 300 300
+                  Nothing -> return ()
+              Nothing -> return ()
 
     let onManualInputChanged = do
             text <- Gtk.entryGetText manualInput
@@ -290,7 +309,8 @@ main = do
             case parsed of
               Just orbit -> do
                 Gtk.labelSetText manualInputMessage $ 
-                                 "Orbit valide : " <> N.orbitToText orbit 
+                                 "Orbit possiblement valide : " 
+                                 <> N.orbitToText orbit 
                 writeIORef orbitRef (Just orbit)
                 onOrbitChange orbit
               _ -> do
@@ -318,12 +338,25 @@ main = do
     _ <- on importButton #clicked importAutomata
     _ <- on radioButtonManual #toggled updateOrbitSelection
     _ <- on radioButtonMaximal #toggled updateOrbitSelection
-    _ <- on manualInput #changed onManualInputChanged
-    _ <- on maximalDropdown #changed onMaximalDropdownChanged
+    _ <- on manualApplyButton #clicked onManualInputChanged
+    _ <- on dropdownApplyButton #clicked onMaximalDropdownChanged
+
+    _ <- on manualInput #keyPressEvent $ \eventKey -> do
+            keyval <- Gdk.getEventKeyKeyval eventKey
+            if keyval == Gdk.KEY_Return then
+                onManualInputChanged >> return True
+            else
+                return False
+
+    _ <- on maximalDropdown #keyPressEvent $ \eventKey -> do
+            keyval <- Gdk.getEventKeyKeyval eventKey
+            if keyval == Gdk.KEY_Return then
+                onMaximalDropdownChanged >> return True
+            else
+                return False
 
     _ <- on entry #keyPressEvent $ \eventKey -> do
             keyval <- Gdk.getEventKeyKeyval eventKey
-            -- Check if the Enter key was pressed
             if keyval == Gdk.KEY_Return then
                 performAutomata >> return True
             else
