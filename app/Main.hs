@@ -8,15 +8,16 @@ import qualified GetExp as GE
 import Data.Maybe (isJust, fromJust, isNothing)
 import qualified NFA as N
 import qualified Exp as E
-import Data.GraphViz.Commands (addExtension, runGraphviz, GraphvizOutput(Svg))
+import Data.GraphViz.Commands (addExtension, runGraphviz, 
+                               GraphvizOutput(Svg))
 import System.Process (callCommand)
 import System.Directory (doesFileExist)
 import qualified JsonToNFA as JNFA
 import qualified Data.Text as T
 import Text.Read
-
-
 import qualified Data.Set as Set
+
+import Debug.Trace
 
 main :: IO ()
 main = do
@@ -33,13 +34,15 @@ main = do
     Gtk.cssProviderLoadFromPath provider "style.css"
     screen <- Gdk.screenGetDefault
     case screen of
-        Just scr -> Gtk.styleContextAddProviderForScreen scr provider (fromIntegral Gtk.STYLE_PROVIDER_PRIORITY_USER)
+        Just scr -> Gtk.styleContextAddProviderForScreen scr provider 
+                    (fromIntegral Gtk.STYLE_PROVIDER_PRIORITY_USER)
         Nothing -> putStrLn "Error: Could not get default screen."
 
     mainVBox <- new Gtk.Box [#orientation := Gtk.OrientationVertical]
     contentVBox <- new Gtk.Box [#orientation := Gtk.OrientationVertical]
     scrolledWindow <- new Gtk.ScrolledWindow []
-    #setPolicy scrolledWindow Gtk.PolicyTypeAutomatic Gtk.PolicyTypeAutomatic
+    #setPolicy scrolledWindow Gtk.PolicyTypeAutomatic 
+                              Gtk.PolicyTypeAutomatic
 
     inputBox <- new Gtk.Box [#orientation := Gtk.OrientationVertical]
     hbox <- new Gtk.Box [#orientation := Gtk.OrientationHorizontal]
@@ -90,19 +93,18 @@ main = do
     #setVexpand propertiesGrid True
     #setBorderWidth propertiesGrid 10
 
-    let properties = ["Orbit", "In", "Out", "Stable", "Transverse", "Strongly Stable", "Strongly Transverse"]
-    let propertyValues = [True, True, False, True, False, True, False] -- Replace with actual values as needed
+    -- properties table
+    let properties = ["Orbit", "Stable", "Transverse", "Strongly Stable", 
+                        "Strongly Transverse", "In", "Out"]
 
-    mapM_ (\(i, prop) -> do
-             propLabel <- new Gtk.Label [#label := prop]
-             valueLabel <- new Gtk.Label [#label := if propertyValues !! i then "Vrai" else "Faux"]
+    propLabels <- mapM (\prop -> new Gtk.Label [#label := prop]) properties
+    valueLabels <- mapM (\_ -> new Gtk.Label [#label := "Unknow"]) properties
+    mapM_ (\(i, (propLabel, valueLabel)) -> do
              -- Set background color based on value
-             let valueClass = if propertyValues !! i then "true" else "false"
-             Gtk.widgetSetName valueLabel valueClass
+             Gtk.widgetSetName valueLabel "unknow"
              -- Add custom class to both labels for border
              Gtk.widgetSetName propLabel "custom-label"
              Gtk.widgetSetName valueLabel "custom-label"
-             -- Attach labels to grid
              Gtk.gridAttach propertiesGrid propLabel 0 (fromIntegral i) 1 1
              Gtk.gridAttach propertiesGrid valueLabel 1 (fromIntegral i) 1 1
              -- Get style context and add classes
@@ -110,8 +112,9 @@ main = do
              valueStyleContext <- Gtk.widgetGetStyleContext valueLabel
              Gtk.styleContextAddClass propStyleContext "custom-label"
              Gtk.styleContextAddClass valueStyleContext "custom-label"
-             Gtk.styleContextAddClass valueStyleContext valueClass
-          ) (zip [0..] properties)
+            --  Gtk.styleContextAddClass valueStyleContext "unknow"
+          ) (zip [0..] (zip propLabels valueLabels))
+    -- ===========
 
     -- Box to contain image frame and properties grid
     infoBox <- new Gtk.Box [#orientation := Gtk.OrientationHorizontal]
@@ -180,7 +183,9 @@ main = do
     let updateMaximalOrbitsDropdown nfa = do
           Gtk.comboBoxTextRemoveAll maximalDropdown
           let orbits = N.maximalOrbits nfa
-          mapM_ (\(n, x) -> Gtk.comboBoxTextAppendText maximalDropdown $ (T.pack (show n)) <> ". " <> N.orbitToText x) $ zip ([1 .. ] :: [Int])orbits
+          mapM_ (\(n, x) -> Gtk.comboBoxTextAppendText maximalDropdown $ 
+                            (T.pack (show n)) <> ". " <> N.orbitToText x) 
+                $ zip ([1 .. ] :: [Int]) orbits
 
     let performAutomata = do
           text <- Gtk.entryGetText entry
@@ -207,7 +212,8 @@ main = do
                               else N.automatonToDot automate
             let svgFile = "automate.svg"
             _ <- addExtension (runGraphviz automataDot) Svg "automate"
-            callCommand $ "rsvg-convert -w 600 " ++ svgFile ++ " -o " ++ svgFile
+            callCommand $ "rsvg-convert -w 600 " ++ svgFile ++ " -o " ++ 
+                          svgFile
             updateImage svgFile
 
     let importAutomata = do
@@ -250,26 +256,70 @@ main = do
                     let svgFile = "imported_automate.svg"
                     _ <- addExtension (runGraphviz automataDot) Svg 
                          "imported_automate"
-                    callCommand $ "rsvg-convert -w 700 " ++ svgFile ++ " -o " 
-                                  ++ svgFile
+                    callCommand $ "rsvg-convert -w 700 " ++ svgFile ++ 
+                                  " -o " ++ svgFile
                     updateImage svgFile
+
+    let onOrbitChange selectedOrbit = do
+            maybeNfa <- readIORef automataRef
+            case maybeNfa of
+              Just (nfa) -> do
+                let propertiesValues = [
+                      N.isOrbit nfa selectedOrbit,
+                      N.isStableOrbit nfa selectedOrbit]
+                      -- N.isTransversOrbit nfa selectedOrbit,
+                      -- N.isStronglyStableOrbit nfa selectedOrbit,
+                      -- N.isStronglyTransversOrbit nfa selectedOrbit]
+                mapM_ (\(i, value) -> do
+                  let valueText = trace (if value then "Vrai" else "Faux") $ if value then "Vrai" else "Faux" :: T.Text
+                  _ <- #setLabel (valueLabels !! i) valueText
+                  -- Update label color based on value
+                  let valueClass = if value then "true" else "false"
+                  Gtk.widgetSetName (valueLabels !! i) valueClass
+                  valueStyleContext <- Gtk.widgetGetStyleContext (valueLabels !! i)
+                  Gtk.styleContextRemoveClass valueStyleContext "true"
+                  Gtk.styleContextRemoveClass valueStyleContext "false"
+                  Gtk.styleContextAddClass valueStyleContext valueClass
+                  ) (zip [0..] propertiesValues)
+              Nothing -> return ()
+
 
     let onManualInputChanged = do
             text <- Gtk.entryGetText manualInput
             let parsed = textToSet text
             case parsed of
               Just orbit -> do
-                Gtk.labelSetText manualInputMessage "Orbit valide."
+                Gtk.labelSetText manualInputMessage $ 
+                                 "Orbit valide : " <> N.orbitToText orbit 
                 writeIORef orbitRef (Just orbit)
+                onOrbitChange orbit
               _ -> do
                 Gtk.labelSetText manualInputMessage "Erreur : Orbit invalide."
                 writeIORef orbitRef Nothing
+
+    let onMaximalDropdownChanged = do
+            activeText <- Gtk.comboBoxTextGetActiveText maximalDropdown
+            case activeText of
+              Just text -> do
+                let parsed = textToSet $ T.drop 1 $ snd $ T.breakOn "." text
+                case parsed of
+                  Just orbit -> do
+                    Gtk.labelSetText manualInputMessage $ 
+                                    "Orbit valide : " <> N.orbitToText orbit 
+                    writeIORef orbitRef (Just orbit)
+                    onOrbitChange orbit
+                  _ -> do
+                    Gtk.labelSetText manualInputMessage 
+                      "Erreur : Orbit invalide."
+                    writeIORef orbitRef Nothing
+              _ -> return ()
 
     _ <- on button #clicked performAutomata
     _ <- on importButton #clicked importAutomata
     _ <- on radioButtonManual #toggled updateOrbitSelection
     _ <- on radioButtonMaximal #toggled updateOrbitSelection
     _ <- on manualInput #changed onManualInputChanged
+    _ <- on maximalDropdown #changed onMaximalDropdownChanged
 
     _ <- on entry #keyPressEvent $ \eventKey -> do
             keyval <- Gdk.getEventKeyKeyval eventKey
@@ -327,7 +377,7 @@ main = do
 textToSet :: T.Text -> Maybe (N.Orbit Int)
 textToSet text = do
     let trimmed = T.strip text
-    let withoutBraces = T.filter (\x -> x /= '{' || x /= '}') trimmed
+    let withoutBraces = T.filter (\x -> x /= '{' && x /= '}') trimmed
     let elements = T.splitOn "," withoutBraces
     parsedElements <- mapM (readMaybe . T.unpack . T.strip) elements
     return $ Set.fromList parsedElements

@@ -41,6 +41,8 @@ import qualified Data.Set                          as Set
 import qualified Data.Text                         as T
 import qualified Data.Text.Lazy                    as TL
 
+import Debug.Trace
+
 type Orbit state = Set.Set state
 
 data NFA state transition = NFA
@@ -267,45 +269,56 @@ isOrbit a o = firstTest l && isJust g && hasOneElem fc
   where
     l = Set.toList o
     firstTest []  = False
-    firstTest [x] = not $ transExist a x x
+    firstTest [x] = transExist a x x
     firstTest _   = True
     hasOneElem [_] = True
-    hasOneElem _ = False
+    hasOneElem _   = False
     a' = extractListStateAutomata a o
     g = automataToGraph <$> a'
     fc = fromJust $ Data.Graph.Inductive.Query.DFS.scc <$> g
 
 orbitIn ::
-     forall state transition. Ord state
+     forall state transition. (Ord state, Show state, Show transition)
   => NFA state transition
   -> Orbit state
   -> Set.Set state
-orbitIn a o = foldl f Set.empty o
+orbitIn a o =
+  if isOrbit a o
+    then foldl f Set.empty o
+    else Set.empty
   where
     f s x =
-      if not (Set.member x (premier a))
-           || (Set.difference (directPred a x) o == Set.empty)
-        then s
-        else Set.insert x s
+      if Set.member x (premier a)
+           || Set.difference (directPred a x) o /= Set.empty
+        then Set.insert x s
+        else s
 
 orbitOut ::
-     forall state transition. Ord state
+     forall state transition. (Ord state, Show state, Show transition)
   => NFA state transition
   -> Orbit state
   -> Set.Set state
-orbitOut a o = foldl f Set.empty o
+orbitOut a o =
+  if isOrbit a o
+    then foldl f Set.empty o
+    else Set.empty
   where
     f s x =
-      if not (Set.member x (final a))
-           || Set.difference (directSucc a x) o == Set.empty
-        then s
-        else Set.insert x s
+      if Set.member x (final a)
+           || Set.difference (directSucc a x) o /= Set.empty
+        then Set.insert x s
+        else s
 
-isStableOrbit :: Ord state => NFA state transition -> Orbit state -> Bool
-isStableOrbit a o = inOut == filter (\(x, x') -> transExist a x x') inOut
+isStableOrbit ::
+     (Ord state, Show state, Show transition)
+  => NFA state transition
+  -> Orbit state
+  -> Bool
+isStableOrbit a o =
+  isOrbit a o && inOut == filter (\(x, x') -> transExist a x x') inOut
   where
-    inO = orbitIn a o
-    outO = orbitOut a o
+    inO = trace (show $ orbitIn a o) $ orbitIn a o
+    outO = trace (show $ orbitOut a o) $ orbitOut a o
     inOut = do
       x <- Set.toList outO
       y <- Set.toList inO
@@ -317,10 +330,11 @@ isStronglyStableOrbit ::
   -> Orbit state
   -> Bool
 isStronglyStableOrbit a o =
-  if not $ isStableOrbit a o
-    then False
-    else foldl (\acc o' -> acc && isStronglyStableOrbit a' o') True
-           $ maximalOrbits autoOrbit
+  isOrbit a o
+    && if not $ isStableOrbit a o
+         then False
+         else foldl (\acc o' -> acc && isStronglyStableOrbit a' o') True
+                $ maximalOrbits autoOrbit
   where
     autoOrbit = fromJust $ extractListStateAutomata a o
     inO = orbitIn a o
@@ -335,9 +349,16 @@ isStronglyStableOrbit a o =
         (fromJust $ extractListStateAutomata a o)
         outIn
 
-isTransversOrbit :: Ord state => NFA state transition -> Orbit state -> Bool
+isTransversOrbit ::
+     (Ord state, Show state, Show transition)
+  => NFA state transition
+  -> Orbit state
+  -> Bool
 isTransversOrbit a o =
-  all (== head lOut) (tail lOut) && all (== head lIn) (tail lIn)
+  isOrbit a o
+    && all (not . null) [lOut, lIn]
+    && all (== head lOut) (tail lOut)
+    && all (== head lIn) (tail lIn)
   where
     lOut = map (directSucc a) $ Set.toList $ orbitOut a o
     lIn = map (directPred a) $ Set.toList $ orbitIn a o
@@ -348,10 +369,11 @@ isStronglyTransversOrbit ::
   -> Orbit state
   -> Bool
 isStronglyTransversOrbit a o =
-  if not $ isTransversOrbit a o
-    then False
-    else foldl (\acc o' -> acc && isStronglyStableOrbit a' o') True
-           $ maximalOrbits autoOrbit
+  isOrbit a o
+    && if not $ isTransversOrbit a o
+         then False
+         else foldl (\acc o' -> acc && isStronglyStableOrbit a' o') True
+                $ maximalOrbits autoOrbit
   where
     autoOrbit = fromJust $ extractListStateAutomata a o
     inO = orbitIn a o

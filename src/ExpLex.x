@@ -18,6 +18,7 @@ tokens :-
   $alpha           { \s -> Sym (T.head s) }
   "("              {\_ -> Pd}
   ")"              {\_ -> Pg}
+  .                {\_ -> Error}
 
 {
 data Token 
@@ -28,5 +29,6 @@ data Token
   | Sym Char
   | Pd
   | Pg
+  | Error
   deriving (Show, Eq)
 }
