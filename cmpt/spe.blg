@@ -1,0 +1,15 @@
+[0] Config.pm:306> INFO - This is Biber 2.18
+[0] Config.pm:309> INFO - Logfile is 'spe.blg'
+[149] biber:340> INFO - === mar. juin 11, 2024, 23:57:52
+[178] Biber.pm:418> INFO - Reading 'spe.bcf'
+[297] Biber.pm:978> INFO - Found 7 citekeys in bib section 0
+[318] Biber.pm:4401> INFO - Processing section 0
+[335] Biber.pm:4592> INFO - Looking for bibtex file 'references.bib' for section 0
+[336] bibtex.pm:1713> INFO - LaTeX decoding ...
+[345] bibtex.pm:1518> INFO - Found BibTeX data source 'references.bib'
+[412] UCollate.pm:68> INFO - Overriding locale 'fr-FR' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[413] UCollate.pm:68> INFO - Overriding locale 'fr-FR' defaults 'variable = shifted' with 'variable = non-ignorable'
+[413] Biber.pm:4221> INFO - Sorting list 'none/global//global/global' of type 'entry' with template 'none' and locale 'fr-FR'
+[413] Biber.pm:4227> INFO - No sort tailoring available for locale 'fr-FR'
+[421] bbl.pm:654> INFO - Writing 'spe.bbl' with encoding 'UTF-8'
+[423] bbl.pm:757> INFO - Output to spe.bbl

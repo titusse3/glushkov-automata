@@ -1,0 +1,9 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{+w}{            }\PYG{n}{fibo}\PYG{+w}{ }\PYG{o+ow}{::}\PYG{+w}{ }\PYG{k+kt}{Int}\PYG{+w}{ }\PYG{o+ow}{\PYGZhy{}\PYGZgt{}}\PYG{+w}{ }\PYG{k+kt}{Int}
+\PYG{+w}{            }\PYG{n}{fibo}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{+w}{ }\PYG{o+ow}{=}\PYG{+w}{ }\PYG{l+m+mi}{0}
+\PYG{+w}{            }\PYG{n}{fibo}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{+w}{ }\PYG{o+ow}{=}\PYG{+w}{ }\PYG{l+m+mi}{1}
+\PYG{+w}{            }\PYG{n}{fibo}\PYG{+w}{ }\PYG{n}{n}\PYG{+w}{ }\PYG{o+ow}{=}\PYG{+w}{ }\PYG{n}{fibo\PYGZsq{}}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{+w}{ }\PYG{n}{n}
+\PYG{+w}{              }\PYG{k+kr}{where}
+\PYG{+w}{                }\PYG{n}{fibo\PYGZsq{}}\PYG{+w}{ }\PYG{k+kr}{\PYGZus{}}\PYG{+w}{ }\PYG{n}{m2}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{+w}{  }\PYG{o+ow}{=}\PYG{+w}{ }\PYG{n}{m2}
+\PYG{+w}{                }\PYG{n}{fibo\PYGZsq{}}\PYG{+w}{ }\PYG{n}{m1}\PYG{+w}{ }\PYG{n}{m2}\PYG{+w}{ }\PYG{n}{m}\PYG{+w}{ }\PYG{o+ow}{=}\PYG{+w}{ }\PYG{n}{fibo\PYGZsq{}}\PYG{+w}{ }\PYG{n}{m2}\PYG{+w}{ }\PYG{p}{(}\PYG{n}{m1}\PYG{+w}{ }\PYG{o}{+}\PYG{+w}{ }\PYG{n}{m2}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{\PYGZdl{}}\PYG{+w}{ }\PYG{n}{m}\PYG{+w}{ }\PYG{o}{\PYGZhy{}}\PYG{+w}{ }\PYG{l+m+mi}{1}
+\end{Verbatim}

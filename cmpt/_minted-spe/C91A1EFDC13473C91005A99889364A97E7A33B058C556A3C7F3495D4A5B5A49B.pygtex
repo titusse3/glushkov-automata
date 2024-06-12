@@ -1,0 +1,9 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{+w}{        }\PYG{k+kr}{import}\PYG{+w}{ }\PYG{n+nn}{Text.Read}\PYG{+w}{ }\PYG{p}{(}\PYG{n+nf}{readMaybe}\PYG{p}{)}
+
+\PYG{+w}{        }\PYG{n}{main}\PYG{+w}{ }\PYG{o+ow}{::}\PYG{+w}{ }\PYG{k+kt}{IO}\PYG{+w}{ }\PYG{n+nb}{()}
+\PYG{+w}{        }\PYG{n}{main}\PYG{+w}{ }\PYG{o+ow}{=}\PYG{+w}{ }\PYG{k+kr}{do}
+\PYG{+w}{            }\PYG{n}{l}\PYG{+w}{ }\PYG{o+ow}{\PYGZlt{}\PYGZhy{}}\PYG{+w}{ }\PYG{n}{getLine}
+\PYG{+w}{            }\PYG{k+kr}{let}\PYG{+w}{ }\PYG{n}{n}\PYG{+w}{ }\PYG{o+ow}{=}\PYG{+w}{ }\PYG{n}{readMaybe}\PYG{+w}{ }\PYG{n}{l}\PYG{+w}{ }\PYG{o+ow}{::}\PYG{+w}{ }\PYG{k+kt}{Maybe}\PYG{+w}{ }\PYG{k+kt}{Int}
+\PYG{+w}{            }\PYG{n}{print}\PYG{+w}{ }\PYG{o}{\PYGZdl{}}\PYG{+w}{ }\PYG{n}{fibo}\PYG{+w}{ }\PYG{o}{\PYGZlt{}\PYGZdl{}\PYGZgt{}}\PYG{+w}{ }\PYG{n}{n}
+\end{Verbatim}

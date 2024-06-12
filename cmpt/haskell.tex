@@ -1,0 +1,159 @@
+\section{\textit{Haskell}}
+
+L'\textit{Haskell} est un langage extrêmement différent de ceux vue au cours de 
+la licence. Tout d'abord, il s'agit d'un \textbf{langage fonctionnel}. Bien que 
+nous ayons vue ce paradigme par le biais du langage \textit{OCaml}, 
+nous n’avons jamais été aussi loin. Dans le développement notamment, nous 
+n'avons par exemple jamais mis en place de parser ou bien même d'application 
+graphique. De plus, le concept de \textbf{programmation pure} est poussé à un 
+extrême dans ce langage. Il existe une séparation hermétique entre ce qui est 
+\textbf{pure} et ce qu'il ne l'ait pas.
+
+\subsection{Programmation pure}
+
+\begin{quotation}
+    \textit{'A pure function is a function that, given the same input, will 
+    always return the same output and does not have any observable side effect.'
+    }\cite{citationPureProg}
+\end{quotation}
+
+Pour revenir sur le concept de \textbf{programmation pure}, dans un langage 
+fonctionnelle, on parle alors de \textbf{fonction pure} (Le paradigme, ne 
+permettant que la création de fonction). On définit une fonction présente dans 
+un programme comme étant \textbf{pure} si et seulement si~:
+
+\begin{itemize}
+    \item[\textbullet] La fonction est mathématiquement 
+    \textbf{déterministe}. Par cela, nous entendons que pour une fonction \(f\), 
+    il ne peut y avoir \(f(x) = y_1\) et \(f(x) = y_2\) avec \(y_1 \neq y_2\). 
+    En programmation, on conçoit que de nombreuse fonction 
+    sont déterministes tels que le calcule du n-ième terme de la suite de 
+    Fibonacci. On peut voir sur la figure~\ref{fig:progFiboHaskell}, une 
+    implémentation de cette fonction~(L'implémentation présentée ici, est la 
+    version intuitive. Il existe cependant des méthodes bien plus performantes 
+    pour se calcule, se référer à l'article de blog~\cite{citationFiboProg}).
+    Il vient de manière logique que notre fonction est déterministe
+    \begin{figure}[H]
+        \begin{minted}{haskell}
+            fibo :: Int -> Int
+            fibo 0 = 0
+            fibo 1 = 1
+            fibo n = fibo' 0 1 n
+              where
+                fibo' _ m2 1  = m2
+                fibo' m1 m2 m = fibo' m2 (m1 + m2) $ m - 1
+        \end{minted}
+        \caption{
+            Code \textit{Haskell}, du calcul du n-ième terme de Fibonacci.
+        }\label{fig:progFiboHaskell}
+    \end{figure}
+
+    \item[\textbullet] La fonction doit ne doit pas produire 
+    d'\textbf{effet de bord}. Un \textbf{'side effect'} comme nommé en anglais, 
+    est une qualification d'une action qui modifie son environnement extérieur 
+    lors d'un calcule. Un exemple très simple peut être trouvé dans l'affichage 
+    d'un nombre sur la sortie standard. Dans le langage \textbf{C},
+    cet affichage correspondrait au code de la figure~\ref{fig:progAfficheC}.
+    Ces \textbf{effets de bord} sont extrêmement problématique, car ils 
+    peuvent causer des erreurs non prises en compte par celui qui a conçu la 
+    fonction et même par la personne l'utilisant. Dans le cadre d'un affichage, 
+    ces erreurs ne sont pas forcément problématiques, mais dans le cas de 
+    modification de variable global par exemple, ou même du contenu d'un fichier
+    cela pourrait compromettre l'intégrité du code.
+    \begin{figure}[H]
+        \begin{minted}{c}
+            #include <stdio.h>
+
+            void print(int n) {
+                printf("%d", n);
+            }
+        \end{minted}
+        \caption{
+            Code \textit{C}, d'un affichage sur la sortie standard.
+        }\label{fig:progAfficheC}
+    \end{figure}
+\end{itemize}
+
+\subsection{Les spécificités du langage}
+
+Comme évoquée plus tôt, l'\textit{Haskell} met en place une séparation 
+hermétique entre les fonctions pures et impure. C'est d'ailleurs ce qui en fait 
+sa plus grande différence à première vue avec l'\textit{OCaml}. Cette séparation
+s'effectue avec l'un des nombreux concepts de la \textbf{théorie des catégories}
+présente dans ce langage. Les \textbf{Monades} (On ne citera que le terme de 
+\textbf{Monade} dans cette partie, mais les structures \textbf{Functor} et 
+\textbf{Applicative} visent à la même chose.), est le concept qui permet de 
+confiner toute action impure du reste du code. En effet, lors que par exemple 
+une action \textit{IO (input/output)} doit être faite, elle se trouvera dans la 
+monade \mintinline{haskell}{IO()}. Si on reprend la fonction 
+\mintinline{haskell}{fibo} de la figure~\ref{fig:progFiboHaskell}, et que l'on 
+souhaite afficher le n-ième nombre de Fibonacci avec \mintinline{haskell}{n}, un 
+nombre entrée par l'utilisateur on obtient le code de la 
+figure~\ref{fig:progInOutFibo}.
+
+\begin{figure}[H]
+    \begin{minted}{haskell}
+        import Text.Read (readMaybe)
+        
+        main :: IO ()
+        main = do
+            l <- getLine
+            let n = readMaybe l :: Maybe Int
+            print $ fibo <$> n :: IO()
+    \end{minted}
+    \caption{
+        Code \textit{Haskell}, de l'affichage du n-ième nombre de Fibonacci
+        entrée par un utilisateur.
+    }\label{fig:progInOutFibo}
+\end{figure}
+
+Du code ci-dessus, on peut observer le type \mintinline{haskell}{IO}, monade 
+d'entrée et de sortie, mais aussi \mintinline{haskell}{Maybe}. Ces deux monades,
+sont un bon exemple de ce que concept apporte. On pourrait citer la définition 
+donnée par Wikipédia d'une monade figure~\ref{fig:citationMonad}, mais cela ne 
+les ferait comprendre qu'à une mince portion de personne.
+
+\begin{figure}[H]
+    \begin{quotation}
+        \textit{'[a Monad is] an endofunctor, together with two natural 
+        transformations required to fulfill certain coherence conditions'
+        }\cite{citationMonadWiki}
+    \caption{
+      Définition d'une Monad selon \textit{Wikipedia}.
+    }\label{fig:citationMonad}
+    \end{quotation}
+\end{figure}
+
+On peut voir une monade, comme une structure qui gère les erreurs possibles 
+liées aux \textbf{effets de bord}. Ce qui rend ce concept de Monade si 
+important est si on dispose d'une fonction 
+\mintinline{haskell}{f :: Int -> Int}, et d'une valeur de type 
+\mintinline{haskell}{n :: IO (Int)} l'appelle suivant est une erreur levée à la 
+compilation \mintinline{haskell}{f n}. Évidemment, il existe des moyens 
+d'appeler \mintinline{haskell}{f}, avec la valeur entière contenu dans 
+\mintinline{haskell}{n}. Pour ce faire, on doit avoir recours aux fonctions 
+suivantes~: 
+
+\begin{minted}{haskell}
+  -- Operateur Functor
+  fmap :: Functor f => (a -> b) -> f a -> f b
+  (<$>) :: Functor f => (a -> b) -> f a -> f b
+  -- Operateur Applicative
+  (<*>) :: Applicative f => f (a -> b) -> f a -> f b
+  -- Operateur Monad
+  (>>=) :: Monad m => m a -> (a -> m b) -> m b
+  (>>) :: Monad m => m a -> m b -> m b
+  return :: Monad m => a -> m a
+\end{minted}
+
+On remarque alors que toutes ces fonctions font en quelque sorte en conversion 
+vers la monade. Grâce à cette conversion, on peut donc conserver la gestion 
+d'erreur mise en place par ces structures.
+
+Qu'une fine partie des concepts de ce langage n'a été abordée ici. Bien d'autre
+chose le rende bien différent des langages abordés lors de la licence. Nous 
+aurions pu voir par exemple, ce qu'apporte l'évaluation paresseuse du langage. 
+Où encore, les optimisations agressives fournies par le compilateur 
+\textit{GHC}. De plus, la proximité entre ce langage et la 
+\textbf{théorie des catégories}, fait que de nombreux modules introduise des 
+notions pas encore implémenter. On peut notamment citée les \textit{Lens}.

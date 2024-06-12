@@ -19,14 +19,20 @@
 \end{Definition}
 
 \begin{Definition}
-  Un mot est accepté par un \textbf{automate}, \(M = (\Sigma, Q, I, F, \delta)\) 
-  si et seulement si, il existe au moins une suite de d'état tel que 
-  \(m = (p_0, \dots, p_{n-1})\) tel que \(p_0 \in I\) et \(p_{n-1} \in F\).
+  Un mot \(w \in \Sigma^{*}, w = \{a_0, a_1, \dots, a_{n-1}\}\) est accepté par 
+  un \textbf{automate}, \(M = (\Sigma, Q, I, F, \delta)\) si et seulement si, 
+  il existe au moins un sous-ensemble d'état 
+  \(Q' = \{q_0, q_1, \dots, q_{n-1}\}\) tel que~:
+  \[
+    q_0 \in I \land q_{n-1} \in F \land 
+    q_{i} \in Q', a_{i} \in \Sigma, i \in [1, n], 
+    \delta(q_{i - 1}, a_{i}) = q_{i}
+  \]
 \end{Definition}
 
 \begin{Definition}
   On définit le langage d'un automate \(M = (\Sigma, Q, I, F, \delta)\), comme 
-  étant \(L(M) = \{w \in \Sigma^* | w \text{ est reconnu par } M\}\)
+  étant \(L(M) = \{w \in \Sigma^* | w \text{ est accepté par } M\}\)
 \end{Definition}
 
 \begin{Definition}
@@ -39,7 +45,7 @@
   seulement si~:
   \begin{itemize}
     \item \(|I| = 1\)
-    \item \(\{q \in Q | \exists a \in \Sigma, \delta(q, a) \in I\} = \emptyset\)
+    \item \(\{q \in Q | \forall a \in \Sigma, \delta(q, a) \cap I = \emptyset\}\)
   \end{itemize}
 \end{Definition}
 
@@ -68,7 +74,7 @@
       \delta(e, a), \text{ sinon } \\
     \end{array}
     \right .\)
-  On éteint cette suppression à la surpression de toutes les transitions entre 
+  On étend celle-ci à la suppression de toutes les transitions entre 
   deux n\oe uds de la façon suivante~:
   \[
     removeTransitions((\Sigma, Q, I, F, \delta), (q, q')) =
@@ -82,14 +88,14 @@
     \right .\)
 \end{Definition}
 
-\begin{Remark}
+\begin{Remarque}
   Les fonctions \(removeState, removeTransition\) et \(removeTransitions\)
-  augment le nombre d'opérations faites sur la fonction \(\delta\) de 
+  augmente le nombre d'opérations faites sur la fonction \(\delta\) de 
   l'automate. Il serait donc intéressant dans le cas d'une implémentation de 
   cette méthode, de donner à cette implémentation une opération de 
   \textbf{mémoization} qui permettrait quand voulu de réduire le temps de calcul 
   de la fonction \(\delta\).
-\end{Remark}
+\end{Remarque}
 
 \begin{Definition}
   On définit la fonction \(\Omega^{+}(q)\) (respectivement \(\Omega^{-}(q)\)) 
@@ -112,7 +118,7 @@
   Avec \(\delta'(q, a) = \left \{
     \begin{array}{r c l}
       \emptyset, \text{ si } q \notin L\\
-      \delta(q, a) \cup L, \text{ sinon } \\
+      \delta(q, a) \cap L, \text{ sinon } \\
     \end{array}
     \right .\)
 \end{Definition}
@@ -121,14 +127,17 @@
   Soit un automate \(M = (\Sigma, Q, I, F, \delta)\), une \textbf{orbite} est un 
   sous-ensemble de \(Q\) tel que, 
   \[
-    \forall (q, q') \in Q^2, \text{ il existe un chemin non trivial de } q 
-    \text{ vers } q' \text{ et de } q' \text{ vers } q.
+    \forall (q_0, q_n) \in Q^2, \exists Q' = \{q, q_0, \dots, q_{n-1}, q'\} 
+    \text{, tel que }
+  \]
+  \[
+    \forall i \in [1, n], \exists a \in \Sigma, \delta(q_{i - 1}, a) = q_{i}
   \]
 \end{Definition}
 
 \begin{Definition}
   Une \textbf{orbite} d'un automate \(M = (\Sigma, Q, I, F, \delta), \mathcal{O} 
-  \subset Q\) est dite \textbf{maximal} si et seulement si, 
+  \subset Q\) est dite \textbf{maximale} si et seulement si, 
   \(\forall q \in \mathcal{O}, \forall q' \notin \mathcal{O}\), il n'existe pas 
   en même temps de chemin de q vers q' et de q' vers q.  
 \end{Definition}
@@ -150,7 +159,7 @@
 
 \begin{Definition}
   Une \textbf{orbite} \(\mathcal{O}\) d'un automate \(M = (\Sigma, Q, I, F, 
-  \delta)\) est dit \textbf{stable} si et seulement si, \(In(\mathcal{O}) 
+  \delta)\) est dite \textbf{stable} si et seulement si, \(In(\mathcal{O}) 
   \times Out(\mathcal{O}) \subset \{(q, q') | \forall q \in Q, \forall a \in 
   \Sigma, \delta(q, a) = q'\}\).
 \end{Definition}
@@ -158,9 +167,9 @@
 \begin{Definition}
   Une \textbf{orbite maximale} \(\mathcal{O}\) d'un automate \(M = (\Sigma, Q, 
   I, F, \delta)\) est dite \textbf{hautement stable} si et seulement si, 
-  \(\mathcal{O}\) est stable et qu’après avoir supprimé toutes les transitions 
+  \(\mathcal{O}\) est stable et qu'après avoir supprimé toutes les transitions 
   des états présents dans \(In(\mathcal{O}) \times Out(\mathcal{O})\), chaque 
-  sous-orbite maximal obtenu est \textbf{hautement stable}.
+  orbite maximal obtenu est \textbf{hautement stable}.
 \end{Definition}
 
 \begin{Definition}

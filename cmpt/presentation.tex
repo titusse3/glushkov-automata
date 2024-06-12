@@ -1,0 +1,208 @@
+\section{Objectif du Stage}
+
+Ce stage a pour objectif, le développement d'une bibliothèque traitant 
+d'automates à partir d'expression rationnelle en \textit{Haskell}. De plus, 
+cette bibliothèque doit être accompagnée d'une description formelle. Que ce soit 
+des algorithmes et même des structures utilisées. Il a de plus été envisagé 
+assez tôt dans ce stage, la mise en place d'une interface graphique qui pourrait 
+améliorez l'accessibilité de cette bibliothèque.
+
+\vphantom{}
+
+La bibliothèque d'automate ne devait pas seulement permettre de créer un 
+automate, elle devait aussi mettre en place des fonctions usuelles sur les 
+automates. Toutes ces fonctions sont détaillées dans la spécification technique 
+de la bibliothèque. De même, le développement d'un parser de chaine de caractère 
+vers une expression régulière et d'un fichier \textit{JSON} vers un automate 
+devait être mis en place.
+
+\vphantom{}
+
+Pour améliorer la lisibilité, une représentation graphique à l'aide du langage 
+\textit{dot} et de ces utilitaires devait être mis en place. Enfin, un site 
+web avait était prévue pour mettre en place une interface graphique améliorant 
+l'accessibilité de toutes les fonctionnalités citées précédemment. 
+
+\subsection{Organisation du Travail}
+
+Le développement de cette bibliothèque se fait parallèlement en \textit{Haskell}
+et en \textit{Rust}. En effet, nous sommes un binôme sur ce projet. Bien que les 
+objectifs soient les mêmes, les implémentations n'ont rien à voir. La différence
+entre les deux langages est si grande que très peu de ressemblance peuvent être 
+trouvé.
+
+\vphantom{}
+
+L'organisation du travail pour ce stage, a été mis en place lors de notre 
+première réunion qui s'est tenu le premier jour de ce stage. Il a alors été 
+convenu de mettre en place une réunion hebdomadaire. De ce fait, toutes les 
+semaines, une réunion pour parler des avancées, difficultés et objectif ont été 
+mises en place. De manière générale, de telle réunion avait un temps variable 
+pouvant aller de 20 minute à pour les plus longs plus d'une heure.
+
+\vphantom{}
+
+J'ai pour ma part après cette première réunion qui nous as donnés les objectifs
+de ce stage, mis en place un diagramme de \textit{Gantt}, celui de la 
+figure~\ref{fig:gantfig}. Comme on peut le voir sur cette figure, chaque couleur 
+corresponde à une tâche en particulier. Ce diagramme aillant été fait au début 
+de mon stage, certain objectif ont pu prendre plus de temps que prévue. La 
+correspondance couleur, objectifs est celle ci-dessous~:
+
+\vphantom{}
+
+\begin{itemize}
+  \item[\textbullet] \textcolor{red}{Rouge}~: Mise en place d'un type 
+  d'\textbf{expression régulière}, ainsi que d'\textbf{automates}. Puis 
+  implémenter la conversion d'expression vers automate à l'aide de l'algorithme 
+  de \textit{Glushkov}.
+  \item[\textbullet] \textcolor{blue}{Bleu}~: Développement d'un \textbf{Lexer}, 
+  aillant pour but de convertir une chaine de caractère en \textbf{expression 
+  régulière}.
+  \item[\textbullet] \textcolor{green}{Vert}~: Développement de diverses 
+  fonctions sur des automates. Que ce soit des \textit{`getters'/ `setters'} ou 
+  encore des tests de propriétés comme l'homogénéisée ou encore savoir s'il 
+  est standard (se référer au document technique).
+  \item[\textbullet] \textcolor{yellow}{Jaune}~: Création d'une conversion d'un
+  automate en \textit{Dot}. Pour une représentation graphique qui as pour d'être 
+  d'être, elle aussi, développer.
+  \item[\textbullet] \textcolor{purple}{Violet}~: Mise en place du site web qui 
+  devait permettre d'obtenir une représentation graphique et une meilleure 
+  accessibilité.
+  \item[\textbullet] \textcolor{orange}{Orange}~: Enfin, ces deux dernières 
+  semaines ont été laissées pour peaufiner chacune des parties précédentes, mais 
+  aussi de rédiger ce rapport de stage.
+\end{itemize}
+
+\begin{figure}[H]
+  \begin{ganttchart}[
+    hgrid,
+    vgrid,
+    x unit=2.5mm,
+    time slot format=isodate
+    ]{2024-04-22}{2024-06-22}
+    \gantttitlecalendar{month} \\
+    \ganttbar[bar/.append style={fill=red}]{}{2024-04-22}{2024-04-26} 
+    \ganttbar[bar/.append style={fill=red}]{}{2024-04-29}{2024-05-03} 
+    \ganttbar[bar/.append style={fill=blue}]{}{2024-05-06}{2024-05-07} 
+    \ganttbar[bar/.append style={fill=green}]{}{2024-05-13}{2024-05-17} 
+    \ganttbar[bar/.append style={fill=green}]{}{2024-05-21}{2024-05-22} 
+    \ganttbar[bar/.append style={fill=yellow}]{}{2024-05-23}{2024-05-24}
+    \ganttbar[bar/.append style={fill=yellow}]{}{2024-05-27}{2024-05-31} 
+    \ganttbar[bar/.append style={fill=purple}]{}{2024-06-03}{2024-06-07} 
+    \ganttbar[bar/.append style={fill=orange}]{}{2024-06-10}{2024-06-14}
+    \ganttbar[bar/.append style={fill=orange}]{}{2024-06-17}{2024-06-21} \\
+    \ganttmilestone[milestone/.append style={shape=rectangle, fill=black}]{}{2024-04-22}
+    \ganttmilestone[milestone/.append style={shape=rectangle, fill=black}]{}{2024-04-26}
+    \ganttmilestone[milestone/.append style={shape=rectangle, fill=black}]{}{2024-05-02}
+    \ganttmilestone[milestone/.append style={shape=rectangle, fill=black}]{}{2024-05-14}
+    \ganttmilestone[milestone/.append style={shape=rectangle, fill=black}]{}{2024-05-23}
+    \ganttmilestone[milestone/.append style={shape=rectangle, fill=black}]{}{2024-06-06}
+    \ganttmilestone[milestone/.append style={shape=rectangle, fill=black}]{}{2024-06-13}
+  \end{ganttchart}
+  \caption{
+    Diagramme de \textit{Gantt} mise en place pour le stage. Les rectangles 
+    noirs correspondent au jour de réunion.
+  }\label{fig:gantfig}
+\end{figure}
+
+% peut être encore parler de quelque chose mais je sais pas quoi
+
+\subsection{Difficultés rencontrées}
+
+J'ai pu au cours de ce stage, rencontrées de nombreuses difficultés. Pour les 
+exposées, j'ai décidé de diviser en deux catégories. Les difficultés liées au 
+développement, à la partie théorique et les problématiques spécifique d'un 
+stage.
+
+\subsubsection{Problème lié au stage}
+
+Ce stage constitue ma première expérience proche d'un travail en entreprise. De 
+ce fait, j'ai pu rencontrer les problèmes que je pense nombreux ont. Notamment 
+pendent quelque jour, notamment la première semaine, nous étions en télétravail.
+De nombreux problèmes survienne par ce mode de travail. Tous d'abord la façon de 
+gérer ces horaires. Mr Mignot nous as laissé gérer nos horaires nous même ce qui 
+à fait en sorte que pendant le télétravail j'ai eu du mal à ne pas trop 
+travailler et même dans l'autre sens parfois. Ensuite, on a les problèmes du 
+quotidien comme des pertes de connexions qui rendent certaine journée 
+pratiquement impossible à avancée. Enfin, je n'ai pas eu de chance lors de ces 
+derniers mois et je suis tombé malade, ce qui a accentué encore plus ce 
+télétravail.
+
+\newpage
+
+Un autre problème et survenue, celui-ci concernait le matériel. En effet, mon 
+ordinateur portable n'avait selon mon système d'exploitation plus de mémoire 
+vive. J'ai du alors réinstaller un nouvel os. Cependant, je n'avais pas prévue 
+qu'il existait encore des os qui ne se lancé pas sur \textit{systemd}. Sans 
+rentrer dans les détailles, ce problème m’a pris énormément de temps à régler. 
+C'est un problème, car le gestionnaire de paquet (s'il peut l'appeler comme ça)
+\textit{Nix} (qui est l'outil le plus utilisé pour la création de site en 
+\textit{Haskell}) doit ce lancé à l'aide de \textit{systemd}. Sait d'ailleurs 
+une des raisons aillant poussé vers la migration du développement d'un site web 
+vers une application \textit{Gtk}. Se référer à la sous-section suivante et à la 
+partie résultat de ce compte rendu. 
+
+\subsubsection{Difficultés de développement du projet}
+
+Avant tout, j'ai n'ai commencé à apprendre ce langage que depuis décembre. 
+Dès lors que j'ai obtenu ce stage et que j'ai appris que le sujet nécessite le 
+\textit{Haskell}. J'ai donc demandé des ressources à Mr Mignot et j'ai suivi 
+ces documentations. Notamment la lecture des livres 
+\textit{Get Programming with Haskell} et \textit{Haskell in Depth}
+\cite{bookWithHaskell, haskellInDepth}. Pour combler celà, j'ai aussi suivie 
+certain cours vidéo disponible sur \textit{Youtube}
+\cite{playHaksell1, playHaksell2}. De ce fait, malgré avoir commencé assez 
+tôt l'apprentissage de ce langage, comme évoquer dans de nombreuse ressource la 
+courbe d'apprentissage du \textit{Haskell} est exponentielle. Donc de nombreux 
+problèmes que je vais évoquer ci-dessous aurait pu ne pas avoir vue le jour, si 
+j'avais une plus grande expérience avec ce langage.
+
+\vphantom{}
+
+Le premier problème a été rencontré lors de la mise du convertisseur de chaine 
+de caractère vers expression. Les modules utilisés ont été comme conseille par 
+Mr Mignot, \textit{Alex} et \textit{Happy}. Le problème a été la documentation 
+de ces modules. Cette manière de documentation basée uniquement sur ce que font 
+chaque fonction et non de comment on peut les utiliser et la non-présence 
+d'exemple a rendu ce développement bien plus long. Ce même problème a été vu 
+lors de l'utilisation des modules \textit{GraphViz} qui permet la représentation
+d'un graph. La documentation est totalement horrible. De plus, le module étant 
+très peu utilisé il n'existe pratiquement aucun exemple sur internet. J'ai donc
+du programmer a taton et me référer au code source du module pour comprendre 
+son mode de fonctionnement.
+
+\vphantom{}
+
+Le deuxième problème, j'ai l'ai eu bien plus tard dans le développement. 
+Cependant celui-ci m’a fait perdre pratiquement deux voir trois semaines. Pour 
+la mise en place site web, il avait été convenu lors d'une réunion, d'utilisé 
+le paradigme de la \textit{Programmation fonctionnelle réactive}. 
+% finir cette partie
+
+\vphantom{}
+
+Enfin la dernière difficulté rencontrée à été la rédaction du rapport formelle 
+dans un premier temps. Bien que j'aie entrepris son écriture en même temps que 
+le développement de la bibliothèque. Le formalisme nécessaire et les définitions 
+qu'il faut introduire pour que le document se suffise à lui-même a rendu cette 
+tâche très chronophage. De plus, n'aillant jamais réellement été confronté a 
+cet exercice lors de la licence, il a été dur de s'y adapté. Je me suis 
+d'ailleurs rendu compte du nombre de relectures nécessaire pour un tel document. 
+Je ne pensais pas qu'il fallait en faire au temps. De même pour la bibliographie 
+qui doit si elle est citée définir les concepts de la même manière que ceux 
+du document.
+
+Cette difficulté de rédaction s'est aussi vue sur la fin de ce stage, lors de la 
+rédaction de ce rapport. 
+% finir cette partie
+
+
+% [V] - maladie
+% [V] - pc 
+% - logiciéel, obelisk
+% [V] - manque de documentation graphViz
+% [V] - rédaction rapport formelle
+% - rédaction rapport de stage
+% [V] - problème télé travail 
+% - site web initalmeent prévue, obelisk

@@ -1,0 +1,3 @@
+{"rule":"D_N","sentence":"^\\QOn définit une \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q, comme étant une structure de données.\\E$"}
+{"rule":"D_N","sentence":"^\\QSoit \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q une \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q où les clés sont dans l'ensemble \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q et les valeurs dans l'ensemble \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q.\\E$"}
+{"rule":"D_N","sentence":"^\\QNous définissons la fonction \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q en prenant en paramètre une expression régulière indexée et retournant une \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q de couple indice d'apparition symbole.\\E$"}

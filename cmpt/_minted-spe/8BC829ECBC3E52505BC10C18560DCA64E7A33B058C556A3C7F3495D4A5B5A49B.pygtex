@@ -1,0 +1,4 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{+w}{        }\PYG{k+kr}{import}\PYG{+w}{ }\PYG{n+nn}{Text.Read}\PYG{+w}{ }\PYG{p}{(}\PYG{n+nf}{readMaybe}\PYG{p}{)}
+
+\end{Verbatim}

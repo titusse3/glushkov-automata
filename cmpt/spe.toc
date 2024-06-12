@@ -1,0 +1,10 @@
+\babel@toc {french}{}\relax 
+\contentsline {section}{\numberline {I}Objectif du Stage}{3}{section.1}%
+\contentsline {subsection}{\numberline {1}Organisation du Travail}{3}{subsection.1.1}%
+\contentsline {subsection}{\numberline {2}Difficultés rencontrées}{4}{subsection.1.2}%
+\contentsline {subsubsection}{\numberline {2.1}Problème lié au stage}{4}{subsubsection.1.2.1}%
+\contentsline {subsubsection}{\numberline {2.2}Difficultés de développement du projet}{5}{subsubsection.1.2.2}%
+\contentsline {section}{\numberline {II}\textit {Haskell}}{7}{section.2}%
+\contentsline {subsection}{\numberline {1}Programmation pure}{7}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2}Les spécificités du langage}{8}{subsection.2.2}%
+\contentsline {section}{\numberline {III}Resultat}{10}{section.3}%

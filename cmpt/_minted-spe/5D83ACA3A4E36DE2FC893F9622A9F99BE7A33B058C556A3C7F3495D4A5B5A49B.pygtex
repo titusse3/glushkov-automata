@@ -1,0 +1,22 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{+w}{    }\PYG{c+c1}{\PYGZhy{}\PYGZhy{} Type annotation (optional)}
+\PYG{+w}{    }\PYG{n}{fib}\PYG{+w}{ }\PYG{o+ow}{::}\PYG{+w}{ }\PYG{k+kt}{Int}\PYG{+w}{ }\PYG{o+ow}{\PYGZhy{}\PYGZgt{}}\PYG{+w}{ }\PYG{k+kt}{Integer}
+
+\PYG{+w}{    }\PYG{c+c1}{\PYGZhy{}\PYGZhy{} With self\PYGZhy{}referencing data}
+\PYG{+w}{    }\PYG{n}{fib}\PYG{+w}{ }\PYG{n}{n}\PYG{+w}{ }\PYG{o+ow}{=}\PYG{+w}{ }\PYG{n}{fibs}\PYG{+w}{ }\PYG{o}{!!}\PYG{+w}{ }\PYG{n}{n}
+\PYG{+w}{            }\PYG{k+kr}{where}\PYG{+w}{ }\PYG{n}{fibs}\PYG{+w}{ }\PYG{o+ow}{=}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{+w}{ }\PYG{k+kt}{:}\PYG{+w}{ }\PYG{n}{scanl}\PYG{+w}{ }\PYG{p}{(}\PYG{o}{+}\PYG{p}{)}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{+w}{ }\PYG{n}{fibs}
+\PYG{+w}{            }\PYG{c+c1}{\PYGZhy{}\PYGZhy{} 0,1,1,2,3,5,...}
+
+\PYG{+w}{    }\PYG{c+c1}{\PYGZhy{}\PYGZhy{} Same, coded directly}
+\PYG{+w}{    }\PYG{n}{fib}\PYG{+w}{ }\PYG{n}{n}\PYG{+w}{ }\PYG{o+ow}{=}\PYG{+w}{ }\PYG{n}{fibs}\PYG{+w}{ }\PYG{o}{!!}\PYG{+w}{ }\PYG{n}{n}
+\PYG{+w}{            }\PYG{k+kr}{where}\PYG{+w}{ }\PYG{n}{fibs}\PYG{+w}{ }\PYG{o+ow}{=}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{+w}{ }\PYG{k+kt}{:}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{+w}{ }\PYG{k+kt}{:}\PYG{+w}{ }\PYG{n}{next}\PYG{+w}{ }\PYG{n}{fibs}
+\PYG{+w}{                  }\PYG{n}{next}\PYG{+w}{ }\PYG{p}{(}\PYG{n}{a}\PYG{+w}{ }\PYG{k+kt}{:}\PYG{+w}{ }\PYG{n}{t}\PYG{o}{@}\PYG{p}{(}\PYG{n}{b}\PYG{k+kt}{:}\PYG{k+kr}{\PYGZus{}}\PYG{p}{))}\PYG{+w}{ }\PYG{o+ow}{=}\PYG{+w}{ }\PYG{p}{(}\PYG{n}{a}\PYG{o}{+}\PYG{n}{b}\PYG{p}{)}\PYG{+w}{ }\PYG{k+kt}{:}\PYG{+w}{ }\PYG{n}{next}\PYG{+w}{ }\PYG{n}{t}
+
+\PYG{+w}{    }\PYG{c+c1}{\PYGZhy{}\PYGZhy{} Similar idea, using zipWith}
+\PYG{+w}{    }\PYG{n}{fib}\PYG{+w}{ }\PYG{n}{n}\PYG{+w}{ }\PYG{o+ow}{=}\PYG{+w}{ }\PYG{n}{fibs}\PYG{+w}{ }\PYG{o}{!!}\PYG{+w}{ }\PYG{n}{n}
+\PYG{+w}{            }\PYG{k+kr}{where}\PYG{+w}{ }\PYG{n}{fibs}\PYG{+w}{ }\PYG{o+ow}{=}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{+w}{ }\PYG{k+kt}{:}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{+w}{ }\PYG{k+kt}{:}\PYG{+w}{ }\PYG{n}{zipWith}\PYG{+w}{ }\PYG{p}{(}\PYG{o}{+}\PYG{p}{)}\PYG{+w}{ }\PYG{n}{fibs}\PYG{+w}{ }\PYG{p}{(}\PYG{n}{tail}\PYG{+w}{ }\PYG{n}{fibs}\PYG{p}{)}
+
+\PYG{+w}{    }\PYG{c+c1}{\PYGZhy{}\PYGZhy{} Using a generator function}
+\PYG{+w}{    }\PYG{n}{fib}\PYG{+w}{ }\PYG{n}{n}\PYG{+w}{ }\PYG{o+ow}{=}\PYG{+w}{ }\PYG{n}{fibs}\PYG{+w}{ }\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{l+m+mi}{1}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{!!}\PYG{+w}{ }\PYG{n}{n}
+\PYG{+w}{            }\PYG{k+kr}{where}\PYG{+w}{ }\PYG{n}{fibs}\PYG{+w}{ }\PYG{p}{(}\PYG{n}{a}\PYG{p}{,}\PYG{n}{b}\PYG{p}{)}\PYG{+w}{ }\PYG{o+ow}{=}\PYG{+w}{ }\PYG{n}{a}\PYG{+w}{ }\PYG{k+kt}{:}\PYG{+w}{ }\PYG{n}{fibs}\PYG{+w}{ }\PYG{p}{(}\PYG{n}{b}\PYG{p}{,}\PYG{n}{a}\PYG{o}{+}\PYG{n}{b}\PYG{p}{)}
+\end{Verbatim}

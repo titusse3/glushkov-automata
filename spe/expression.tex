@@ -27,9 +27,9 @@
   \noindent\textbf{Cas héréditaire~:}
 
   Soit \(r, r'\) deux \textbf{expressions régulières} représentant 
-  respectivement les langages \(R, R' \in (\Sigma^*)^2\), on a définie les 
+  respectivement les langages \(R, R' \in (\Sigma^*)^2\), on a défini les 
   opérateurs ci-dessous sur l'ensemble des \textbf{expressions régulières} de 
-  \(\Sigma\) que l'on note \(E_{\Sigma}\), 
+  \(\Sigma\) que l'on note \(E_{\Sigma}\),
 
   \begin{itemize}
     \item \(r + r'\) représente le langage dénoté par \(R \cup R'\),
@@ -46,7 +46,7 @@
 \end{Definition}
 
 \begin{Definition}
-  Avec \(r \in E_{Q}\), on note \(L(r)\), le \textbf{langage} représenté par 
+  Avec \(r \in E_{\Sigma}\), on note \(L(r)\), le \textbf{langage} représenté par 
   l'\textbf{expression régulière} \(r\).
 \end{Definition}
 
@@ -59,14 +59,14 @@
 
 \begin{Definition}
   Sur une \textit{expression régulière} \(r \in E_{Q}\), on note la fonction 
-  renvoyant l'ensemble des premières lettres du langage représenter par \(r\) 
-  comme étant \(first(r)\). Cette fonction est définie de récursivement comme 
+  renvoyant l'ensemble des premières lettres du langage représentées par \(r\) 
+  comme étant \(first(r)\). Cette fonction est définie récursivement comme 
   suit~:
 
   \begin{equation*}
     \begin{split}
     & first(\emptyset) = first(\epsilon) = \emptyset\\
-    & first(x) = \{x\}, x \in Q\\
+    & first(x) = \{x\}\\
     & first(f + g) = first(f) \cup first(g)\\
     & first(f.g) = \left \{
       \begin{array}{r c l}
@@ -77,15 +77,15 @@
     & first(f^*) = first(f)
     \end{split}
   \end{equation*}
-  Avec \((f,g) \in (E_{Q})^2\)
+  Avec \((f,g) \in (E_{Q})^2\) et \(x \in Q\)
 \end{Definition}
 
 \begin{Definition}
   De même, on définit la fonction \(last(r)\) permettant de renvoyer à partir 
   d'une \textbf{expression régulière} l'ensemble des dernières lettres de tous 
-  les mots du langage représenter par \(r\).
+  les mots du langage représentés par \(r\).
   Tout comme la fonction \(first\), \(last\) est définie de la même façon 
-  récursivement sauf pour le cas suivant~:
+  récursivement, sauf pour le cas suivant~:
 
   \[
     last(f.g) = \left \{
@@ -98,24 +98,40 @@
 \end{Definition}
 
 \begin{Definition}
-  Nous définissons là fonction \(index\), comme prenant en paramètre une 
-  expression régulière indexé et retournant une table permettant d'obtenir la 
-  fonction suivante~:
+  L'ensemble \(Maybe(Q)\) est définie de la façon suivante~:
   \[
-    lookup :: Map(Int, \Sigma) \to Int \to Maybe(\Sigma) 
+    Maybe(Q) = \{Nothing \lor Just v | v \in Q\}
   \]
-  Renvoyant \(Nothing\), en cas de nom présence de l'indice passer en paramètre 
-  dans l'expression, sinon renvoie \(Just\) la valeur d'indice associé dans 
-  l'expression.
+\end{Definition}
+
+\begin{Definition}
+  On définit une \(Map\), comme étant une structure de données. Elle stocke 
+  des valeurs sous-forme de couple clé-valeur. On ne peut d'accéder à une valeur
+  à partir de sa clé et ceux grâce à la fonction \(lookup\).
+
+  Soit \(Map(K, V)\) une \(Map\) où les clés sont dans l'ensemble \(K\) et les 
+  valeurs dans l'ensemble \(V\).
+  \[
+    lookup :: Map(K, V) \to K \to Maybe(V)
+  \]
+\end{Definition}
+
+\begin{Definition}
+  Nous définissons la fonction \(index\) en prenant en paramètre une 
+  expression régulière indexée et retournant une \(Map\) de couple indice 
+  d'apparition symbole. 
+  \[
+    index :: E_{\Sigma, \mathbb{N}} \to Map(\mathbb{N}, \Sigma) 
+  \]
 \end{Definition}
 
 \begin{Definition}
   On définit la fonction \(follow\), comme un moyen d'obtenir les possibles 
   symboles qui peuvent suivre une certaine lettre dans une 
-  \textbf{expression régulière}. Cette fonction à la signature suivante~:
+  \textbf{expression régulière}. Cette fonction a la signature suivante~:
   \[
     follow :: E_{(\Sigma, \mathbb{N})} \to (Int \to 2^{\Sigma \times \mathbb{N}})
   \]
   Retournant pour l'indice d'un élément d'une \textbf{expression régulière}, 
-  l'ensemble des éléments indicé qui peuvent le suivre.
+  l'ensemble des éléments indicés qui peuvent le suivre.
 \end{Definition}
