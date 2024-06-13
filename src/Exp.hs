@@ -14,7 +14,7 @@ import qualified Data.Graph.Inductive     as Gr
 import qualified Data.Map                 as Map
 import           Data.Maybe               (fromJust, isNothing)
 import qualified Data.Set                 as Set
-import           NFA                      (NFA (..))
+import qualified          NFAG             as NG
 
 data Exp a
   = Empty
@@ -96,8 +96,8 @@ followE (Point e e') =
 followE (Sym _) = Map.empty
 followE Empty = Map.empty
 
-glushkov :: (Ord a, Enum a) => Exp a -> NFA.NFA Int a
-glushkov e = NFA.NFA sigma' etat i f' graphLien $ Map.size etat
+glushkov :: (Ord a, Enum a) => Exp a -> NG.NFA Int a
+glushkov e = NG.NFAG sigma' etat i f' graphLien $ Map.size etat
   where
     sigma' = alphabet e
     linear = linearisation e

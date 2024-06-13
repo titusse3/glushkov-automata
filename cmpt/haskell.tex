@@ -50,9 +50,9 @@ un programme comme étant \textbf{pure} si et seulement si~:
 
     \item[\textbullet] La fonction doit ne doit pas produire 
     d'\textbf{effet de bord}. Un \textbf{'side effect'} comme nommé en anglais, 
-    est une qualification d'une action qui modifie son environnement extérieur 
-    lors d'un calcule. Un exemple très simple peut être trouvé dans l'affichage 
-    d'un nombre sur la sortie standard. Dans le langage \textbf{C},
+    est une qualification d'une action qui modifie ou dépend de son environnement 
+    extérieur lors d'un calcule. Un exemple très simple peut être trouvé dans 
+    l'affichage d'un nombre sur la sortie standard. Dans le langage \textbf{C},
     cet affichage correspondrait au code de la figure~\ref{fig:progAfficheC}.
     Ces \textbf{effets de bord} sont extrêmement problématique, car ils 
     peuvent causer des erreurs non prises en compte par celui qui a conçu la 
@@ -85,7 +85,7 @@ présente dans ce langage. Les \textbf{Monades} (On ne citera que le terme de
 \textbf{Applicative} visent à la même chose.), est le concept qui permet de 
 confiner toute action impure du reste du code. En effet, lors que par exemple 
 une action \textit{IO (input/output)} doit être faite, elle se trouvera dans la 
-monade \mintinline{haskell}{IO()}. Si on reprend la fonction 
+monade \mintinline{haskell}{IO}. Si on reprend la fonction 
 \mintinline{haskell}{fibo} de la figure~\ref{fig:progFiboHaskell}, et que l'on 
 souhaite afficher le n-ième nombre de Fibonacci avec \mintinline{haskell}{n}, un 
 nombre entrée par l'utilisateur on obtient le code de la 
@@ -123,6 +123,8 @@ les ferait comprendre qu'à une mince portion de personne.
     }\label{fig:citationMonad}
     \end{quotation}
 \end{figure}
+
+% changer la tournire de phrase
 
 On peut voir une monade, comme une structure qui gère les erreurs possibles 
 liées aux \textbf{effets de bord}. Ce qui rend ce concept de Monade si 

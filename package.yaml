@@ -19,6 +19,7 @@ default-extensions:
 - OverloadedLabels
 - QuasiQuotes
 - DeriveGeneric
+- MultiParamTypeClasses
 
 description:         Please see the README on GitHub at <https://github.com/githubuser/glushkov-automata#readme>
 

@@ -31,6 +31,7 @@ library
       GetExp
       JsonToNFA
       NFA
+      NFAG
   other-modules:
       Paths_glushkov_automata
   autogen-modules:
@@ -46,6 +47,7 @@ library
       OverloadedLabels
       QuasiQuotes
       DeriveGeneric
+      MultiParamTypeClasses
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-tools:
       alex
@@ -79,6 +81,7 @@ executable glushkov-automata-exe
       OverloadedLabels
       QuasiQuotes
       DeriveGeneric
+      MultiParamTypeClasses
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
@@ -116,6 +119,7 @@ test-suite glushkov-automata-test
       OverloadedLabels
       QuasiQuotes
       DeriveGeneric
+      MultiParamTypeClasses
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5

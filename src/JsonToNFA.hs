@@ -8,7 +8,7 @@ import qualified Data.Set             as Set
 import qualified Data.Map             as Map
 import qualified Data.Graph.Inductive as Gr
 import           GHC.Generics
-import qualified NFA                  as N
+import qualified NFAG                  as NG
 
 data NFAJson state transition = NFAJson
   { nodes       :: [state]
@@ -26,7 +26,7 @@ instance (Ord state, Ord transition, ToJSON state, ToJSON transition) =>
 buildNFA ::
      (Ord state, Ord transition)
   => NFAJson state transition
-  -> N.NFA state transition
+  -> NG.NFA state transition
 buildNFA (NFAJson n p f ts) =
   let
     sigma' = Set.fromList $ map (\(_, _, t) -> t) ts
@@ -37,19 +37,19 @@ buildNFA (NFAJson n p f ts) =
     edges = [(Map.findWithDefault (-1) s1 etats', Map.findWithDefault (-1) s2 etats', t) | (s1, s2, t) <- ts]
     graph' = Gr.mkGraph (map (\(s, idx) -> (idx, s)) etatsList) edges
   in
-    N.NFA
-      { N.sigma = sigma'
-      , N.etats = etats'
-      , N.premier = premier'
-      , N.final = final'
-      , N.graph = graph'
-      , N.lastN = length n
+    NG.NFA
+      { NG.sigma = sigma'
+      , NG.etats = etats'
+      , NG.premier = premier'
+      , NG.final = final'
+      , NG.graph = graph'
+      , NG.lastN = length n
       }
 
 parseNFA ::
      (Ord state, Ord transition, FromJSON state, FromJSON transition)
   => FilePath
-  -> IO (Either String (N.NFA state transition))
+  -> IO (Either String (NG.NFA state transition))
 parseNFA filePath = do
   jsonData <- B.readFile filePath
   let parsed =
