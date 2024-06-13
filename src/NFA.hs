@@ -1,322 +1,349 @@
 module NFA
   ( NFA(..)
-  , Orbit
   , orbitToText
-  , automataToGraph
-  , isFinal
-  , isStart
-  , automatonToDot
-  , automatonToDotClustered
-  , accept
-  , addTransition
-  , removeTransition
-  , isHomogeneous
-  , isStandard
+  , emptyNFA
   , addState
-  , removeState
-  , makeFinal
   , makeInit
+  , makeFinal
+  , addTransition
+  , transitionExist
+  , hasEdge
+  , removeState
+  , removeTransition
+  , removeTransitions
+  , isStart
+  , isFinal
+  , isStandard
+  , isHomogeneous
+  , makeStandard
   , directSucc
   , directPred
+  , extractListStateAutomata
   , maximalOrbits
+  , isOrbit
   , orbitIn
   , orbitOut
   , isStableOrbit
-  , extractListStateAutomata
   , isStronglyStableOrbit
   , isTransversOrbit
   , isStronglyTransversOrbit
-  , isOrbit
+  , accept
+  , automatonToDot
+  , automatonToDotClustered
   ) where
 
-import           Data.Graph.Inductive
-import           Data.Graph.Inductive.Query.DFS    (scc)
+import qualified Data.Graph.Inductive              as Gr
+import           Data.Graph.Inductive.Query.DFS
 import           Data.GraphViz
 import           Data.GraphViz.Attributes.Complete
-import           Data.List                         (findIndex, intercalate)
+import qualified Data.List                         as L
 import qualified Data.Map                          as Map
-import           Data.Maybe                        (fromJust, fromMaybe, isJust,
-                                                    isNothing)
+import           Data.Maybe
 import qualified Data.Set                          as Set
 import qualified Data.Text                         as T
 import qualified Data.Text.Lazy                    as TL
 
-type Orbit state = Set.Set state
+import           Debug.Trace
 
 data NFA state transition = NFA
   { sigma   :: Set.Set transition
-  , etats   :: Set.Set state
-  , premier :: Set.Set state
-  , final   :: Set.Set state
-  , delta   :: state -> transition -> Set.Set state
+  , etats   :: Map.Map state Int
+  , premier :: Set.Set Int
+  , final   :: Set.Set Int
+  , graph   :: Gr.Gr state transition
+  , lastN   :: Int
   }
 
--- passe au garage de l'automateMap.Map
--- se reisenger sur la memoization
--- f :: NFA state transition -> Map.Map (lettre, etat) (Map.Map etat) -> f'
-instance (Show state, Show transition, Ord state, Ord transition) =>
-         Show (NFA state transition) where
-  show nfa =
-    "Sigma: "
-      ++ showSet (sigma nfa)
+instance (Show state, Show transition) => Show (NFA state transition) where
+  show (NFA sigma etats premier final graph lastN) =
+    "NFA {\n"
+      ++ "  Sigma: "
+      ++ showSet sigma
       ++ "\n"
-      ++ "Etats: "
-      ++ showSet (etats nfa)
+      ++ "  Etats: "
+      ++ showMap etats
       ++ "\n"
-      ++ "Premier: "
-      ++ showSet (premier nfa)
+      ++ "  Premier: "
+      ++ showSet premier
       ++ "\n"
-      ++ "Final: "
-      ++ showSet (final nfa)
+      ++ "  Final: "
+      ++ showSet final
       ++ "\n"
-      ++ "Delta:\n"
-      ++ showDelta (etats nfa) (sigma nfa) (delta nfa)
+      ++ "  Graph: "
+      ++ showGraph graph
+      ++ "\n"
+      ++ "  LastN: "
+      ++ show lastN
+      ++ "\n"
+      ++ "}"
     where
-      showSet :: (Show a) => Set.Set a -> String
-      showSet = show . Set.toList
-      showDelta ::
-           Set.Set state
-        -> Set.Set transition
-        -> (state -> transition -> Set.Set state)
-        -> String
-      showDelta states transitions deltaFun =
-        intercalate
-          "\n"
-          [ "  δ("
-            ++ show s
-            ++ ", "
-            ++ show t
-            ++ ") = "
-            ++ showSet (deltaFun s t)
-          | s <- Set.toList states
-          , t <- Set.toList transitions
-          ]
+      showSet s = "{" ++ L.intercalate ", " (map show $ Set.toList s) ++ "}"
+      showMap m =
+        "{"
+          ++ L.intercalate
+               ", "
+               [show k ++ ": " ++ show v | (k, v) <- Map.toList m]
+          ++ "}"
+      showGraph g =
+        "{" ++ L.intercalate ", " (map showEdge $ Gr.labEdges g) ++ "}"
+      showEdge (s, t, l) =
+        "(" ++ show s ++ " -" ++ show l ++ "-> " ++ show t ++ ")"
 
-orbitToText :: (Show state) => (Orbit state) -> T.Text
+orbitToText :: (Show state) => (Set.Set state) -> T.Text
 orbitToText o =
   mconcat ["{", (T.intercalate "," $ map (T.pack . show) $ Set.toList o), "}"]
 
-isFinal :: Ord state => NFA state transition -> state -> Bool
-isFinal = flip Set.member . final
+emptyNFA :: NFA state transition
+emptyNFA = NFA Set.empty Map.empty Set.empty Set.empty Gr.empty 0
 
-isStart :: Ord state => NFA state transition -> state -> Bool
-isStart = flip Set.member . premier
+addState ::
+     Ord state => state -> NFA state transition -> Maybe (NFA state transition)
+addState st (NFA s q i f g n) =
+  if stateExist st (NFA s q i f g n)
+    then Nothing
+    else let q' = Map.insert st (n + 1) q
+             g' = Gr.insNode (n + 1, st) g
+          in pure $ NFA s q' i f g' (n + 1)
 
--- faire doc
-isHomogeneous :: Ord state => NFA state transition -> Bool
-isHomogeneous (NFA sig etat _ _ delt) =
-  not . isNothing
-    $ foldl
-        (\s lettre -> do
-           let inner =
-                 foldl (\s' t -> Set.union (delt t lettre) s') Set.empty etat
-           if not (isNothing s) && (Set.disjoint inner $ fromJust s)
-             then pure $ Set.union inner $ fromJust s
-             else Nothing)
-        (Just Set.empty)
-        sig
+addTransition ::
+     (Ord state, Ord transition)
+  => (state, state, transition)
+  -> NFA state transition
+  -> Maybe (NFA state transition)
+addTransition (q0, q1, t) (NFA s q i f g n) =
+  case transformTuple (Map.lookup q0 q, Map.lookup q1 q, t) of
+    Just (n0, n1, trans) ->
+      let g' = Gr.insEdge (n0, n1, trans) g
+          s' = Set.insert trans s
+       in pure $ NFA s' q i f g' n
+    Nothing -> Nothing
 
-isStandard :: Ord state => NFA state transition -> Bool
-isStandard a =
-  hasOneElem && foldl (\acc q' -> acc || (transExist a q' $ head i)) False q
+stateExist :: Ord state => state -> NFA state transition -> Bool
+stateExist st = Map.member st . etats
+
+isFinal :: Ord state => state -> NFA state transition -> Bool
+isFinal lbl nfa =
+  case Map.lookup lbl (etats nfa) of
+    Just index -> Set.member index (final nfa)
+    Nothing    -> False
+
+isStart :: Ord state => state -> NFA state transition -> Bool
+isStart lbl nfa =
+  case Map.lookup lbl (etats nfa) of
+    Just index -> Set.member index (premier nfa)
+    Nothing    -> False
+
+transformTuple :: (Maybe Int, Maybe Int, a) -> Maybe (Int, Int, a)
+transformTuple (m1, m2, a) = do
+  v1 <- m1
+  v2 <- m2
+  return (v1, v2, a)
+
+transitionExist ::
+     (Ord state, Eq transition)
+  => (state, state, transition)
+  -> NFA state transition
+  -> Bool
+transitionExist (q0, q1, t) (NFA _ q _ _ g _) =
+  let n0 = Map.lookup q0 q
+      n1 = Map.lookup q1 q
+      s = Gr.hasLEdge g <$> transformTuple (n0, n1, t)
+   in isJust s && fromJust s
+
+hasEdge :: Ord state => (state, state) -> NFA state transition -> Bool
+hasEdge (q0, q1) a =
+  isJust n0 && isJust n1 && Gr.hasEdge (graph a) (fromJust n0, fromJust n1)
   where
+    n0 = Map.lookup q0 q
+    n1 = Map.lookup q1 q
     q = etats a
-    i = Set.toList $ premier a
+
+stateToNode :: Ord state => state -> Map.Map state Int -> Int
+stateToNode n q = fromJust $ Map.lookup n q
+
+removeState ::
+     Ord state => state -> NFA state transition -> Maybe (NFA state transition)
+removeState st (NFA s q i f g n) =
+  if stateExist st (NFA s q i f g n)
+    then let q' = Map.delete st q
+             i' = Set.delete (stateToNode st q) i
+             f' = Set.delete (stateToNode st q) f
+             g' = Gr.delNode (stateToNode st q) g
+          in pure $ NFA s q' i' f' g' n
+    else Nothing
+
+removeTransition ::
+     (Ord state, Eq transition)
+  => (state, state, transition)
+  -> NFA state transition
+  -> Maybe (NFA state transition)
+removeTransition (q0, q1, t) (NFA s q i f g n) =
+  case transformTuple (Map.lookup q0 q, Map.lookup q1 q, t) of
+    Just (n0, n1, trans) ->
+      let g' = Gr.delLEdge (n0, n1, trans) g
+       in pure $ NFA s q i f g' n
+    Nothing -> Nothing
+
+removeTransitions ::
+     (Ord state, Eq transition)
+  => (state, state)
+  -> NFA state transition
+  -> Maybe (NFA state transition)
+removeTransitions (q0, q1) a =
+  if stateExist q0 a && stateExist q1 a
+    then pure
+           $ foldl
+               (\acc t ->
+                  case removeTransition (q0, q1, t) acc of
+                    Just a' -> a'
+                    _       -> acc)
+               a
+           $ sigma a
+    else Nothing
+
+makeInit ::
+     Ord state => state -> NFA state transition -> Maybe (NFA state transition)
+makeInit st (NFA s q i f g n) =
+  if stateExist st (NFA s q i f g n)
+    then pure $ NFA s q (Set.insert (stateToNode st q) i) f g n
+    else Nothing
+
+makeFinal ::
+     Ord state => state -> NFA state transition -> Maybe (NFA state transition)
+makeFinal st (NFA s q i f g n) =
+  if stateExist st (NFA s q i f g n)
+    then pure $ NFA s q i (Set.insert (stateToNode st q) f) g n
+    else Nothing
+
+isStandard :: NFA state transition -> Bool
+isStandard (NFA _ _ i _ g _) = hasOneElem && null (Gr.pre g p)
+  where
+    i' = Set.toList i
+    p = head i'
     hasOneElem =
-      case i of
+      case i' of
         []  -> False
         [_] -> True
         _   -> False
 
-transExist :: Ord state => NFA state transition -> state -> state -> Bool
-transExist (NFA sig _ _ _ delt) s s' =
-  foldl (\b a -> b || (Set.member s' $ delt s a)) False sig
-
-makeFinal ::
-     Ord state => NFA state transition -> state -> Maybe (NFA state transition)
-makeFinal (NFA sig e prem fin delt) s =
-  if Set.member s e
-    then Just a
-    else Nothing
+isHomogeneous :: (Ord state, Eq transition) => NFA state transition -> Bool
+isHomogeneous (NFA _ q _ _ g _) = foldl f True $ Map.keys q
   where
-    a = (NFA sig e prem (Set.insert s fin) delt)
+    f acc n = acc && allSameB l
+      where
+        l = Gr.lpre g $ fromJust $ Map.lookup n q
+    allSameB :: Eq b => [(a, b)] -> Bool
+    allSameB []          = True
+    allSameB ((_, b):xs) = all (\(_, b') -> b == b') xs
 
-makeInit ::
-     Ord state => NFA state transition -> state -> Maybe (NFA state transition)
-makeInit (NFA sig e prem fin delt) s =
-  if Set.member s e
-    then Just a
-    else Nothing
+makeStandard ::
+     (Enum state, Ord state) => NFA state transition -> NFA state transition
+makeStandard (NFA s q i f g nu) =
+  let q' = Map.insert (toEnum $ nu + 1) (nu + 1) q
+      i' = Set.singleton $ nu + 1
+      gi = Gr.insNode (nu + 1, (toEnum $ nu + 1)) g
+      fun acc n =
+        foldl (\acc' (n', a) -> Gr.insEdge (nu + 1, n', a) acc') acc
+          $ Gr.lsuc g n
+      g' = foldl fun gi i
+   in NFA s q' i' f g' $ nu + 1
+
+directSucc :: Ord state => state -> NFA state transition -> Set.Set state
+directSucc st (NFA _ q _ _ g _) = Set.fromList $ map (fromJust . Gr.lab g) l
   where
-    a = (NFA sig e (Set.insert s prem) fin delt)
+    l = Gr.suc g $ fromJust $ Map.lookup st q
 
-addState :: Ord state => NFA state transition -> state -> NFA state transition
-addState (NFA sig e prem fin delt) s = NFA sig (Set.insert s e) prem fin delt
-
-removeState ::
-     Ord state => NFA state transition -> state -> NFA state transition
-removeState (NFA sig e prem fin delt) s =
-  if Set.member s e
-    then let e' = Set.delete s e
-             p = Set.delete s prem
-             f = Set.delete s fin
-             update n a =
-               if n == s
-                 then Set.empty
-                 else Set.delete s $ delt n a
-          in NFA sig e' p f update
-    else NFA sig e prem fin delt
-
--- mémoriwation des fonctions
-addTransition ::
-     (Ord transition, Ord state)
-  => NFA state transition
-  -> (state, state, transition)
-  -> NFA state transition
-addTransition (NFA sig e prem fin delt) (i, o, l) =
-  if Set.member i e && Set.member o e
-    then NFA sig' e prem fin delt'
-    else NFA sig e prem fin delt
+directPred :: Ord state => state -> NFA state transition -> Set.Set state
+directPred st (NFA _ q _ _ g _) = Set.fromList $ map (fromJust . Gr.lab g) l
   where
-    sig' = Set.insert l sig
-    delt' =
-      (\s t ->
-         if s == i && l == t
-           then Set.insert o $ delt s t
-           else delt s t)
-
--- pas perfomant, en parler dans le rapport
-removeTransition ::
-     (Ord transition, Ord state)
-  => NFA state transition
-  -> (state, state, transition)
-  -> NFA state transition
-removeTransition (NFA sig e prem fin delt) (i, o, l) =
-  if Set.member i e && Set.member o e
-    then NFA sig e prem fin delt'
-    else NFA sig e prem fin delt
-  where
-    delt' =
-      (\s t ->
-         if s == i && l == t
-           then Set.delete o $ delt s t
-           else delt s t)
-
-removeTransitions ::
-     (Ord transition, Ord state)
-  => NFA state transition
-  -> (state, state)
-  -> NFA state transition
-removeTransitions a (x, x') =
-  foldl (\n l -> removeTransition n (x, x', l)) a $ sigma a
-
-directSucc :: Ord state => NFA state transition -> state -> Set.Set state
-directSucc (NFA sig _ _ _ delt) e =
-  foldl (\s a -> Set.union s (delt e a)) Set.empty sig
-
-directPred :: Ord state => NFA state transition -> state -> Set.Set state
-directPred (NFA sig etat _ _ delt) e =
-  foldl
-    (\s a -> Set.union s $ Set.filter (\q -> Set.member e $ delt q a) etat)
-    Set.empty
-    sig
+    l = Gr.pre g $ fromJust $ Map.lookup st q
 
 extractListStateAutomata ::
      Ord state
-  => NFA state transition
-  -> Orbit state
+  => Set.Set state
+  -> NFA state transition
   -> Maybe (NFA state transition)
-extractListStateAutomata (NFA sig q prem fin delt) o =
-  if Set.isSubsetOf o q
-    then let e' = o
-             prem' = Set.intersection prem o
-             fin' = Set.intersection fin o
-             delt' s t =
-               if Set.member s o
-                 then Set.intersection o $ delt s t
-                 else Set.empty
-          in pure (NFA sig e' prem' fin' delt')
+extractListStateAutomata o (NFA s q i f g n) =
+  if all (`stateExist` a) (Set.toList o)
+    then let q' = Map.filterWithKey (\k _ -> k `Set.member` o) q
+             i' = Set.intersection i o'
+             f' = Set.intersection f o'
+             g' = Gr.nfilter (\x -> Set.member x o') g
+          in Just (NFA s q' i' f' g' n)
     else Nothing
-
-maximalOrbits ::
-     forall state transition. (Ord state, Show state, Show transition)
-  => NFA state transition
-  -> [Orbit state]
-maximalOrbits a =
-  map (\l -> Set.fromList $ map (fromJust . flip Map.lookup mapNode) l) orbitM
   where
-    graph = automataToGraph a
-    sccs = Data.Graph.Inductive.Query.DFS.scc graph
+    a = NFA s q i f g n
+    o' = Set.map (\x -> stateToNode x q) o
+
+maximalOrbits :: Ord state => NFA state transition -> [Set.Set state]
+maximalOrbits a = map (\l -> Set.fromList $ map (fromJust . Gr.lab g') l) orbitM
+  where
+    g' = graph a
+    sccs = scc g'
     filterFun []     = False
-    filterFun (x:[]) = hasEdge graph (x, x)
+    filterFun (x:[]) = Gr.hasEdge g' (x, x)
     filterFun _      = True
     orbitM = filter filterFun sccs
-    states = Set.toList $ etats a
-    mapNode :: Map.Map Node state
-    mapNode = Map.fromList [(stateIndex s, s) | s <- states]
-    stateIndex state =
-      Data.Maybe.fromMaybe (-1) (lookup state $ zip states indices)
-    indices = [0 ..]
 
-isOrbit ::
-     (Ord state, Show state, Show transition)
-  => NFA state transition
-  -> Orbit state
-  -> Bool
-isOrbit a o = firstTest l && isJust g && hasOneElem fc
+isOrbit :: Ord state => Set.Set state -> NFA state transition -> Bool
+isOrbit o a = isJust g' && firstTest l && hasOneElem fc
   where
-    l = Set.toList o
+    l = map (\x -> fromJust $ Map.lookup x $ etats a) $ Set.toList o
     firstTest []  = False
-    firstTest [x] = transExist a x x
+    firstTest [x] = Gr.hasEdge (graph a) (x, x)
     firstTest _   = True
     hasOneElem [_] = True
     hasOneElem _   = False
-    a' = extractListStateAutomata a o
-    g = automataToGraph <$> a'
-    fc = fromJust $ Data.Graph.Inductive.Query.DFS.scc <$> g
+    a' = extractListStateAutomata o a
+    g' = graph <$> a'
+    fc = fromJust $ scc <$> g'
 
 orbitIn ::
-     forall state transition. (Ord state, Show state, Show transition)
-  => NFA state transition
-  -> Orbit state
+     (Ord state, Ord transition)
+  => Set.Set state
+  -> NFA state transition
   -> Set.Set state
-orbitIn a o =
-  if isOrbit a o
-    then foldl f Set.empty o
+orbitIn o a =
+  if isOrbit o a
+    then Set.map (\(x, _) -> fromJust $ Gr.lab (graph a) x)
+           $ foldl f Set.empty o'
     else Set.empty
   where
-    f s x =
-      if Set.member x (premier a)
-           || Set.difference (directPred a x) o /= Set.empty
-        then Set.insert x s
-        else s
+    f acc n =
+      Set.union acc
+        $ Set.filter (\(n', _) -> Set.notMember n' o')
+        $ Set.fromList
+        $ Gr.lpre (graph a) n
+    o' = Set.map (\x -> stateToNode x $ etats a) o
 
 orbitOut ::
-     forall state transition. (Ord state, Show state, Show transition)
-  => NFA state transition
-  -> Orbit state
+     (Ord state, Ord transition)
+  => Set.Set state
+  -> NFA state transition
   -> Set.Set state
-orbitOut a o =
-  if isOrbit a o
-    then foldl f Set.empty o
+orbitOut o a =
+  if isOrbit o a
+    then Set.map (\(x, _) -> fromJust $ Gr.lab (graph a) x)
+           $ foldl f Set.empty o'
     else Set.empty
   where
-    f s x =
-      if Set.member x (final a)
-           || Set.difference (directSucc a x) o /= Set.empty
-        then Set.insert x s
-        else s
+    f acc n =
+      Set.union acc
+        $ Set.filter (\(n', _) -> Set.notMember n' o')
+        $ Set.fromList
+        $ Gr.lsuc (graph a) n
+    o' = Set.map (\x -> stateToNode x $ etats a) o
 
 isStableOrbit ::
-     (Ord state, Show state, Show transition)
-  => NFA state transition
-  -> Orbit state
+     (Ord state, Ord transition)
+  => Set.Set state
+  -> NFA state transition
   -> Bool
-isStableOrbit a o =
-  isOrbit a o && inOut == filter (\(x, x') -> transExist a x x') inOut
+isStableOrbit o a =
+  isOrbit o a && inOut == filter (\(x, x') -> hasEdge (x, x') a) inOut
   where
-    inO = orbitIn a o
-    outO = orbitOut a o
+    inO = orbitIn o a
+    outO = orbitOut o a
     inOut = do
       x <- Set.toList outO
       y <- Set.toList inO
@@ -324,173 +351,166 @@ isStableOrbit a o =
 
 isStronglyStableOrbit ::
      (Ord state, Ord transition, Show state, Show transition)
-  => NFA state transition
-  -> Orbit state
+  => Set.Set state
+  -> NFA state transition
   -> Bool
-isStronglyStableOrbit a o =
-  isOrbit a o
-    && if not $ isStableOrbit a o
+isStronglyStableOrbit o a =
+  isOrbit o a
+    && if not $ isStableOrbit o a
          then False
-         else foldl (\acc o' -> acc && isStronglyStableOrbit a' o') True
-                $ maximalOrbits a'
+         else if maximalOrbits a' == maximalOrbits a
+                then True
+                else foldl (\acc o' -> acc && isStronglyStableOrbit o' a') True
+                       $ maximalOrbits a'
   where
-    autoOrbit = fromJust $ extractListStateAutomata a o
-    inO = orbitIn a o
-    outO = orbitOut a o
+    autoOrbit = fromJust $ extractListStateAutomata o a
+    inO = trace (show (orbitIn o a)) $ orbitIn o a
+    outO = trace (show (orbitOut o a)) $ orbitOut o a
     outIn = do
       x <- Set.toList outO
       y <- Set.toList inO
       return (x, y)
-    a' = foldl (\n (x, x') -> removeTransitions n (x, x')) autoOrbit outIn
+    a' =
+      foldl
+        (\n (x, x') ->
+           case removeTransitions (x, x') n of
+             Just auto -> auto
+             _         -> n)
+        autoOrbit
+        outIn
 
 isTransversOrbit ::
-     (Ord state, Show state, Show transition)
-  => NFA state transition
-  -> Orbit state
+     (Ord state, Ord transition)
+  => Set.Set state
+  -> NFA state transition
   -> Bool
-isTransversOrbit a o = isOrbit a o && Set.size sIn <= 1 && Set.size sOut <= 1
+isTransversOrbit o a = isOrbit o a && Set.size sIn <= 1 && Set.size sOut <= 1
   where
-    oIn = orbitIn a o
-    oOut = orbitOut a o
-    sIn = Set.map (\x -> Set.difference (directPred a x) o) oIn
-    sOut = Set.map (\x -> Set.difference (directSucc a x) o) oOut
+    oIn = orbitIn o a
+    oOut = orbitOut o a
+    sIn = Set.map (\x -> Set.difference (directPred x a) o) oIn
+    sOut = Set.map (\x -> Set.difference (directSucc x a) o) oOut
 
 isStronglyTransversOrbit ::
      (Ord state, Ord transition, Show state, Show transition)
-  => NFA state transition
-  -> Orbit state
+  => Set.Set state
+  -> NFA state transition
   -> Bool
-isStronglyTransversOrbit a o =
-  isOrbit a o
-    && if not $ isTransversOrbit a o
+isStronglyTransversOrbit o a =
+  isOrbit o a
+    && if not $ isTransversOrbit o a
          then False
-         else foldl (\acc o' -> acc && isStronglyStableOrbit a' o') True
-                $ maximalOrbits a'
+         else if maximalOrbits a' == maximalOrbits a
+                then True
+                else foldl (\acc o' -> acc && isStronglyStableOrbit o' a') True
+                       $ maximalOrbits a'
   where
-    autoOrbit = fromJust $ extractListStateAutomata a o
-    inO = orbitIn a o
-    outO = orbitOut a o
+    autoOrbit = fromJust $ extractListStateAutomata o a
+    inO = orbitIn o a
+    outO = orbitOut o a
     outIn = do
       x <- Set.toList outO
       y <- Set.toList inO
       return (x, y)
-    a' = foldl (\n (x, x') -> removeTransitions n (x, x')) autoOrbit outIn
+    a' =
+      foldl
+        (\n (x, x') ->
+           case removeTransitions (x, x') n of
+             Just auto -> auto
+             _         -> n)
+        autoOrbit
+        outIn
 
 accept ::
-     forall state transition. Ord state
-  => NFA state transition
-  -> [transition]
+     forall state transition. (Ord state, Eq transition)
+  => [transition]
+  -> NFA state transition
   -> Bool
-accept (NFA _ _ prem fin delt) l =
-  not $ Set.null $ Set.intersection fin $ foldl accept' prem l
+accept [] _ = True
+accept transitions a = any ((verifyPath transitions)) startNodes
   where
-    accept' :: Set.Set state -> transition -> Set.Set state
-    accept' s t = foldr (\s' acc -> Set.union acc $ delt s' t) Set.empty s
-
--- new type, dérivation pour enlever les "", redéfinir le show
-automataToGraph ::
-     (Ord state, Show state, Show transition)
-  => NFA state transition
-  -> Gr T.Text T.Text
-automataToGraph a = mkGraph nodesList edgesList
-  where
-    nodesList = [(stateIndex s, T.pack $ show s) | s <- states]
-    edgesList =
-      [ (stateIndex s, stateIndex t, formatText $ T.pack $ show tr)
-      | (s, trs) <- stateTrans
-      , tr <- Set.toList trs
-      , t <- Set.toList (deltaFun s tr)
+    gr = graph a
+    startNodes =
+      [ n
+      | (s, n) <- Map.toList (etats a)
+      , Set.member (stateToNode s $ etats a) $ premier a
       ]
-    states = Set.toList $ etats a
-    stateIndex state = fromJust $ lookup state $ zip states indices
-    indices = [0 ..]
-    stateTrans = [(s, sigma a) | s <- states]
-    deltaFun = delta a
-    formatText = T.filter (/= '\'')
+    finalNodes =
+      [ n
+      | (s, n) <- Map.toList (etats a)
+      , Set.member (stateToNode s $ etats a) $ final a
+      ]
+    verifyPath :: [transition] -> Gr.Node -> Bool
+    verifyPath [] currentNode = currentNode `elem` finalNodes
+    verifyPath (t:ts) currentNode =
+      case findNextNode currentNode t of
+        Just nextNode -> verifyPath ts nextNode
+        Nothing       -> False
+    findNextNode :: Gr.Node -> transition -> Maybe Gr.Node
+    findNextNode node trans =
+      case [n | (_, n, tr) <- Gr.out gr node, tr == trans] of
+        [n] -> Just n
+        _   -> Nothing
+
+-- ==================== Affichage =====================
+cleanLabel :: TL.Text -> TL.Text
+cleanLabel = TL.filter (\c -> c /= '\'' && c /= '\"')
+
+shapeOf :: Ord state => state -> NFA state transition -> Shape
+shapeOf lbl a =
+  if isFinal lbl a
+    then DoubleCircle
+    else Circle
+
+colorOf :: Ord state => state -> NFA state transition -> X11Color
+colorOf lbl a =
+  if isStart lbl a
+    then Green
+    else White
 
 automatonToDot ::
-     forall state transition. (Show transition, Show state, Ord state)
+     (Show transition, Show state, Ord state)
   => NFA state transition
-  -> DotGraph Node
-automatonToDot a = graphToDot params graph
+  -> DotGraph Gr.Node
+automatonToDot a = graphToDot params $ graph a
   where
-    graph = automataToGraph a
     params =
       nonClusteredParams
         { globalAttributes = [GraphAttrs [RankDir FromLeft]]
         , fmtNode =
-            \node ->
-              [ Shape $ shapeOf node
-              , FillColor [toWColor $ colorOf node]
+            \(_, lbl) ->
+              [ Shape $ shapeOf lbl a
+              , FillColor [toWColor $ colorOf lbl a]
               , Style [SItem Filled []]
-              , Label $ StrLabel $ TL.fromStrict $ snd node
+              , Label $ StrLabel $ cleanLabel $ TL.pack (show lbl)
               ]
-        , fmtEdge = \(_, _, l) -> [Label $ StrLabel $ TL.fromStrict l]
+        , fmtEdge =
+            \(_, _, l) -> [Label $ StrLabel $ cleanLabel $ TL.pack (show l)]
         }
-    states = Set.toList $ etats a
-    mapNode :: Map.Map Node state
-    mapNode = Map.fromList [(stateIndex s, s) | s <- states]
-    stateIndex state =
-      Data.Maybe.fromMaybe (-1) (lookup state $ zip states indices)
-    indices = [0 ..]
-    shapeOf (val, _) =
-      if isFinal a n
-        then DoubleCircle
-        else Circle
-      where
-        n = (fromJust $ Map.lookup val mapNode)
-    colorOf (val, _) =
-      if isStart a n
-        then Green
-        else White
-      where
-        n = (fromJust $ Map.lookup val mapNode)
 
 automatonToDotClustered ::
      forall state transition. (Show transition, Show state, Ord state)
-  => NFA state transition
-  -> [Set.Set state]
-  -> DotGraph Node
-automatonToDotClustered a ls = graphToDot params graph
+  => [Set.Set state]
+  -> NFA state transition
+  -> DotGraph Gr.Node
+automatonToDotClustered clusters a = graphToDot params $ graph a
   where
-    graph = automataToGraph a
     params =
       defaultParams
         { globalAttributes = [GraphAttrs [RankDir FromLeft]]
         , fmtNode =
-            \node ->
-              [ Shape $ shapeOf node
-              , FillColor [toWColor $ colorOf node]
+            \(_, lbl) ->
+              [ Shape $ shapeOf lbl a
+              , FillColor [toWColor $ colorOf lbl a]
               , Style [SItem Filled []]
-              , Label $ StrLabel $ TL.fromStrict $ snd node
+              , Label $ StrLabel $ cleanLabel $ TL.pack (show lbl)
               ]
-        , fmtEdge = \(_, _, l) -> [Label $ StrLabel $ TL.fromStrict l]
-        , isDotCluster = const True
-        , clusterBy = clusterLogic
+        , fmtEdge =
+            \(_, _, l) -> [Label $ StrLabel $ cleanLabel $ TL.pack (show l)]
+        , clusterBy = clusterNodes
         , clusterID = Num . Int
         }
-    clusterLogic (n, l) =
-      case nodeClusterId n of
+    clusterNodes (n, l) =
+      case L.findIndex (Set.member l) clusters of
         Just cid -> C cid $ N (n, l)
         Nothing  -> N (n, l)
-    nodeClusterId node = findIndex (Set.member n') ls
-      where
-        n' = fromJust $ Map.lookup node mapNode
-    states = Set.toList $ etats a
-    mapNode :: Map.Map Node state
-    mapNode = Map.fromList [(stateIndex s, s) | s <- states]
-    stateIndex state =
-      Data.Maybe.fromMaybe (-1) (lookup state $ zip states indices)
-    indices = [0 ..]
-    shapeOf (val, _) =
-      if isFinal a n
-        then DoubleCircle
-        else Circle
-      where
-        n = (fromJust $ Map.lookup val mapNode)
-    colorOf (val, _) =
-      if isStart a n
-        then Green
-        else White
-      where
-        n = (fromJust $ Map.lookup val mapNode)

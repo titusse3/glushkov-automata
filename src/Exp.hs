@@ -10,10 +10,13 @@ module Exp
 
 import           Control.Monad.State.Lazy (MonadState (get, put), State,
                                            evalState)
+import qualified Data.Graph.Inductive     as Gr
 import qualified Data.Map                 as Map
-import           Data.Maybe               (fromJust)
+import           Data.Maybe               (fromJust, isNothing)
 import qualified Data.Set                 as Set
 import           NFA                      (NFA (..))
+
+import           Debug.Trace
 
 data Exp a
   = Empty
@@ -55,7 +58,7 @@ isNull (Star _)     = True
 isNull (Point e e') = isNull e && isNull e'
 
 firstE :: Ord a => Exp a -> Set.Set a
-firstE Empty   = Set.empty
+firstE Empty = Set.empty
 firstE Epsilon = Set.empty
 firstE (Sym a) = Set.singleton a
 firstE (Plus e e') = Set.union (firstE e) (firstE e')
@@ -66,7 +69,7 @@ firstE (Point e e') =
     else firstE e
 
 lastE :: Ord a => Exp a -> Set.Set a
-lastE Empty   = Set.empty
+lastE Empty = Set.empty
 lastE Epsilon = Set.empty
 lastE (Sym a) = Set.singleton a
 lastE (Plus e e') = Set.union (lastE e) (lastE e')
@@ -79,48 +82,47 @@ lastE (Point e e') =
 indexE :: Exp (a, Int) -> Map.Map Int a
 indexE = foldMap (\(a, n) -> Map.singleton n a)
 
-followE :: Ord a => Exp (a, Int) -> (Int -> Set.Set (a, Int))
-followE Empty _ = Set.empty
-followE Epsilon _ = Set.empty
-followE (Sym _) _ = Set.empty
-followE (Plus e e') s
-  | Map.member s (indexE e) = followE e s
-  | Map.member s (indexE e') = followE e' s
-  | otherwise = Set.empty
-followE (Star e) s =
-  if Set.member s (lastE $ snd <$> e)
-    then Set.union (firstE e) (followE e s)
-    else followE e s
-followE (Point e e') s
-  | Map.member s (indexE e') = followE e' s
-  | Map.member s (indexE e) =
-    if Set.member s (lastE $ snd <$> e)
-      then Set.union f (firstE e')
-      else f
-  | otherwise = Set.empty
+followE :: Ord a => Exp (a, Int) -> Map.Map Int (Set.Set (a, Int))
+followE Epsilon = Map.empty
+followE (Star e) =
+  foldl (\m k -> Map.insertWith Set.union k (firstE e) m) (followE e)
+    $ Set.map snd
+    $ lastE e
+followE (Plus e e') = Map.union (followE e) (followE e')
+followE (Point e e') =
+  foldl (\m k -> Map.insertWith Set.union k (firstE e') m) uni
+    $ Set.map snd
+    $ lastE e
   where
-    f = followE e s
+    uni = Map.union (followE e) (followE e')
+followE (Sym _) = Map.empty
+followE Empty = Map.empty
 
-glushkov :: Ord a => Exp a -> NFA Int a
-glushkov e = NFA sigma' q i f trans
+glushkov :: (Ord a, Enum a) => Exp a -> NFA.NFA Int a
+glushkov e = NFA.NFA sigma' etat i f' graphLien $ Map.size etat
   where
     sigma' = alphabet e
-    i = Set.singleton 0
-    f =
-      if isNull linear
-        then Set.insert 0 l
-        else l
     linear = linearisation e
-    l = Set.map snd $ lastE linear
-    allStates = indexE linear
-    q = Set.union i $ Set.fromList $ Map.keys allStates
-    fist = firstE linear
-    trans s t = z
-      where
-        sFollow =
-          if s == 0
-            then fist
-            else followE linear s
-        z = Set.map fst $ Set.filter (\(_, a) -> a == t) nexts
-        nexts =
-          Set.map (\(_, n) -> (n, fromJust $ Map.lookup n allStates)) sFollow
+    ind = Map.insert 0 (toEnum 0) $ indexE linear
+    etat = Map.fromList [(k, k) | k <- Map.keys ind]
+    i = Set.singleton 0
+    f = Set.map snd $ lastE linear
+    f' =
+      if isNull linear
+        then Set.union f i
+        else f
+    debI = foldl (\acc n -> Set.insert n acc) Set.empty $ firstE linear
+    follow' =
+      Map.union (Map.insert 0 debI $ Map.empty)
+        $ followE linear
+    et = 0 : (Map.keys $ indexE linear)
+    graphNoeud = foldl (\acc n -> Gr.insNode (n, n) acc) Gr.empty et
+    graphLien =
+      foldl
+        (\acc n ->
+           foldl (\acc' (a, n') -> Gr.insEdge (n, n', a) acc') acc
+             $ if isNothing $ Map.lookup n follow'
+                 then Set.empty
+                 else fromJust $ Map.lookup n follow')
+        graphNoeud
+        et

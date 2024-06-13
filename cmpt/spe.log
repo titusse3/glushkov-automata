@@ -1,8 +1,8 @@
-This is LuaHBTeX, Version 1.15.0 (TeX Live 2022/Debian)  (format=lualatex 2024.5.25)  11 JUN 2024 23:57
+This is LuaHBTeX, Version 1.15.0 (TeX Live 2022/Debian)  (format=lualatex 2024.5.25)  12 JUN 2024 18:07
  system commands enabled.
  file:line:error style messages enabled.
-**/home/renauth6/Documents/Cour/Fac/L3/Stage/stage-cmpt/cmpt/spe.tex
-(/home/renauth6/Documents/Cour/Fac/L3/Stage/stage-cmpt/cmpt/spe.tex
+**/home/renauth6/Documents/Cour/Fac/L3/Stage/glushkov-automata/cmpt/spe.tex
+(/home/renauth6/Documents/Cour/Fac/L3/Stage/glushkov-automata/cmpt/spe.tex
 LaTeX2e <2022-11-01> patch level 1
 Lua module: luaotfload 2022-10-03 3.23 Lua based OpenType font support
 Lua module: lualibs 2022-10-04 2.75 ConTeXt Lua standard libraries.
@@ -1357,9 +1357,9 @@ Here is how much of LuaTeX's memory you used:
    avail lists: 1:3,2:10967,3:1801,4:592,5:371,6:33,7:7206,8:9,9:481,10:26,11:562
  58229 multiletter control sequences out of 65536+600000
  68 fonts using 4317295 bytes
- 105i,9n,115p,734b,1752s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 105i,9n,115p,741b,1752s stack positions out of 10000i,1000n,20000p,200000b,200000s
 {/usr/share/texmf/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-ts1.enc}</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf/fonts/type1/public/lm/lmbx10.pfb></usr/share/texmf/fonts/type1/public/lm/lmbx12.pfb></usr/share/texmf/fonts/type1/public/lm/lmbxi10.pfb></usr/share/texmf/fonts/type1/public/lm/lmcsc10.pfb></usr/share/texmf/fonts/type1/public/lm/lmr10.pfb></usr/share/texmf/fonts/type1/public/lm/lmr12.pfb></usr/share/texmf/fonts/type1/public/lm/lmr17.pfb></usr/share/texmf/fonts/type1/public/lm/lmri12.pfb></usr/share/texmf/fonts/type1/public/lm/lmtk10.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt12.pfb></usr/share/texmf/fonts/type1/public/lm/lmtti10.pfb>
-Output written on spe.pdf (10 pages, 339789 bytes).
+Output written on spe.pdf (10 pages, 340154 bytes).
 
 PDF statistics: 136 PDF objects out of 1000 (max. 8388607)
  105 compressed objects within 2 object streams

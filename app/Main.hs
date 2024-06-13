@@ -16,6 +16,8 @@ import qualified Data.Text as T
 import Text.Read
 import qualified Data.Set as Set
 
+import Debug.Trace
+
 main :: IO ()
 main = do
     _ <- Gtk.init Nothing
@@ -57,7 +59,7 @@ main = do
     showOptions <- newIORef False
 
     automataRef <- newIORef (Nothing :: Maybe (N.NFA Int Char))
-    orbitRef <- newIORef (Nothing :: Maybe (N.Orbit Int))
+    orbitRef <- newIORef (Nothing :: Maybe (Set.Set Int))
 
     -- Initialize the combo box with "Non-clustered" as the default option
     Gtk.comboBoxTextAppendText comboBox "Non-clustered"
@@ -210,8 +212,8 @@ main = do
             writeIORef automataRef (Just automate)
             updateMaximalOrbitsDropdown automate
             let automataDot = if clustered
-                              then N.automatonToDotClustered automate 
-                                   (N.maximalOrbits automate)
+                              then N.automatonToDotClustered 
+                                (N.maximalOrbits automate) automate 
                               else N.automatonToDot automate
             let svgFile = "automate.svg"
             _ <- addExtension (runGraphviz automataDot) Svg "automate"
@@ -251,10 +253,11 @@ main = do
                     let clustered = case activeText of
                                       Just "Clustered" -> True
                                       _ -> False
+                    let nfa' = N.makeStandard nfa
                     let automataDot = if clustered
-                                      then N.automatonToDotClustered nfa 
-                                           (N.maximalOrbits nfa)
-                                      else N.automatonToDot nfa
+                                      then N.automatonToDotClustered 
+                                        (N.maximalOrbits nfa) nfa'
+                                      else N.automatonToDot nfa'
                     let svgFile = "imported_automate.svg"
                     _ <- addExtension (runGraphviz automataDot) Svg 
                         "imported_automate"
@@ -267,11 +270,11 @@ main = do
             case maybeNfa of
               Just nfa -> do
                 let propertiesValues = [
-                      N.isOrbit nfa selectedOrbit,
-                      N.isStableOrbit nfa selectedOrbit,
-                      N.isTransversOrbit nfa selectedOrbit,
-                      N.isStronglyStableOrbit nfa selectedOrbit,
-                      N.isStronglyTransversOrbit nfa selectedOrbit]
+                      N.isOrbit selectedOrbit nfa,
+                      N.isStableOrbit selectedOrbit nfa,
+                      N.isTransversOrbit selectedOrbit nfa,
+                      N.isStronglyStableOrbit selectedOrbit nfa,
+                      N.isStronglyTransversOrbit selectedOrbit nfa]
                 mapM_ (\(i, value) -> do
                   let valueText = if value then "Vrai" else "Faux" :: T.Text
                   _ <- #setLabel (valueLabels !! i) valueText
@@ -284,10 +287,10 @@ main = do
                   Gtk.styleContextAddClass valueStyleContext valueClass
                   ) (zip [0..] propertiesValues)
                 #setLabel (valueLabels !! 5) $ 
-                  N.orbitToText $ N.orbitIn nfa selectedOrbit
+                  N.orbitToText $ N.orbitIn selectedOrbit nfa
                 #setLabel (valueLabels !! 6) $ 
-                  N.orbitToText $ N.orbitOut nfa selectedOrbit
-                let a' = N.extractListStateAutomata nfa selectedOrbit
+                  N.orbitToText $ N.orbitOut selectedOrbit nfa
+                let a' = N.extractListStateAutomata selectedOrbit nfa
                 case a' of 
                   Just automata' -> do
                     let automataDot = N.automatonToDot automata'
@@ -407,7 +410,7 @@ main = do
 
     Gtk.main
 
-textToSet :: T.Text -> Maybe (N.Orbit Int)
+textToSet :: T.Text -> Maybe (Set.Set Int)
 textToSet text = do
     let trimmed = T.strip text
     let withoutBraces = T.filter (\x -> x /= '{' && x /= '}') trimmed

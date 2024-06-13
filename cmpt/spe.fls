@@ -1,6 +1,6 @@
-PWD /home/renauth6/Documents/Cour/Fac/L3/Stage/stage-cmpt/cmpt
+PWD /home/renauth6/Documents/Cour/Fac/L3/Stage/glushkov-automata/cmpt
 INPUT /var/lib/texmf/web2c/luahbtex/lualatex.fmt
-INPUT /home/renauth6/Documents/Cour/Fac/L3/Stage/stage-cmpt/cmpt/spe.tex
+INPUT /home/renauth6/Documents/Cour/Fac/L3/Stage/glushkov-automata/cmpt/spe.tex
 OUTPUT spe.log
 INPUT /usr/share/texlive/texmf-dist/tex/latex/latexconfig/lualatexquotejobname.lua
 INPUT /usr/share/texlive/texmf-dist/tex/latex/base/ltluatex.lua

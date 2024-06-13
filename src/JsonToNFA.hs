@@ -5,6 +5,8 @@ module JsonToNFA
 import           Data.Aeson
 import qualified Data.ByteString.Lazy as B
 import qualified Data.Set             as Set
+import qualified Data.Map             as Map
+import qualified Data.Graph.Inductive as Gr
 import           GHC.Generics
 import qualified NFA                  as N
 
@@ -26,16 +28,23 @@ buildNFA ::
   => NFAJson state transition
   -> N.NFA state transition
 buildNFA (NFAJson n p f ts) =
-  N.NFA
-    { N.sigma = Set.fromList $ map (\(_, _, t) -> t) ts
-    , N.etats = Set.fromList n
-    , N.premier = Set.fromList p
-    , N.final = Set.fromList f
-    , N.delta =
-        \s t ->
-          Set.fromList
-            [s' | (s1, s2, t') <- ts, s1 == s, t' == t, let s' = s2]
-    }
+  let
+    sigma' = Set.fromList $ map (\(_, _, t) -> t) ts
+    etatsList = zip n [0..]
+    etats' = Map.fromList etatsList
+    premier' = Set.fromList [idx | s <- p, Just idx <- [Map.lookup s etats']]
+    final' = Set.fromList [idx | s <- f, Just idx <- [Map.lookup s etats']]
+    edges = [(Map.findWithDefault (-1) s1 etats', Map.findWithDefault (-1) s2 etats', t) | (s1, s2, t) <- ts]
+    graph' = Gr.mkGraph (map (\(s, idx) -> (idx, s)) etatsList) edges
+  in
+    N.NFA
+      { N.sigma = sigma'
+      , N.etats = etats'
+      , N.premier = premier'
+      , N.final = final'
+      , N.graph = graph'
+      , N.lastN = length n
+      }
 
 parseNFA ::
      (Ord state, Ord transition, FromJSON state, FromJSON transition)
