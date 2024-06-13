@@ -16,8 +16,6 @@ import           Data.Maybe               (fromJust, isNothing)
 import qualified Data.Set                 as Set
 import           NFA                      (NFA (..))
 
-import           Debug.Trace
-
 data Exp a
   = Empty
   | Epsilon

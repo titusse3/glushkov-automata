@@ -43,8 +43,6 @@ import qualified Data.Set                          as Set
 import qualified Data.Text                         as T
 import qualified Data.Text.Lazy                    as TL
 
-import           Debug.Trace
-
 data NFA state transition = NFA
   { sigma   :: Set.Set transition
   , etats   :: Map.Map state Int
@@ -54,40 +52,40 @@ data NFA state transition = NFA
   , lastN   :: Int
   }
 
-instance (Show state, Show transition) => Show (NFA state transition) where
-  show (NFA sigma etats premier final graph lastN) =
-    "NFA {\n"
-      ++ "  Sigma: "
-      ++ showSet sigma
-      ++ "\n"
-      ++ "  Etats: "
-      ++ showMap etats
-      ++ "\n"
-      ++ "  Premier: "
-      ++ showSet premier
-      ++ "\n"
-      ++ "  Final: "
-      ++ showSet final
-      ++ "\n"
-      ++ "  Graph: "
-      ++ showGraph graph
-      ++ "\n"
-      ++ "  LastN: "
-      ++ show lastN
-      ++ "\n"
-      ++ "}"
-    where
-      showSet s = "{" ++ L.intercalate ", " (map show $ Set.toList s) ++ "}"
-      showMap m =
-        "{"
-          ++ L.intercalate
-               ", "
-               [show k ++ ": " ++ show v | (k, v) <- Map.toList m]
-          ++ "}"
-      showGraph g =
-        "{" ++ L.intercalate ", " (map showEdge $ Gr.labEdges g) ++ "}"
-      showEdge (s, t, l) =
-        "(" ++ show s ++ " -" ++ show l ++ "-> " ++ show t ++ ")"
+-- instance (Show state, Show transition) => Show (NFA state transition) where
+--   show (NFA sigma etats premier final graph lastN) =
+--     "NFA {\n"
+--       ++ "  Sigma: "
+--       ++ showSet sigma
+--       ++ "\n"
+--       ++ "  Etats: "
+--       ++ showMap etats
+--       ++ "\n"
+--       ++ "  Premier: "
+--       ++ showSet premier
+--       ++ "\n"
+--       ++ "  Final: "
+--       ++ showSet final
+--       ++ "\n"
+--       ++ "  Graph: "
+--       ++ showGraph graph
+--       ++ "\n"
+--       ++ "  LastN: "
+--       ++ show lastN
+--       ++ "\n"
+--       ++ "}"
+--     where
+--       showSet s = "{" ++ L.intercalate ", " (map show $ Set.toList s) ++ "}"
+--       showMap m =
+--         "{"
+--           ++ L.intercalate
+--                ", "
+--                [show k ++ ": " ++ show v | (k, v) <- Map.toList m]
+--           ++ "}"
+--       showGraph g =
+--         "{" ++ L.intercalate ", " (map showEdge $ Gr.labEdges g) ++ "}"
+--       showEdge (s, t, l) =
+--         "(" ++ show s ++ " -" ++ show l ++ "-> " ++ show t ++ ")"
 
 orbitToText :: (Show state) => (Set.Set state) -> T.Text
 orbitToText o =
@@ -364,8 +362,8 @@ isStronglyStableOrbit o a =
                        $ maximalOrbits a'
   where
     autoOrbit = fromJust $ extractListStateAutomata o a
-    inO = trace (show (orbitIn o a)) $ orbitIn o a
-    outO = trace (show (orbitOut o a)) $ orbitOut o a
+    inO = orbitIn o a
+    outO = orbitOut o a
     outIn = do
       x <- Set.toList outO
       y <- Set.toList inO

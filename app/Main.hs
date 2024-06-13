@@ -16,8 +16,6 @@ import qualified Data.Text as T
 import Text.Read
 import qualified Data.Set as Set
 
-import Debug.Trace
-
 main :: IO ()
 main = do
     _ <- Gtk.init Nothing
@@ -253,11 +251,10 @@ main = do
                     let clustered = case activeText of
                                       Just "Clustered" -> True
                                       _ -> False
-                    let nfa' = N.makeStandard nfa
                     let automataDot = if clustered
                                       then N.automatonToDotClustered 
-                                        (N.maximalOrbits nfa) nfa'
-                                      else N.automatonToDot nfa'
+                                        (N.maximalOrbits nfa) nfa
+                                      else N.automatonToDot nfa
                     let svgFile = "imported_automate.svg"
                     _ <- addExtension (runGraphviz automataDot) Svg 
                         "imported_automate"
