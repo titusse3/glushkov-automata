@@ -3,73 +3,57 @@ module NFA
   , orbitToText
   ) where
 
-import qualified Data.Set                          as Set
-import qualified Data.Text as T
-import qualified Data.Graph.Inductive              as Gr
+import qualified Data.Graph.Inductive as Gr
 import           Data.GraphViz
+import qualified Data.Set             as Set
+import qualified Data.Text            as T
 
 orbitToText :: (Show state) => (Set.Set state) -> T.Text
 orbitToText o =
   mconcat ["{", (T.intercalate "," $ map (T.pack . show) $ Set.toList o), "}"]
 
-class (Ord state, Ord transition) => NFA state transition where
-  emptyNFA :: nfa state transition
+-- Classe NFA avec toutes les méthodes listées
+class NFA nfa where
+  type StateType nfa :: *
+  type TransitionType nfa :: *
 
-  addState :: state -> nfa state transition -> Maybe (nfa state transition)
-
-  addTransition :: (state, state, transition) -> nfa state transition -> Maybe (nfa state transition)
-
-  stateExist :: state -> nfa state transition -> Bool
-
-  isFinal :: state -> nfa state transition -> Bool
-
-  isStart :: state -> nfa state transition -> Bool
-
-  transitionExist :: (state, state, transition) -> nfa state transition -> Bool
-
-  hasEdge :: (state, state) -> nfa state transition -> Bool
-
-  removeState :: state -> nfa state transition -> Maybe (nfa state transition)
-
-  removeTransition :: (state, state, transition) -> nfa state transition -> Maybe (nfa state transition)
-
-  removeTransitions :: (state, state) -> nfa state transition -> Maybe (nfa state transition)
-
-  makeInit :: state -> nfa state transition -> Maybe (nfa state transition)
-
-  makeFinal :: state -> nfa state transition -> Maybe (nfa state transition)
-
-  isStandard :: nfa state transition -> Bool
-
-  isHomogeneous :: nfa state transition -> Bool
-
-  makeStandard :: nfa state transition -> nfa state transition
-
-  directSucc :: state -> nfa state transition -> Set.Set state
-
-  directPred :: state -> nfa state transition -> Set.Set state
-
-  extractListStateAutomata :: Set.Set state -> nfa state transition -> Maybe (nfa state transition)
-
-  maximalOrbits :: nfa state transition -> [Set.Set state]
-
-  isOrbit :: Set.Set state -> nfa state transition -> Bool
-
-  orbitIn :: Set.Set state -> nfa state transition -> Set.Set state
-
-  orbitOut :: Set.Set state -> nfa state transition -> Set.Set state
-
-  isStableOrbit :: Set.Set state -> nfa state transition -> Bool
-
-  isStronglyStableOrbit :: Set.Set state -> nfa state transition -> Bool
-
-  isTransversOrbit :: Set.Set state -> nfa state transition -> Bool
-
-  isStronglyTransversOrbit :: Set.Set state -> nfa state transition -> Bool
-
-  accept :: [transition] -> nfa state transition -> Bool
-
-  automatonToDot :: (Show state, Show transition) => nfa state transition -> DotGraph Gr.Node
-
-  automatonToDotClustered :: (Show state, Show transition) => [Set.Set state] -> nfa state transition -> DotGraph Gr.Node
-  
+  emptyNFA :: nfa
+  addState :: StateType nfa -> nfa -> Maybe nfa
+  addTransition ::
+       (StateType nfa, StateType nfa, TransitionType nfa) -> nfa -> Maybe nfa
+  stateExist :: StateType nfa -> nfa -> Bool
+  isFinal :: StateType nfa -> nfa -> Bool
+  isStart :: StateType nfa -> nfa -> Bool
+  transitionExist ::
+       (StateType nfa, StateType nfa, TransitionType nfa) -> nfa -> Bool
+  hasEdge :: (StateType nfa, StateType nfa) -> nfa -> Bool
+  removeState :: StateType nfa -> nfa -> Maybe nfa
+  removeTransition ::
+       (StateType nfa, StateType nfa, TransitionType nfa) -> nfa -> Maybe nfa
+  removeTransitions :: (StateType nfa, StateType nfa) -> nfa -> Maybe nfa
+  makeInit :: StateType nfa -> nfa -> Maybe nfa
+  makeFinal :: StateType nfa -> nfa -> Maybe nfa
+  isStandard :: nfa -> Bool
+  isHomogeneous :: nfa -> Bool
+  makeStandard :: (Enum (StateType nfa)) => nfa -> nfa
+  directSucc :: StateType nfa -> nfa -> Set.Set (StateType nfa)
+  directPred :: StateType nfa -> nfa -> Set.Set (StateType nfa)
+  extractListStateAutomata :: Set.Set (StateType nfa) -> nfa -> Maybe nfa
+  maximalOrbits :: nfa -> [Set.Set (StateType nfa)]
+  isOrbit :: Set.Set (StateType nfa) -> nfa -> Bool
+  orbitIn :: Set.Set (StateType nfa) -> nfa -> Set.Set (StateType nfa)
+  orbitOut :: Set.Set (StateType nfa) -> nfa -> Set.Set (StateType nfa)
+  isStableOrbit :: Set.Set (StateType nfa) -> nfa -> Bool
+  isStronglyStableOrbit :: Set.Set (StateType nfa) -> nfa -> Bool
+  isTransversOrbit :: Set.Set (StateType nfa) -> nfa -> Bool
+  isStronglyTransversOrbit :: Set.Set (StateType nfa) -> nfa -> Bool
+  accept :: [TransitionType nfa] -> nfa -> Bool
+  automatonToDot ::
+       (Show (StateType nfa), Show (TransitionType nfa))
+    => nfa
+    -> DotGraph Gr.Node
+  automatonToDotClustered ::
+       (Show (StateType nfa), Show (TransitionType nfa))
+    => [Set.Set (StateType nfa)]
+    -> nfa
+    -> DotGraph Gr.Node

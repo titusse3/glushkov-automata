@@ -26,7 +26,7 @@ instance (Ord state, Ord transition, ToJSON state, ToJSON transition) =>
 buildNFA ::
      (Ord state, Ord transition)
   => NFAJson state transition
-  -> NG.NFA state transition
+  -> NG.NFAG state transition
 buildNFA (NFAJson n p f ts) =
   let
     sigma' = Set.fromList $ map (\(_, _, t) -> t) ts
@@ -37,7 +37,7 @@ buildNFA (NFAJson n p f ts) =
     edges = [(Map.findWithDefault (-1) s1 etats', Map.findWithDefault (-1) s2 etats', t) | (s1, s2, t) <- ts]
     graph' = Gr.mkGraph (map (\(s, idx) -> (idx, s)) etatsList) edges
   in
-    NG.NFA
+    NG.NFAG
       { NG.sigma = sigma'
       , NG.etats = etats'
       , NG.premier = premier'
@@ -49,7 +49,7 @@ buildNFA (NFAJson n p f ts) =
 parseNFA ::
      (Ord state, Ord transition, FromJSON state, FromJSON transition)
   => FilePath
-  -> IO (Either String (NG.NFA state transition))
+  -> IO (Either String (NG.NFAG state transition))
 parseNFA filePath = do
   jsonData <- B.readFile filePath
   let parsed =

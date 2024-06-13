@@ -7,6 +7,7 @@ import Data.IORef (newIORef, readIORef, writeIORef)
 import qualified GetExp as GE
 import Data.Maybe (isJust, fromJust, isNothing)
 import qualified NFA as N
+import qualified NFAG as NG
 import qualified Exp as E
 import Data.GraphViz.Commands (addExtension, runGraphviz, GraphvizOutput(Svg))
 import System.Process (callCommand)
@@ -56,7 +57,7 @@ main = do
     imageRef <- newIORef (Nothing :: Maybe Gtk.Image)
     showOptions <- newIORef False
 
-    automataRef <- newIORef (Nothing :: Maybe (N.NFA Int Char))
+    automataRef <- newIORef (Nothing :: Maybe (NG.NFAG Int Char))
     orbitRef <- newIORef (Nothing :: Maybe (Set.Set Int))
 
     -- Initialize the combo box with "Non-clustered" as the default option
@@ -240,7 +241,7 @@ main = do
                 Gtk.labelSetText label "Fichier non trouvé"
               else do
                 parsed <- JNFA.parseNFA path 
-                  :: IO (Either String (N.NFA Int Char))
+                  :: IO (Either String (NG.NFAG Int Char))
                 case parsed of
                   Left err -> Gtk.labelSetText label $ T.pack err
                   Right nfa -> do

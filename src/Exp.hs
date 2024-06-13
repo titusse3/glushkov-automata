@@ -96,7 +96,7 @@ followE (Point e e') =
 followE (Sym _) = Map.empty
 followE Empty = Map.empty
 
-glushkov :: (Ord a, Enum a) => Exp a -> NG.NFA Int a
+glushkov :: (Ord a, Enum a) => Exp a -> NG.NFAG Int a
 glushkov e = NG.NFAG sigma' etat i f' graphLien $ Map.size etat
   where
     sigma' = alphabet e

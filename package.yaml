@@ -20,6 +20,9 @@ default-extensions:
 - QuasiQuotes
 - DeriveGeneric
 - MultiParamTypeClasses
+- FlexibleInstances
+- TypeFamilies
+- FlexibleContexts
 
 description:         Please see the README on GitHub at <https://github.com/githubuser/glushkov-automata#readme>
 
