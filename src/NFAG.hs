@@ -13,8 +13,6 @@ import qualified Data.Set                          as Set
 import qualified Data.Text.Lazy                    as TL
 import           NFA
 
-import Debug.Trace
-
 data NFAG state transition = NFAG
   { sigma   :: Set.Set transition
   , etats   :: Map.Map state Int
@@ -306,7 +304,7 @@ instance (Ord state, Ord transition, Show state, Show transition) => NFA (NFAG s
                   Just auto -> auto
                   _         -> n)
               autoOrbit
-              (trace ("filtre =" ++ show outIn) outIn)
+              outIn
 
   isTransversOrbit o a = isOrbit o a && Set.size sIn <= 1 && Set.size sOut <= 1
     where
@@ -374,7 +372,8 @@ instance (Ord state, Ord transition, Show state, Show transition) => NFA (NFAG s
     where
       params =
         nonClusteredParams
-          { globalAttributes = [GraphAttrs [RankDir FromLeft]]
+          { globalAttributes = [GraphAttrs [RankDir FromLeft, 
+            BgColor [toWC $ RGBA 0 0 0 0]]]
           , fmtNode =
               \(_, lbl) ->
                 [ Shape $ shapeOf lbl a
@@ -390,7 +389,8 @@ instance (Ord state, Ord transition, Show state, Show transition) => NFA (NFAG s
     where
       params =
         defaultParams
-          { globalAttributes = [GraphAttrs [RankDir FromLeft]]
+          { globalAttributes = [GraphAttrs [RankDir FromLeft, 
+            BgColor [toWC $ RGBA 0 0 0 0]]]
           , fmtNode =
               \(_, lbl) ->
                 [ Shape $ shapeOf lbl a

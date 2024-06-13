@@ -289,7 +289,8 @@ instance (Ord state, Ord transition, Show state, Show transition)
       graph = automataToGraph a
       params =
         nonClusteredParams
-          { globalAttributes = [GraphAttrs [RankDir FromLeft]]
+          { globalAttributes = [GraphAttrs [RankDir FromLeft, 
+            BgColor [toWC $ RGBA 0 0 0 0]]]
           , fmtNode =
               \node ->
                 [ Shape $ shapeOf node
@@ -323,7 +324,8 @@ instance (Ord state, Ord transition, Show state, Show transition)
       graph = automataToGraph a
       params =
         defaultParams
-          { globalAttributes = [GraphAttrs [RankDir FromLeft]]
+          { globalAttributes = [GraphAttrs [RankDir FromLeft, 
+            BgColor [toWC $ RGBA 0 0 0 0]]]
           , fmtNode =
               \node ->
                 [ Shape $ shapeOf node
