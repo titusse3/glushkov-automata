@@ -16,6 +16,7 @@ import qualified JsonToNFA as JNFA
 import qualified Data.Text as T
 import Text.Read
 import qualified Data.Set as Set
+import Data.Foldable
 
 main :: IO ()
 main = do
@@ -176,9 +177,7 @@ main = do
           newImage <- Gtk.imageNewFromFile svgFile
           Gtk.widgetSetSizeRequest newImage 500 500
           currentImage <- readIORef imageRef
-          case currentImage of
-            Just img -> #remove contentVBox img
-            Nothing -> return ()
+          forM_ currentImage (#remove contentVBox)
           writeIORef imageRef (Just newImage)
           #packStart contentVBox newImage False False 5
           updateRadioBoxVisibility
@@ -188,7 +187,7 @@ main = do
           Gtk.comboBoxTextRemoveAll maximalDropdown
           let orbits = N.maximalOrbits nfa
           mapM_ (\(n, x) -> Gtk.comboBoxTextAppendText maximalDropdown $ 
-                            (T.pack (show n)) <> ". " <> N.orbitToText x) 
+                            T.pack (show n) <> ". " <> N.orbitToText x <> ". " <> N.orbitToText x) 
                 $ zip ([1 .. ] :: [Int]) orbits
 
     let performAutomata = do
@@ -197,9 +196,7 @@ main = do
           if isNothing result then do
             Gtk.labelSetText label "Erreur"
             currentImage <- readIORef imageRef
-            case currentImage of
-              Just img -> #remove contentVBox img
-              Nothing -> return ()
+            forM_ currentImage (#remove contentVBox)
           else do
             let validText = fromJust result :: E.Exp Char
             Gtk.labelSetText label "Voici votre Automate"

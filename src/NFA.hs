@@ -8,11 +8,10 @@ import           Data.GraphViz
 import qualified Data.Set             as Set
 import qualified Data.Text            as T
 
-orbitToText :: (Show state) => (Set.Set state) -> T.Text
+orbitToText :: (Show state) => Set.Set state -> T.Text
 orbitToText o =
-  mconcat ["{", (T.intercalate "," $ map (T.pack . show) $ Set.toList o), "}"]
+  mconcat ["{", T.intercalate "," $ map (T.pack . show) $ Set.toList o, "}"]
 
--- Classe NFA avec toutes les méthodes listées
 class NFA nfa where
   type StateType nfa :: *
   type TransitionType nfa :: *
@@ -22,6 +21,7 @@ class NFA nfa where
   addTransition ::
        (StateType nfa, StateType nfa, TransitionType nfa) -> nfa -> Maybe nfa
   stateExist :: StateType nfa -> nfa -> Bool
+  getStates :: nfa -> [StateType nfa]
   isFinal :: StateType nfa -> nfa -> Bool
   isStart :: StateType nfa -> nfa -> Bool
   transitionExist ::

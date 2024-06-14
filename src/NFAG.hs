@@ -1,3 +1,5 @@
+{-# LANGUAGE InstanceSigs #-}
+
 module NFAG
   ( NFAG(..)
   ) where
@@ -22,6 +24,17 @@ data NFAG state transition = NFAG
   , lastN   :: Int
   }
 
+instance (Show state, Show transition) => Show (NFAG state transition) where
+  show (NFAG s q p f g l) =
+    "NFAG {\n" ++
+    "  sigma = " ++ show s ++ ",\n" ++
+    "  etats = " ++ show q ++ ",\n" ++
+    "  premier = " ++ show p ++ ",\n" ++
+    "  final = " ++ show f ++ ",\n" ++
+    "  graph = " ++ show g ++ ",\n" ++
+    "  lastN = " ++ show l ++ "\n" ++
+    "}"
+
 transformTuple :: (Maybe Int, Maybe Int, a) -> Maybe (Int, Int, a)
 transformTuple (m1, m2, a) = do
   v1 <- m1
@@ -35,32 +48,47 @@ cleanLabel :: TL.Text -> TL.Text
 cleanLabel = TL.filter (\c -> c /= '\'' && c /= '\"')
 
 shapeOf ::
-     (Ord state, Ord transition, Show state, Show transition) => state -> NFAG state transition -> Shape
+     (Ord state, Ord transition, Show state, Show transition)
+  => state
+  -> NFAG state transition
+  -> Shape
 shapeOf lbl a =
   if isFinal lbl a
     then DoubleCircle
     else Circle
 
 colorOf ::
-     (Ord state, Ord transition, Show state, Show transition) => state -> NFAG state transition -> X11Color
+     (Ord state, Ord transition, Show state, Show transition)
+  => state
+  -> NFAG state transition
+  -> X11Color
 colorOf lbl a =
   if isStart lbl a
     then Green
     else White
 
-instance (Ord state, Ord transition, Show state, Show transition) => NFA (NFAG state transition) where
+instance (Ord state, Ord transition, Show state, Show transition) =>
+         NFA (NFAG state transition) where
   type StateType (NFAG state transition) = state
   type TransitionType (NFAG state transition) = transition
-
-  emptyNFA = (NFAG Set.empty Map.empty Set.empty Set.empty Gr.empty 0)
-
+  emptyNFA :: NFAG state transition
+  emptyNFA = NFAG Set.empty Map.empty Set.empty Set.empty Gr.empty 0
+  addState ::
+       StateType (NFAG state transition)
+    -> NFAG state transition
+    -> Maybe (NFAG state transition)
   addState st (NFAG s q i f g n) =
     if stateExist st (NFAG s q i f g n)
       then Nothing
       else let q' = Map.insert st (n + 1) q
                g' = Gr.insNode (n + 1, st) g
             in pure $ NFAG s q' i f g' (n + 1)
-
+  addTransition ::
+       ( StateType (NFAG state transition)
+       , StateType (NFAG state transition)
+       , TransitionType (NFAG state transition))
+    -> NFAG state transition
+    -> Maybe (NFAG state transition)
   addTransition (q0, q1, t) (NFAG s q i f g n) =
     case transformTuple (Map.lookup q0 q, Map.lookup q1 q, t) of
       Just (n0, n1, trans) ->
@@ -68,32 +96,46 @@ instance (Ord state, Ord transition, Show state, Show transition) => NFA (NFAG s
             s' = Set.insert trans s
          in pure $ NFAG s' q i f g' n
       Nothing -> Nothing
-
+  stateExist ::
+       StateType (NFAG state transition) -> NFAG state transition -> Bool
   stateExist st = Map.member st . etats
-
+  getStates :: NFAG state transition -> [StateType (NFAG state transition)]
+  getStates (NFAG _ _ _ _ g _) = map (fromJust . Gr.lab g) $ Gr.nodes g
+  isFinal :: StateType (NFAG state transition) -> NFAG state transition -> Bool
   isFinal lbl nfa =
     case Map.lookup lbl (etats nfa) of
       Just index -> Set.member index (final nfa)
       Nothing    -> False
-
+  isStart :: StateType (NFAG state transition) -> NFAG state transition -> Bool
   isStart lbl nfa =
     case Map.lookup lbl (etats nfa) of
       Just index -> Set.member index (premier nfa)
       Nothing    -> False
-
+  transitionExist ::
+       ( StateType (NFAG state transition)
+       , StateType (NFAG state transition)
+       , TransitionType (NFAG state transition))
+    -> NFAG state transition
+    -> Bool
   transitionExist (q0, q1, t) (NFAG _ q _ _ g _) =
     let n0 = Map.lookup q0 q
         n1 = Map.lookup q1 q
         s = Gr.hasLEdge g <$> transformTuple (n0, n1, t)
      in isJust s && fromJust s
-
+  hasEdge ::
+       (StateType (NFAG state transition), StateType (NFAG state transition))
+    -> NFAG state transition
+    -> Bool
   hasEdge (q0, q1) a =
     isJust n0 && isJust n1 && Gr.hasEdge (graph a) (fromJust n0, fromJust n1)
     where
       n0 = Map.lookup q0 q
       n1 = Map.lookup q1 q
       q = etats a
-
+  removeState ::
+       StateType (NFAG state transition)
+    -> NFAG state transition
+    -> Maybe (NFAG state transition)
   removeState st (NFAG s q i f g n) =
     if stateExist st (NFAG s q i f g n)
       then let q' = Map.delete st q
@@ -102,14 +144,22 @@ instance (Ord state, Ord transition, Show state, Show transition) => NFA (NFAG s
                g' = Gr.delNode (stateToNode st q) g
             in pure $ NFAG s q' i' f' g' n
       else Nothing
-
+  removeTransition ::
+       ( StateType (NFAG state transition)
+       , StateType (NFAG state transition)
+       , TransitionType (NFAG state transition))
+    -> NFAG state transition
+    -> Maybe (NFAG state transition)
   removeTransition (q0, q1, t) (NFAG s q i f g n) =
     case transformTuple (Map.lookup q0 q, Map.lookup q1 q, t) of
       Just (n0, n1, trans) ->
         let g' = Gr.delLEdge (n0, n1, trans) g
          in pure $ NFAG s q i f g' n
       Nothing -> Nothing
-
+  removeTransitions ::
+       (StateType (NFAG state transition), StateType (NFAG state transition))
+    -> NFAG state transition
+    -> Maybe (NFAG state transition)
   removeTransitions (q0, q1) a =
     if stateExist q0 a && stateExist q1 a
       then pure
@@ -121,17 +171,23 @@ instance (Ord state, Ord transition, Show state, Show transition) => NFA (NFAG s
                  a
              $ sigma a
       else Nothing
-
+  makeInit ::
+       StateType (NFAG state transition)
+    -> NFAG state transition
+    -> Maybe (NFAG state transition)
   makeInit st (NFAG s q i f g n) =
     if stateExist st (NFAG s q i f g n)
       then pure $ NFAG s q (Set.insert (stateToNode st q) i) f g n
       else Nothing
-
+  makeFinal ::
+       StateType (NFAG state transition)
+    -> NFAG state transition
+    -> Maybe (NFAG state transition)
   makeFinal st (NFAG s q i f g n) =
     if stateExist st (NFAG s q i f g n)
       then pure $ NFAG s q i (Set.insert (stateToNode st q) f) g n
       else Nothing
-
+  isStandard :: NFAG state transition -> Bool
   isStandard (NFAG _ _ i _ g _) = hasOneElem && null (Gr.pre g p)
     where
       i' = Set.toList i
@@ -141,7 +197,7 @@ instance (Ord state, Ord transition, Show state, Show transition) => NFA (NFAG s
           []  -> False
           [_] -> True
           _   -> False
-
+  isHomogeneous :: NFAG state transition -> Bool
   isHomogeneous (NFAG _ q _ _ g _) = foldl f True $ Map.keys q
     where
       f acc n = acc && allSameB l
@@ -150,7 +206,10 @@ instance (Ord state, Ord transition, Show state, Show transition) => NFA (NFAG s
       allSameB :: Eq b => [(a, b)] -> Bool
       allSameB []          = True
       allSameB ((_, b):xs) = all (\(_, b') -> b == b') xs
-
+  makeStandard ::
+       Enum (StateType (NFAG state transition))
+    => NFAG state transition
+    -> NFAG state transition
   makeStandard (NFAG s q i f g nu) =
     let q' = Map.insert (toEnum $ nu + 1) (nu + 1) q
         i' = Set.singleton $ nu + 1
@@ -158,13 +217,12 @@ instance (Ord state, Ord transition, Show state, Show transition) => NFA (NFAG s
           if null (Set.difference f i)
             then Set.insert (nu + 1) f
             else f
-        gi = Gr.insNode (nu + 1, (toEnum $ nu + 1)) g
+        gi = Gr.insNode (nu + 1, toEnum $ nu + 1) g
         fun acc n =
           foldl (\acc' (n', a) -> Gr.insEdge (nu + 1, n', a) acc') acc
             $ Gr.lsuc g n
         g' = foldl fun gi i
      in NFAG s q' i' f' g' $ nu + 1
-
   -- makeHomogeneous ::
   --     (Enum state, Ord state, Ord transition) => NFAG state transition -> NFAG state transition
   -- makeHomogeneous a =
@@ -191,37 +249,49 @@ instance (Ord state, Ord transition, Show state, Show transition) => NFA (NFAG s
   --                     Set.insert newEtat ensemble
   --                   else
   --                     ensemble
-
+  directSucc ::
+       StateType (NFAG state transition)
+    -> NFAG state transition
+    -> Set.Set (StateType (NFAG state transition))
   directSucc st (NFAG _ q _ _ g _) = Set.fromList $ map (fromJust . Gr.lab g) l
     where
       l = Gr.suc g $ fromJust $ Map.lookup st q
-
+  directPred ::
+       StateType (NFAG state transition)
+    -> NFAG state transition
+    -> Set.Set (StateType (NFAG state transition))
   directPred st (NFAG _ q _ _ g _) = Set.fromList $ map (fromJust . Gr.lab g) l
     where
       l = Gr.pre g $ fromJust $ Map.lookup st q
-
+  extractListStateAutomata ::
+       Set.Set (StateType (NFAG state transition))
+    -> NFAG state transition
+    -> Maybe (NFAG state transition)
   extractListStateAutomata o (NFAG s q i f g n) =
     if all (`stateExist` a) (Set.toList o)
       then let q' = Map.filterWithKey (\k _ -> k `Set.member` o) q
                i' = Set.intersection i o'
                f' = Set.intersection f o'
-               g' = Gr.subgraph (map (\x -> stateToNode x q) $ Set.toList o) g
+               g' = Gr.subgraph (map (`stateToNode` q) $ Set.toList o) g
             in Just (NFAG s q' i' f' g' n)
       else Nothing
     where
       a = NFAG s q i f g n
-      o' = Set.map (\x -> stateToNode x q) o
-
-  maximalOrbits a =
-    map (\l -> Set.fromList $ map (fromJust . Gr.lab g') l) orbitM
+      o' = Set.map (`stateToNode` q) o
+  maximalOrbits ::
+       NFAG state transition -> [Set.Set (StateType (NFAG state transition))]
+  maximalOrbits a = map (Set.fromList . map (fromJust . Gr.lab g')) orbitM
     where
       g' = graph a
       sccs = scc g'
-      filterFun []     = False
-      filterFun (x:[]) = Gr.hasEdge g' (x, x)
-      filterFun _      = True
+      filterFun []  = False
+      filterFun [x] = Gr.hasEdge g' (x, x)
+      filterFun _   = True
       orbitM = filter filterFun sccs
-
+  isOrbit ::
+       Set.Set (StateType (NFAG state transition))
+    -> NFAG state transition
+    -> Bool
   isOrbit o a = isJust g' && firstTest l && hasOneElem fc
     where
       l = map (\x -> fromJust $ Map.lookup x $ etats a) $ Set.toList o
@@ -232,8 +302,11 @@ instance (Ord state, Ord transition, Show state, Show transition) => NFA (NFAG s
       hasOneElem _   = False
       a' = extractListStateAutomata o a
       g' = graph <$> a'
-      fc = fromJust $ scc <$> g'
-
+      fc = scc $ fromJust g'
+  orbitIn ::
+       Set.Set (StateType (NFAG state transition))
+    -> NFAG state transition
+    -> Set.Set (StateType (NFAG state transition))
   orbitIn o a =
     if isOrbit o a
       then foldl f Set.empty o
@@ -245,13 +318,16 @@ instance (Ord state, Ord transition, Show state, Show transition) => NFA (NFAG s
           else acc
         where
           l =
-            Set.filter (\n' -> Set.notMember n' o')
+            Set.filter (`Set.notMember` o')
               $ Set.fromList
               $ Gr.pre (graph a)
               $ stateToNode n
               $ etats a
       o' = Set.map (\x -> stateToNode x $ etats a) o
-
+  orbitOut ::
+       Set.Set (StateType (NFAG state transition))
+    -> NFAG state transition
+    -> Set.Set (StateType (NFAG state transition))
   orbitOut o a =
     if isOrbit o a
       then foldl f Set.empty o
@@ -263,13 +339,16 @@ instance (Ord state, Ord transition, Show state, Show transition) => NFA (NFAG s
           else acc
         where
           l =
-            Set.filter (\n' -> Set.notMember n' o')
+            Set.filter (`Set.notMember` o')
               $ Set.fromList
               $ Gr.suc (graph a)
               $ stateToNode n
               $ etats a
       o' = Set.map (\x -> stateToNode x $ etats a) o
-
+  isStableOrbit ::
+       Set.Set (StateType (NFAG state transition))
+    -> NFAG state transition
+    -> Bool
   isStableOrbit o a =
     isOrbit o a && inOut == filter (\(x, x') -> hasEdge (x, x') a) inOut
     where
@@ -279,16 +358,19 @@ instance (Ord state, Ord transition, Show state, Show transition) => NFA (NFAG s
         x <- Set.toList outO
         y <- Set.toList inO
         return (x, y)
-
-  isStronglyStableOrbit s a = 
-      isStronglyStableOrbit' s a
-    where 
-      isStronglyStableOrbit' o a'=
+  isStronglyStableOrbit ::
+       Set.Set (StateType (NFAG state transition))
+    -> NFAG state transition
+    -> Bool
+  isStronglyStableOrbit s a = isStronglyStableOrbit' s a
+    where
+      isStronglyStableOrbit' o a' =
         isOrbit o a'
-          && if not $ isStableOrbit o a'
-              then False
-              else foldl (\acc o' -> acc && isStronglyStableOrbit' o' a'') True
-                      $ maximalOrbits a''
+          && (isStableOrbit o a'
+                && foldl
+                     (\acc o' -> acc && isStronglyStableOrbit' o' a'')
+                     True
+                     (maximalOrbits a''))
         where
           autoOrbit = fromJust $ extractListStateAutomata o a'
           inO = orbitIn o a
@@ -300,29 +382,34 @@ instance (Ord state, Ord transition, Show state, Show transition) => NFA (NFAG s
           a'' =
             foldl
               (\n (x, x') ->
-                case removeTransitions (x, x') n of
-                  Just auto -> auto
-                  _         -> n)
+                 case removeTransitions (x, x') n of
+                   Just auto -> auto
+                   _         -> n)
               autoOrbit
               outIn
-
+  isTransversOrbit ::
+       Set.Set (StateType (NFAG state transition))
+    -> NFAG state transition
+    -> Bool
   isTransversOrbit o a = isOrbit o a && Set.size sIn <= 1 && Set.size sOut <= 1
     where
       oIn = orbitIn o a
       oOut = orbitOut o a
       sIn = Set.map (\x -> Set.difference (directPred x a) o) oIn
       sOut = Set.map (\x -> Set.difference (directSucc x a) o) oOut
-
-  isStronglyTransversOrbit s a = 
-      isStronglyTransversOrbit' s a
-    where 
-      isStronglyTransversOrbit' o a'=
+  isStronglyTransversOrbit ::
+       Set.Set (StateType (NFAG state transition))
+    -> NFAG state transition
+    -> Bool
+  isStronglyTransversOrbit s a = isStronglyTransversOrbit' s a
+    where
+      isStronglyTransversOrbit' o a' =
         isOrbit o a'
-          && if not $ isTransversOrbit o a'
-              then False
-              else foldl 
-                (\acc o' -> acc && isStronglyTransversOrbit' o' a'') True
-                  $ maximalOrbits a''
+          && (isTransversOrbit o a'
+                && foldl
+                     (\acc o' -> acc && isStronglyTransversOrbit' o' a'')
+                     True
+                     (maximalOrbits a''))
         where
           autoOrbit = fromJust $ extractListStateAutomata o a'
           inO = orbitIn o a
@@ -334,14 +421,15 @@ instance (Ord state, Ord transition, Show state, Show transition) => NFA (NFAG s
           a'' =
             foldl
               (\n (x, x') ->
-                case removeTransitions (x, x') n of
-                  Just auto -> auto
-                  _         -> n)
+                 case removeTransitions (x, x') n of
+                   Just auto -> auto
+                   _         -> n)
               autoOrbit
               outIn
-
+  accept ::
+       [TransitionType (NFAG state transition)] -> NFAG state transition -> Bool
   accept [] _ = True
-  accept transitions a = any ((verifyPath transitions)) startNodes
+  accept transitions a = any (verifyPath transitions) startNodes
     where
       gr = graph a
       startNodes =
@@ -365,15 +453,14 @@ instance (Ord state, Ord transition, Show state, Show transition) => NFA (NFAG s
         case [n | (_, n, tr) <- Gr.out gr node, tr == trans] of
           [n] -> Just n
           _   -> Nothing
-
   -- ==================== Affichage =====================
-
+  automatonToDot :: NFAG state transition -> DotGraph Gr.Node
   automatonToDot a = graphToDot params $ graph a
     where
       params =
         nonClusteredParams
-          { globalAttributes = [GraphAttrs [RankDir FromLeft, 
-            BgColor [toWC $ RGBA 0 0 0 0]]]
+          { globalAttributes =
+              [GraphAttrs [RankDir FromLeft, BgColor [toWC $ RGBA 0 0 0 0]]]
           , fmtNode =
               \(_, lbl) ->
                 [ Shape $ shapeOf lbl a
@@ -384,13 +471,16 @@ instance (Ord state, Ord transition, Show state, Show transition) => NFA (NFAG s
           , fmtEdge =
               \(_, _, l) -> [Label $ StrLabel $ cleanLabel $ TL.pack (show l)]
           }
-          
+  automatonToDotClustered ::
+       [Set.Set (StateType (NFAG state transition))]
+    -> NFAG state transition
+    -> DotGraph Gr.Node
   automatonToDotClustered clusters a = graphToDot params $ graph a
     where
       params =
         defaultParams
-          { globalAttributes = [GraphAttrs [RankDir FromLeft, 
-            BgColor [toWC $ RGBA 0 0 0 0]]]
+          { globalAttributes =
+              [GraphAttrs [RankDir FromLeft, BgColor [toWC $ RGBA 0 0 0 0]]]
           , fmtNode =
               \(_, lbl) ->
                 [ Shape $ shapeOf lbl a

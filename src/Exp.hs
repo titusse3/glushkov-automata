@@ -109,11 +109,11 @@ glushkov e = NG.NFAG sigma' etat i f' graphLien $ Map.size etat
       if isNull linear
         then Set.union f i
         else f
-    debI = foldl (\acc n -> Set.insert n acc) Set.empty $ firstE linear
+    debI = foldl (flip Set.insert) Set.empty $ firstE linear
     follow' =
-      Map.union (Map.insert 0 debI $ Map.empty)
+      Map.union (Map.insert 0 debI Map.empty)
         $ followE linear
-    et = 0 : (Map.keys $ indexE linear)
+    et = 0 : Map.keys (indexE linear)
     graphNoeud = foldl (\acc n -> Gr.insNode (n, n) acc) Gr.empty et
     graphLien =
       foldl

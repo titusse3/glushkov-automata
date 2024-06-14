@@ -23,6 +23,7 @@ default-extensions:
 - FlexibleInstances
 - TypeFamilies
 - FlexibleContexts
+- TypeOperators
 
 description:         Please see the README on GitHub at <https://github.com/githubuser/glushkov-automata#readme>
 
@@ -90,3 +91,18 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - glushkov-automata
+
+benchmarks:
+  my-benchmark:
+    main:                Bench.hs
+    source-dirs:         bench
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -O2
+    dependencies:
+    - glushkov-automata
+    - criterion
+    - containers
+    - random
