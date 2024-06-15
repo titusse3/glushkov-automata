@@ -1,5 +1,3 @@
-{-# LANGUAGE InstanceSigs #-}
-
 module NFAG
   ( NFAG(..)
   ) where
@@ -26,14 +24,23 @@ data NFAG state transition = NFAG
 
 instance (Show state, Show transition) => Show (NFAG state transition) where
   show (NFAG s q p f g l) =
-    "NFAG {\n" ++
-    "  sigma = " ++ show s ++ ",\n" ++
-    "  etats = " ++ show q ++ ",\n" ++
-    "  premier = " ++ show p ++ ",\n" ++
-    "  final = " ++ show f ++ ",\n" ++
-    "  graph = " ++ show g ++ ",\n" ++
-    "  lastN = " ++ show l ++ "\n" ++
-    "}"
+    "NFAG {\n"
+      ++ "  sigma = "
+      ++ show s
+      ++ ",\n"
+      ++ "  etats = "
+      ++ show q
+      ++ ",\n"
+      ++ "  premier = "
+      ++ show p
+      ++ ",\n"
+      ++ "  final = "
+      ++ show f
+      ++ ",\n"
+      ++ "  graph = "
+      ++ show g
+      ++ ",\n"
+      ++ "}"
 
 transformTuple :: (Maybe Int, Maybe Int, a) -> Maybe (Int, Int, a)
 transformTuple (m1, m2, a) = do
@@ -111,6 +118,12 @@ instance (Ord state, Ord transition, Show state, Show transition) =>
     case Map.lookup lbl (etats nfa) of
       Just index -> Set.member index (premier nfa)
       Nothing    -> False
+  initialStates ::
+       NFAG state transition -> Set.Set (StateType (NFAG state transition))
+  initialStates (NFAG _ _ i _ g _) = Set.map (fromJust . Gr.lab g) i
+  finalStates ::
+       NFAG state transition -> Set.Set (StateType (NFAG state transition))
+  finalStates (NFAG _ _ _ f g _) = Set.map (fromJust . Gr.lab g) f
   transitionExist ::
        ( StateType (NFAG state transition)
        , StateType (NFAG state transition)
@@ -223,44 +236,52 @@ instance (Ord state, Ord transition, Show state, Show transition) =>
             $ Gr.lsuc g n
         g' = foldl fun gi i
      in NFAG s q' i' f' g' $ nu + 1
-  -- makeHomogeneous ::
-  --     (Enum state, Ord state, Ord transition) => NFAG state transition -> NFAG state transition
+  -- makeHomogeneous :: Enum state => NFAG state transition -> NFAG state transition
   -- makeHomogeneous a =
-  --   foldl homoGene a' $ map (\x -> stateToNode x $ etats a) $ Map.keys $ etats a
-  --   where a' = makeStandard a
-  --         homoGene auto n =
-  --           if null $ lp n then
-  --             auto
-  --           else
-  --             fst $ foldl (\(acc, table) (n', t) ->
-  --               case Map.lookup t table of
-  --                 Just e -> (NFAG (sigma acc) (etats acc) (premier acc) (final acc) (Gr.insEdge (e, n, t) $ graph acc) (lastN acc), table)
-  --                 _ -> (NFAG (sigma acc)
-  --                           (Map.insert t (toEnum (lastN acc + 1)) $ etats acc)
-  --                           (addSpeEtat n' (toEnum (lastN acc + 1)) $ premier acc)
-  --                           (addSpeEtat n' (toEnum (lastN acc + 1)) $ final acc)
-  --                           (Gr.insNode (lastN acc + 1, toEnum (lastN acc + 1)) $ graph acc)
-  --                           (lastN acc + 1),
-  --                           Map.insert t (lastN acc + 1) table))
-  --                           (auto, Map.empty) $ lp n
-  --           where lp s = Gr.lpre (graph a') s
-  --                 addSpeEtat etat newEtat ensemble =
-  --                   if Set.member etat ensemble then
-  --                     Set.insert newEtat ensemble
-  --                   else
-  --                     ensemble
+  --   foldl' homoGene a' $ map (\x -> fromMaybe (-1) $ Map.lookup x (etats a)) $ Map.keys (etats a)
+  --   where
+  --     a' = makeStandard a
+  --     homoGene auto n =
+  --       if null $ lp n then
+  --         auto
+  --       else
+  --         fst $ foldl' (\(acc, table) (n', t) ->
+  --           case Map.lookup t table of
+  --             Just e -> (acc { graph = Gr.insEdge (e, n, t) (graph acc) }, table)
+  --             _ -> let newNode = lastN acc + 1
+  --                      newState = toEnum newNode
+  --                 in (acc { sigma = sigma acc
+  --                         , etats = etats acc
+  --                         , premier = addSpecialState n' newNode (premier acc)
+  --                         , final = addSpecialState n' newNode (final acc)
+  --                         , graph = Gr.insNode (newNode, newState) (graph acc)
+  --                         , lastN = newNode
+  --                         }, Map.insert t newNode table)
+  --         ) (auto, Map.empty) (lp n)
+  --     addSpecialState etat newEtat ensemble =
+  --       if Set.member etat ensemble then
+  --         Set.insert newEtat ensemble
+  --       else
+  --         ensemble
+  --     lp = Gr.lpre (graph a')
   directSucc ::
        StateType (NFAG state transition)
     -> NFAG state transition
     -> Set.Set (StateType (NFAG state transition))
-  directSucc st (NFAG _ q _ _ g _) = Set.fromList $ map (fromJust . Gr.lab g) l
+  directSucc st a@(NFAG _ q _ _ g _) =
+    if stateExist st a
+      then Set.fromList $ map (fromJust . Gr.lab g) l
+      else Set.empty
     where
       l = Gr.suc g $ fromJust $ Map.lookup st q
   directPred ::
        StateType (NFAG state transition)
     -> NFAG state transition
     -> Set.Set (StateType (NFAG state transition))
-  directPred st (NFAG _ q _ _ g _) = Set.fromList $ map (fromJust . Gr.lab g) l
+  directPred st a@(NFAG _ q _ _ g _) =
+    if stateExist st a
+      then Set.fromList $ map (fromJust . Gr.lab g) l
+      else Set.empty
     where
       l = Gr.pre g $ fromJust $ Map.lookup st q
   extractListStateAutomata ::

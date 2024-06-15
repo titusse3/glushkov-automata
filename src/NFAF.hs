@@ -1,5 +1,3 @@
-{-# LANGUAGE InstanceSigs #-}
-
 module NFAF
   ( NFAF(..)
   ) where
@@ -23,6 +21,26 @@ data NFAF state transition = NFAF
   , final   :: Set.Set state
   , delta   :: state -> transition -> Set.Set state
   }
+
+instance (Show state, Show transition) => Show (NFAF state transition) where
+  show (NFAF s q p f d) =
+    "NFAF {\n"
+      ++ "  sigma = "
+      ++ show s
+      ++ ",\n"
+      ++ "  etats = "
+      ++ show q
+      ++ ",\n"
+      ++ "  premier = "
+      ++ show p
+      ++ ",\n"
+      ++ "  final = "
+      ++ show f
+      ++ ",\n"
+      ++ "  delta = "
+      ++ "d"
+      ++ ",\n"
+      ++ "}"
 
 automataToGraph ::
      (Ord state, Show state, Show transition)
@@ -88,6 +106,12 @@ instance (Ord state, Ord transition, Show state, Show transition) =>
   isFinal s (NFAF _ _ _ fin _) = Set.member s fin
   isStart :: StateType (NFAF state transition) -> NFAF state transition -> Bool
   isStart s (NFAF _ _ prem _ _) = Set.member s prem
+  initialStates ::
+       NFAF state transition -> Set.Set (StateType (NFAF state transition))
+  initialStates = premier
+  finalStates ::
+       NFAF state transition -> Set.Set (StateType (NFAF state transition))
+  finalStates = final
   getStates :: NFAF state transition -> [StateType (NFAF state transition)]
   getStates (NFAF _ q _ _ _) = Set.toList q
   transitionExist ::
@@ -174,7 +198,8 @@ instance (Ord state, Ord transition, Show state, Show transition) =>
           sig
   isStandard :: NFAF state transition -> Bool
   isStandard a =
-    hasOneElem && foldl (\acc q' -> acc || transExist a q' (head i)) False q
+    hasOneElem
+      && foldl (\acc q' -> acc || not (transExist a q' (head i))) False q
     where
       q = etats a
       i = Set.toList $ premier a
@@ -308,7 +333,11 @@ instance (Ord state, Ord transition, Show state, Show transition) =>
     -> Bool
   isStronglyStableOrbit o a =
     isOrbit o a
-      && (isStableOrbit o a && foldl (\acc o' -> acc && isStronglyStableOrbit o' a') True (maximalOrbits a'))
+      && (isStableOrbit o a
+            && foldl
+                 (\acc o' -> acc && isStronglyStableOrbit o' a')
+                 True
+                 (maximalOrbits a'))
     where
       autoOrbit = fromJust $ extractListStateAutomata o a
       inO = orbitIn o a
@@ -341,7 +370,11 @@ instance (Ord state, Ord transition, Show state, Show transition) =>
     -> Bool
   isStronglyTransversOrbit o a =
     isOrbit o a
-      && (isTransversOrbit o a && foldl (\acc o' -> acc && isStronglyStableOrbit o' a') True (maximalOrbits a'))
+      && (isTransversOrbit o a
+            && foldl
+                 (\acc o' -> acc && isStronglyStableOrbit o' a')
+                 True
+                 (maximalOrbits a'))
     where
       autoOrbit = fromJust $ extractListStateAutomata o a
       inO = orbitIn o a

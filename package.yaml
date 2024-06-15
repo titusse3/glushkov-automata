@@ -24,6 +24,7 @@ default-extensions:
 - TypeFamilies
 - FlexibleContexts
 - TypeOperators
+- InstanceSigs
 
 description:         Please see the README on GitHub at <https://github.com/githubuser/glushkov-automata#readme>
 
@@ -91,6 +92,8 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - glushkov-automata
+    - QuickCheck
+    - text
 
 benchmarks:
   my-benchmark:
@@ -104,5 +107,4 @@ benchmarks:
     dependencies:
     - glushkov-automata
     - criterion
-    - containers
     - random

@@ -53,6 +53,7 @@ library
       TypeFamilies
       FlexibleContexts
       TypeOperators
+      InstanceSigs
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-tools:
       alex
@@ -91,6 +92,7 @@ executable glushkov-automata-exe
       TypeFamilies
       FlexibleContexts
       TypeOperators
+      InstanceSigs
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
@@ -114,6 +116,8 @@ test-suite glushkov-automata-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      Prop.PropGlushkov
+      Prop.PropNFA
       Paths_glushkov_automata
   autogen-modules:
       Paths_glushkov_automata
@@ -133,10 +137,13 @@ test-suite glushkov-automata-test
       TypeFamilies
       FlexibleContexts
       TypeOperators
+      InstanceSigs
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      QuickCheck
+    , base >=4.7 && <5
     , glushkov-automata
+    , text
   default-language: Haskell2010
 
 benchmark my-benchmark
@@ -162,10 +169,10 @@ benchmark my-benchmark
       TypeFamilies
       FlexibleContexts
       TypeOperators
+      InstanceSigs
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N -O2
   build-depends:
       base >=4.7 && <5
-    , containers
     , criterion
     , glushkov-automata
     , random

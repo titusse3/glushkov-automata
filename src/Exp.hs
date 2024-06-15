@@ -12,7 +12,7 @@ import           Control.Monad.State.Lazy (MonadState (get, put), State,
                                            evalState)
 import qualified Data.Graph.Inductive     as Gr
 import qualified Data.Map                 as Map
-import           Data.Maybe               (fromJust, isNothing)
+import           Data.Maybe               (fromJust, fromMaybe)
 import qualified Data.Set                 as Set
 import qualified          NFAG             as NG
 
@@ -119,8 +119,6 @@ glushkov e = NG.NFAG sigma' etat i f' graphLien $ Map.size etat
       foldl
         (\acc n ->
            foldl (\acc' (a, n') -> Gr.insEdge (n, n', a) acc') acc
-             $ if isNothing $ Map.lookup n follow'
-                 then Set.empty
-                 else fromJust $ Map.lookup n follow')
+             $ fromMaybe Set.empty (Map.lookup n follow'))
         graphNoeud
         et

@@ -15,7 +15,6 @@ orbitToText o =
 class NFA nfa where
   type StateType nfa :: *
   type TransitionType nfa :: *
-
   emptyNFA :: nfa
   addState :: StateType nfa -> nfa -> Maybe nfa
   addTransition ::
@@ -24,6 +23,8 @@ class NFA nfa where
   getStates :: nfa -> [StateType nfa]
   isFinal :: StateType nfa -> nfa -> Bool
   isStart :: StateType nfa -> nfa -> Bool
+  initialStates :: nfa -> Set.Set (StateType nfa)
+  finalStates :: nfa -> Set.Set (StateType nfa)
   transitionExist ::
        (StateType nfa, StateType nfa, TransitionType nfa) -> nfa -> Bool
   hasEdge :: (StateType nfa, StateType nfa) -> nfa -> Bool
@@ -36,6 +37,7 @@ class NFA nfa where
   isStandard :: nfa -> Bool
   isHomogeneous :: nfa -> Bool
   makeStandard :: (Enum (StateType nfa)) => nfa -> nfa
+--   makeHomogeneous ::Enum (StateType nfa) => nfa -> nfa
   directSucc :: StateType nfa -> nfa -> Set.Set (StateType nfa)
   directPred :: StateType nfa -> nfa -> Set.Set (StateType nfa)
   extractListStateAutomata :: Set.Set (StateType nfa) -> nfa -> Maybe nfa
