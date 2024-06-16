@@ -23,7 +23,7 @@ data NFAG state transition = NFAG
   }
 
 instance (Show state, Show transition) => Show (NFAG state transition) where
-  show (NFAG s q p f g l) =
+  show (NFAG s q p f g _) =
     "NFAG {\n"
       ++ "  sigma = "
       ++ show s

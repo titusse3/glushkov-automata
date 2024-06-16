@@ -6,7 +6,7 @@ import qualified Data.Graph.Inductive              as Gr
 import           Data.Graph.Inductive.Query.DFS    (scc)
 import           Data.GraphViz
 import           Data.GraphViz.Attributes.Complete
-import           Data.List                         (findIndex)
+import           Data.List                         (findIndex, intercalate)
 import qualified Data.Map                          as Map
 import           Data.Maybe                        (fromJust, fromMaybe, isJust)
 import qualified Data.Set                          as Set
@@ -22,7 +22,8 @@ data NFAF state transition = NFAF
   , delta   :: state -> transition -> Set.Set state
   }
 
-instance (Show state, Show transition) => Show (NFAF state transition) where
+instance (Ord state, Show state, Ord transition, Show transition) =>
+         Show (NFAF state transition) where
   show (NFAF s q p f d) =
     "NFAF {\n"
       ++ "  sigma = "
@@ -38,9 +39,22 @@ instance (Show state, Show transition) => Show (NFAF state transition) where
       ++ show f
       ++ ",\n"
       ++ "  delta = "
-      ++ "d"
-      ++ ",\n"
+      ++ showDelta d q s
+      ++ "\n"
       ++ "}"
+
+showDelta ::
+     (Show transition, Show state)
+  => (state -> transition -> Set.Set state)
+  -> Set.Set state
+  -> Set.Set transition
+  -> String
+showDelta d states transitions =
+  let transitionsList =
+        [(q, t, d q t) | q <- Set.toList states, t <- Set.toList transitions]
+      showTransition (q, t, qs) =
+        show q ++ " -- " ++ show t ++ " -> " ++ show (Set.toList qs)
+   in "{\n" ++ intercalate ",\n" (map showTransition transitionsList) ++ "\n}"
 
 automataToGraph ::
      (Ord state, Show state, Show transition)

@@ -62,11 +62,99 @@ effectuera une génération de 100 objets et testera la fonction
 \vphantom{}
 
 % la façon dont j'ai tester les propriétés et le réulstat de celui-ci
+En ce qui concerne la mise en place des tests des deux implémentations de la 
+bibliothèque d'automates, la première étape a été l'implémentation de la méthode 
+\mintinline{haskell}{arbitrary} pour les types d'automates de la bibliothèque. 
+Pour ce faire, la création d'un automate se fait par la génération d'une liste 
+d'état et d'une liste de transition par le biais du module \textit{QuickCheck}. 
+Ce ne sont pas les types \mintinline{haskell}{NFAG} et 
+\mintinline{haskell}{NFAF}, qui implémente cette méthode, mais des types 
+enveloppes. Cela est dû à la seule utilité de ce type pour ces tests. Une 
+convention du langage n'autorise pas l'implémentation d'une classe par un type 
+or de son fichier d'implémentation. Et il n'y a aucun intérêt à ce que ces deux 
+types implémente \mintinline{haskell}{arbitrary} or des tests. Finalement les 
+propriétés testées sont celle de la table~\ref{tab:proprietes}.
 
+\begin{table}[H]
+  \centering
+  \begin{tabular}{ll}
+  \toprule
+  \textbf{Propriété} & \textbf{Description} \\
+  \midrule
+  \mintinline{haskell}{propAddState} & Vérifie que l'ajout d'un état.\\
+  \mintinline{haskell}{propAddTransition} & Vérifie l'ajout d'une transition.\\
+  \mintinline{haskell}{propRemoveState} & Vérifie la suppression d'un état.\\
+  \mintinline{haskell}{propRemoveTransition} & Vérifie la suppression d'une transition.\\
+  \mintinline{haskell}{propDirectSucc} & Vérifie les successeurs directs d'un état.\\
+  \mintinline{haskell}{propDirectPred} & Vérifie les prédécesseurs directs d'un état.\\
+  \mintinline{haskell}{propStandard} & Vérifie les propriétés d'un automate standard.\\
+  \bottomrule
+  \end{tabular}
+  \caption{Résumé des propriétés testées sur les automates.}\label{tab:proprietes}
+  \end{table}
 
-\subsubsection{Benchmark des types d'automates}
+\vphantom{}
+
+Enfin, les testes sur la partie de transformation d'expression régulière en 
+automate de \textit{Glushkov} se fais sur l'implémentation 
+\mintinline{haskell}{NFAG} (Se référé à la section suivante pour les raisons de 
+ce choix.). Comme pour la partie précédente, il faillait tout d'abord générer 
+des expressions de manière aléatoires. Pour ce faire, j'ai utilisé le `parser' 
+développé, permettant à partir d'une chaine de caractère d'obtenir l'expression
+correspondante. Il m'a donc fallu créer une chaîne représentant une expression, 
+et cela, de manière aléatoire. J'ai alors utilisé les fonctionnalités du module 
+\textit{QuickCheck} pour cela. Après la génération de ces expressions régulière,
+une conversion vers un automate s'effectuer à l'aide de l'algorithmique de 
+\textit{Glushkov}. C'est cette convention qui se voit être testé par les 
+propriétés définies dans l'article~\cite{CaronZiadi2001}. Avec notamment la 
+définition d'orbite et d'orbite maximale et des propriétés qu'ils doivent 
+respecter dans le cas d'un automate de \textit{Glushkov} (Ces propriétés sont 
+les suivants, un automate de \textit{Glushkov} doit être \textbf{standard}, 
+toutes les orbites maximales de cette automate doivent être 
+\textbf{fortement stable} et \textbf{hautement transverse}).
+
+\vphantom{}
+
+On obtient alors les résultats de la figure~\ref{fig:resTest} lors d'un appelle 
+à ces tests. Ce qui certifie la validité des implémentations faites.
+
+\begin{figure}[H]
+  \begin{minted}[frame=lines, fontsize=\small]{bash}
+    $ stack test
+    Testing NG.NFAG implementation...
+    +++ OK, passed 100 tests.
+    +++ OK, passed 100 tests.
+    +++ OK, passed 100 tests.
+    +++ OK, passed 100 tests.
+    +++ OK, passed 100 tests.
+    +++ OK, passed 100 tests.
+    +++ OK, passed 100 tests.
+    Testing NF.NFAF implementation...
+    +++ OK, passed 100 tests.
+    +++ OK, passed 100 tests.
+    +++ OK, passed 100 tests.
+    +++ OK, passed 100 tests.
+    +++ OK, passed 100 tests.
+    +++ OK, passed 100 tests.
+    +++ OK, passed 100 tests.
+    
+    Testing Gluskov properties...
+    +++ OK, passed 100 tests.
+    
+  \end{minted}
+  \caption{Résultat des tests de propriétés des implémentations d'automates.}
+  \label{fig:resTest}
+\end{figure}
+
+\subsubsection{Benchmark des implémentations d'automates}
 
 % Comment fonctionne les benchmarks en haskell
+Pour évaluer les performances des deux implémentations d'automates 
+\mintinline{haskell}{NFAG} et \mintinline{haskell}{NFAF}, l'utilisation du 
+module \textit{Criterion} a été faite. Pour rappels, la principale différence 
+entre ces deux implémentations et que \mintinline{haskell}{NFAG}, utilise un 
+graphe du module \textit{fgl} tandis que \mintinline{haskell}{NFAF} utilise une
+fonction.
 
 \vphantom{}
 

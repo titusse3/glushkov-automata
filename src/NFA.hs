@@ -5,6 +5,7 @@ module NFA
 
 import qualified Data.Graph.Inductive as Gr
 import           Data.GraphViz
+import           Data.Kind            (Type)
 import qualified Data.Set             as Set
 import qualified Data.Text            as T
 
@@ -13,8 +14,8 @@ orbitToText o =
   mconcat ["{", T.intercalate "," $ map (T.pack . show) $ Set.toList o, "}"]
 
 class NFA nfa where
-  type StateType nfa :: *
-  type TransitionType nfa :: *
+  type StateType nfa :: Type
+  type TransitionType nfa :: Type
   emptyNFA :: nfa
   addState :: StateType nfa -> nfa -> Maybe nfa
   addTransition ::

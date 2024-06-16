@@ -1,0 +1,23 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{+w}{    }\PYGZdl{}\PYG{+w}{ }stack\PYG{+w}{ }\PYG{n+nb}{test}
+\PYG{+w}{    }Testing\PYG{+w}{ }NG.NFAG\PYG{+w}{ }implementation...
+\PYG{+w}{    }+++\PYG{+w}{ }OK,\PYG{+w}{ }passed\PYG{+w}{ }\PYG{l+m}{100}\PYG{+w}{ }tests.
+\PYG{+w}{    }+++\PYG{+w}{ }OK,\PYG{+w}{ }passed\PYG{+w}{ }\PYG{l+m}{100}\PYG{+w}{ }tests.
+\PYG{+w}{    }+++\PYG{+w}{ }OK,\PYG{+w}{ }passed\PYG{+w}{ }\PYG{l+m}{100}\PYG{+w}{ }tests.
+\PYG{+w}{    }+++\PYG{+w}{ }OK,\PYG{+w}{ }passed\PYG{+w}{ }\PYG{l+m}{100}\PYG{+w}{ }tests.
+\PYG{+w}{    }+++\PYG{+w}{ }OK,\PYG{+w}{ }passed\PYG{+w}{ }\PYG{l+m}{100}\PYG{+w}{ }tests.
+\PYG{+w}{    }+++\PYG{+w}{ }OK,\PYG{+w}{ }passed\PYG{+w}{ }\PYG{l+m}{100}\PYG{+w}{ }tests.
+\PYG{+w}{    }+++\PYG{+w}{ }OK,\PYG{+w}{ }passed\PYG{+w}{ }\PYG{l+m}{100}\PYG{+w}{ }tests.
+\PYG{+w}{    }Testing\PYG{+w}{ }NF.NFAF\PYG{+w}{ }implementation...
+\PYG{+w}{    }+++\PYG{+w}{ }OK,\PYG{+w}{ }passed\PYG{+w}{ }\PYG{l+m}{100}\PYG{+w}{ }tests.
+\PYG{+w}{    }+++\PYG{+w}{ }OK,\PYG{+w}{ }passed\PYG{+w}{ }\PYG{l+m}{100}\PYG{+w}{ }tests.
+\PYG{+w}{    }+++\PYG{+w}{ }OK,\PYG{+w}{ }passed\PYG{+w}{ }\PYG{l+m}{100}\PYG{+w}{ }tests.
+\PYG{+w}{    }+++\PYG{+w}{ }OK,\PYG{+w}{ }passed\PYG{+w}{ }\PYG{l+m}{100}\PYG{+w}{ }tests.
+\PYG{+w}{    }+++\PYG{+w}{ }OK,\PYG{+w}{ }passed\PYG{+w}{ }\PYG{l+m}{100}\PYG{+w}{ }tests.
+\PYG{+w}{    }+++\PYG{+w}{ }OK,\PYG{+w}{ }passed\PYG{+w}{ }\PYG{l+m}{100}\PYG{+w}{ }tests.
+\PYG{+w}{    }+++\PYG{+w}{ }OK,\PYG{+w}{ }passed\PYG{+w}{ }\PYG{l+m}{100}\PYG{+w}{ }tests.
+
+\PYG{+w}{    }Testing\PYG{+w}{ }Gluskov\PYG{+w}{ }properties...
+\PYG{+w}{    }+++\PYG{+w}{ }OK,\PYG{+w}{ }passed\PYG{+w}{ }\PYG{l+m}{100}\PYG{+w}{ }tests.
+
+\end{Verbatim}

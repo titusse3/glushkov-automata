@@ -1,0 +1,7 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{+w}{    }\PYGZdl{}\PYG{+w}{ }ls\PYG{+w}{ }\PYGZhy{}la
+\PYG{+w}{    }total\PYG{+w}{ }\PYG{l+m}{12}
+\PYG{+w}{    }drwxr\PYGZhy{}xr\PYGZhy{}x\PYG{+w}{  }\PYG{l+m}{3}\PYG{+w}{ }user\PYG{+w}{ }group\PYG{+w}{ }\PYG{l+m}{4096}\PYG{+w}{ }Jun\PYG{+w}{ }\PYG{l+m}{16}\PYG{+w}{ }\PYG{l+m}{10}:23\PYG{+w}{ }.
+\PYG{+w}{    }drwxr\PYGZhy{}xr\PYGZhy{}x\PYG{+w}{ }\PYG{l+m}{15}\PYG{+w}{ }user\PYG{+w}{ }group\PYG{+w}{ }\PYG{l+m}{4096}\PYG{+w}{ }Jun\PYG{+w}{ }\PYG{l+m}{16}\PYG{+w}{ }\PYG{l+m}{09}:23\PYG{+w}{ }..
+\PYG{+w}{    }\PYGZhy{}rw\PYGZhy{}r\PYGZhy{}\PYGZhy{}r\PYGZhy{}\PYGZhy{}\PYG{+w}{  }\PYG{l+m}{1}\PYG{+w}{ }user\PYG{+w}{ }group\PYG{+w}{   }\PYG{l+m}{12}\PYG{+w}{ }Jun\PYG{+w}{ }\PYG{l+m}{16}\PYG{+w}{ }\PYG{l+m}{10}:23\PYG{+w}{ }file.txt
+\end{Verbatim}

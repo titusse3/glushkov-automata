@@ -12,7 +12,7 @@ import           Control.Monad.State.Lazy (MonadState (get, put), State,
                                            evalState)
 import qualified Data.Graph.Inductive     as Gr
 import qualified Data.Map                 as Map
-import           Data.Maybe               (fromJust, fromMaybe)
+import           Data.Maybe               (fromMaybe)
 import qualified Data.Set                 as Set
 import qualified          NFAG             as NG
 
