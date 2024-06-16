@@ -154,12 +154,130 @@ Pour évaluer les performances des deux implémentations d'automates
 module \textit{Criterion} a été faite. Pour rappels, la principale différence 
 entre ces deux implémentations et que \mintinline{haskell}{NFAG}, utilise un 
 graphe du module \textit{fgl} tandis que \mintinline{haskell}{NFAF} utilise une
-fonction.
+fonction. Nous commencerons par voir comment ce module de Benchmark fonctionne, 
+puis nous comparerons les deux implémentations.
 
 \vphantom{}
 
-% les résultats obtenu sur les temps
+Le module \textit{Criterion} permet de mesurer précisément le temps que 
+prennent différentes parties du code à s'exécuter. Il effectue de 
+nombreuses répétitions des tests pour obtenir des mesures fiables et fournit des
+analyses statistiques sur les résultats, comme les moyennes et les écarts-types.
+De plus, ce module permet d'exporter les résultats des tests sous formes d'une 
+page \textit{HTML}, avec notamment des graphiques. Le seul point négatif de ce 
+module et que seul les temps d'exécutions sont mesuré, la mémoire utilisée ne
+l'était pas.
 
-% peut être plus tard parler des perfs en mémoires...
+\vphantom{}
+
+Pour tester les performances des deux implémentations les testes suivant ont été 
+mises en place~:
+
+\begin{itemize}
+  \item[\textbullet] \underline{\textbf{Ajout d'états}~:} Nous avons mesuré le 
+  temps nécessaire pour créer un automate avec un nombre fixe d'états 
+  (1000 états).
+  \item[\textbullet] \underline{\textbf{Ajout de transitions}~:} Nous avons 
+  évalué les performances de l'ajout de transitions à un automate. 
+  Cette opération vise à ajouter une transition entre chaque n\oe ud de 
+  l'automate (a titre informatif l'appelle de cette fonction sur un automate à 
+  2000 états ou plus utilise tout met huit giga de RAM. Ce qui éteint mon 
+  ordinateur).
+  \item[\textbullet] \underline{\textbf{Suppression d'état et de transitions}~:}
+  Il existe la réciproque des deux testes précédents, mais dans la suppression.
+  \item[\textbullet] \underline{\textbf{Teste d'orbites maximales}~:} Après la 
+  création d'un automate de taille prédéfinie (dans les résultats présentés plus 
+  tard, c'est un automate de 2000 état qui a été conçu) de façon aléatoire, un 
+  test visant à savoir si chaque orbite maximal et fortement stable et hautement 
+  transverse sera effectuer.
+\end{itemize}
+
+\vphantom{}
+
+Les résultats de ce test de performances sont en autre ceux de la 
+figure~\ref{fig:imgBench}, un rapport bien plus détaillé (celui produit par le 
+module \textit{Criterion}) peut être trouvé sur ce lien 
+\href{run:./report_perf.html}{Rapport du Benchmark}. Sur cette capture, on voit 
+deux couleurs, celle orange correspondant au type \mintinline{haskell}{NFAF} et 
+le bleu au type \mintinline{haskell}{NFAG}. On peut alors observer que la 
+deuxième implémentation est bien plus performante que la deuxième. Pouvant même 
+aller jusqu'à deux fois plus rapide selon les tests.
+
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{benchmark.png}
+  \caption{
+    Capture d'une partie du rapport de Benchmark des implémentations.
+  }\label{fig:imgBench}
+\end{figure}
+
+% peut être un jour parler de mémoire utilisé
+
+% \subsection{Les possibilités d'amélioration}
+
+% - un site web, notament en frp comme évoquer dans les diffcultés
+% - un intarface graphique permettant plus de chose comme la création en temps 
+%     réel d'un automate
+% - mettre en place, plus d'opération sur les automates tel que homogénisation,
+%     le langage que reconnait un autoamte, opération de réduction d'état
+% - la spécification notamment en donnant tous les algorithmes utilisé et en 
+%     introduissant des exemepels pour fiacilité la comprésension du rapport
+% - un documentation sur le code des deux implémentation, bien qu'en Haskell, on 
+%     ne docummente pas de la même façon que dans les atures langages (trouvé 
+%     source pour cela). parler donc du module Haddock.
+% - Ajout d'un benchmark de mémoire en haskell, bien plus dure que celui 
+%     temporelle. N'étant pas implémentater dans le module Criterion.
 
 \subsection{Les possibilités d'amélioration}
+
+Dans cette section, nous discutons des différentes possibilités d'amélioration 
+pour ce projet, visant à augmenter ces fonctionnalités, sa facilité 
+d'utilisation et sa documentation.
+
+Une possibilité d'amélioration consiste à développer un site web, 
+particulièrement en utilisant la \textit{Programmation Réactive Fonctionnelle 
+(FRP)}, comme mentionné dans les difficultés rencontrées. Avec plus de temps, il
+aurait pu être possible de mettre en place cela et donc de répondre au problème 
+rencontré.
+
+\vphantom{}
+
+Une autre amélioration serait de mettre en place une interface graphique plus 
+avancée, permettant par exemple la création d'automates en temps réel. Que ce 
+soit par l'ajout d'une autre page, avec un système qui pourrait être proche de 
+celui de \textit{GeoGebra} par exemple. Cela permettrai d'utiliser des automates 
+autrement que par la rédaction d'un fichier \textit{JSON} qui peut se révéler 
+très long en fonction de la structure de celui-ci.   
+
+\phantom{}
+
+Il serait également bénéfique d'ajouter davantage d'opérations sur les 
+automates. L'ajout d'algorithmes d'homogénéisation, de détermination du langage 
+reconnu par l'automate ou encore des opérations de réduction d'état. Avec cet 
+ajout de fonctionnalités, on obtiendra alors une bibliothèque hautement 
+réutilisable. À voir encore s'il n'existerait pas de structure plus performante 
+que celles présentées ici.
+
+\vphantom{}
+
+Une spécification plus détaillée pourrait être fournie, en listant tous les 
+algorithmes utilisés et en introduisant des exemples pour faciliter la 
+compréhension du rapport. De plus, ce rapport technique étant l'un des premiers 
+que je rédige, la rédaction d'autre permettrais l'amélioration de celui-ci par 
+le biais de l'expérience acquise.
+
+\vphantom{}
+
+Il serait également utile de fournir une documentation complète sur le code des 
+deux implémentations. Bien que la documentation en \textit{Haskell} diffère des 
+autres langages, le module \textit{Haddock} pourrait être utilisé pour générer 
+cette documentation. Il génère un ensemble de page \textit{HTML} proche de ce 
+que l'on peut retrouver le site référence
+\href{https://hackage.haskell.org/}{\textit{Hackage}}.
+
+\vphantom{}
+
+Enfin, l'ajout d'un benchmark de mémoire utilisé serait une amélioration 
+significative, bien que cela soit plus complexe que les benchmarks temporels et 
+ne soit pas pris en charge par le module \textit{Criterion}. Il existe cependant 
+des alternatives comme le module \textit{weigh} mais qui ne produise pas rapport 
+tel que ce produit par le module \textit{Criterion}. 
