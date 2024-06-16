@@ -1,4 +1,77 @@
-\section{Resultat}
+\section{Résultat}
+
+\subsection{La bibliothèque d'automate}
+
+\subsection{L'application graphique}
+
+\subsection{Phases de tests}
+
+Pour ce projet, la phase de test, je l'ai mis en place à la fin de ce stage. En 
+effet, cette partie n'avait été prévue d'être réalisé que s'il restait assez de 
+temps pour ce faire. Les réunions hebdomadaires servaient entre autre à jouer en 
+partie ce rôle. De plus à chaque ajout de fonctionnalités, j'essayai d'effectuer 
+certain teste. Malgré cela, j'ai pu trouver le temps de mettre en place deux 
+types de tests. Nous commencerons par voir la façon dont j'ai mis en place une 
+des tests par propriétés. Puis nous verrons les testes de performances mises en 
+place entre les deux implémentations d'automate.
+
+\subsubsection{Test par propriétés}
+
+% explication de comment fonctionne les testes propriétés
+Les tests par propriétés, \textit{`property testing'} en anglais. Est une 
+méthode de tests logicielle qui visent à tester les propriétés d'un résultat et 
+non pas à comparer le résultat obtenu avec celui espérer~\cite{propertyTesting}. 
+De plus, cette méthode ne nécessite pas d'avoir une autre implémentation pour 
+comparer les résultats ou même de calculer à la main les résultats des 
+opérations que l'on veut tester (Cette méthode est celle communément utilisé, 
+des \textit{tests unitaires}). 
+
+\vphantom{}
+
+Outre cela, cette méthode de test convient extrêmement bien à la production 
+d'objet mathématique. Notamment en ce qui concerne les automates, ils existent 
+de nombreuses propriétés connues qui permet de facilité ces testées. Plus 
+précisément, on peut par exemple pour les \textit{automates de Glushkov} se 
+référer à l'article \textit{Characterization of Glushkov Automata} de Pascal 
+Caron et Djelloul Ziadi~\cite{CaronZiadi2001}. Bien évidemment, cette méthode ne
+montre pas que le programme fait exactement ce qu'il doit faire. Il faudrait 
+pour cela effectue des preuves formelles mathématiques, tel que celle vue en 
+cours d'algorithmique lors de cette licence (par le biais de la logique de 
+\textit{Hoare} par exemple). Seulement ces preuves se révélant très longue à 
+écrire, les tests par propriétés suffisent donc.  
+
+\vphantom{}
+
+% La façon dont ces mis en place en haskell
+En \textit{Haskell}, c'est la bibliothèque \textit{QuickCheck} qui permet de 
+mettre en place ce type de test. Une fois des propriétés définie, une génération 
+aléatoire de cas de test sera effectuer, et ça sera sur ces cas que les 
+propriétés se verrons testé. Pour générer ces cas de test aléatoire, il faut 
+que les objets en question dérive la classe \mintinline{haskell}{Arbitrary} du 
+module. Le terme `dérivé' en signifie ici que notre classe doit implémenter la 
+méthode \mintinline{haskell}{arbitrary :: Gen a} avec \mintinline{haskell}{a}, 
+le type que l'on veut tester. C'est grâce à cette fonction 
+\mintinline{haskell}{arbitrary} que seront généré de façon aléatoire les objets 
+sur lequel seront testé les propriétés. Enfin, pour tester ces propriétés, il 
+faut appeler la fonction \mintinline{haskell}{quickCheck} qui prendra en 
+paramètre une fonction qui doit avoir ce type 
+\mintinline{haskell}{prop :: Arbitrary a => a -> Bool}. Cette fonction 
+effectuera une génération de 100 objets et testera la fonction 
+\mintinline{haskell}{prop} sur ces objets.
+
+\vphantom{}
+
+% la façon dont j'ai tester les propriétés et le réulstat de celui-ci
 
 
+\subsubsection{Benchmark des types d'automates}
 
+% Comment fonctionne les benchmarks en haskell
+
+\vphantom{}
+
+% les résultats obtenu sur les temps
+
+% peut être plus tard parler des perfs en mémoires...
+
+\subsection{Les possibilités d'amélioration}
