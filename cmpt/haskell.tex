@@ -2,12 +2,12 @@
 
 \textit{Haskell} est un langage extrêmement différent de ceux vue au cours de 
 la licence. Tout d'abord, il s'agit d'un \textbf{langage fonctionnel}. Bien que 
-nous ayons vue ce paradigme par le biais du langage \textit{OCaml}, 
+nous ayons vu ce paradigme par le biais du langage \textit{OCaml}, 
 nous n’avons jamais été aussi loin. Dans le développement notamment, nous 
 n'avons par exemple jamais mis en place de parser ou bien même d'application 
 graphique. De plus, le concept de \textbf{programmation pure} est poussé à un 
 extrême dans ce langage. Il existe une séparation hermétique entre ce qui est 
-\textbf{pure} et ce qu'il ne l'ait pas.
+\textbf{pure} et ce qu'il ne l'est pas.
 
 \subsection{Programmation pure}
 
@@ -29,7 +29,7 @@ un programme comme étant \textbf{pure} si et seulement si~:
     En programmation, on conçoit que de nombreuse fonction 
     sont déterministes tels que le calcule du n-ième terme de la suite de 
     Fibonacci. On peut voir sur la figure~\ref{fig:progFiboHaskell}, une 
-    implémentation de cette fonction~(L'implémentation présentée ici, est la 
+    implémentation de cette fonction~(l'implémentation présentée ici, est la 
     version intuitive. Il existe cependant des méthodes bien plus performantes 
     pour se calcule, se référer à l'article de blog~\cite{citationFiboProg}).
     Il vient de manière logique que notre fonction est déterministe
@@ -48,7 +48,7 @@ un programme comme étant \textbf{pure} si et seulement si~:
         }\label{fig:progFiboHaskell}
     \end{figure}
 
-    \item[\textbullet] La fonction doit ne doit pas produire 
+    \item[\textbullet] La fonction ne doit pas produire 
     d'\textbf{effet de bord}. Un \textbf{'side effect'} comme nommé en anglais, 
     est une qualification d'une action qui modifie ou dépend de son environnement 
     extérieur lors d'un calcule. Un exemple très simple peut être trouvé dans 
@@ -76,14 +76,14 @@ un programme comme étant \textbf{pure} si et seulement si~:
 
 \subsection{Les spécificités du langage}
 
-Comme évoquée plus tôt, \textit{Haskell} met en place une séparation 
-hermétique entre les fonctions pures et impure. C'est d'ailleurs ce qui en fait 
+Comme évoqué plus tôt, \textit{Haskell} met en place une séparation 
+hermétique entre les fonctions pures et impures. C'est d'ailleurs ce qui en fait 
 sa plus grande différence à première vue avec \textit{OCaml}. Cette séparation
 s'effectue avec l'un des nombreux concepts de la \textbf{théorie des catégories}
 présente dans ce langage. Les \textbf{Monades} (On ne citera que le terme de 
 \textbf{Monade} dans cette partie, mais les structures \textbf{Functor} et 
 \textbf{Applicative} visent à la même chose.), est le concept qui permet de 
-confiner toute action impure du reste du code. En effet, lors que par exemple 
+confiner toute action impure du reste du code. Par exemple 
 une action \textit{IO (input/output)} doit être faite, elle se trouvera dans la 
 monade \mintinline{haskell}{IO}. Si on reprend la fonction 
 \mintinline{haskell}{fibo} de la figure~\ref{fig:progFiboHaskell}, et que l'on 
@@ -124,13 +124,13 @@ les ferait comprendre qu'à une mince portion de personne.
     \end{quotation}
 \end{figure}
 
-On peut utiliser les monades, comme un outil gèrent les erreurs possibles 
+On peut utiliser les monades, comme un outil gerant les erreurs possibles 
 liées aux \textbf{effets de bord}. Ce qui rend ce concept de Monade si 
 important est si on dispose d'une fonction 
 \mintinline{haskell}{f :: Int -> Int}, et d'une valeur de type 
 \mintinline{haskell}{n :: IO (Int)} l'appelle suivant est une erreur levée à la 
 compilation \mintinline{haskell}{f n}. Évidemment, il existe des moyens 
-d'appeler \mintinline{haskell}{f}, avec la valeur entière contenu dans 
+d'appeler \mintinline{haskell}{f}, avec la valeur entière contenue dans 
 \mintinline{haskell}{n}. Pour ce faire, on doit avoir recours aux fonctions 
 suivantes~: 
 
@@ -146,14 +146,14 @@ suivantes~:
   return :: Monad m => a -> m a
 \end{minted}
 
-On remarque alors que toutes ces fonctions font en quelque sorte en conversion 
+On remarque alors que toutes ces fonctions font en quelque sorte une conversion 
 vers la monade. Grâce à cette conversion, on peut donc conserver la gestion 
 d'erreur mise en place par ces structures.
 
-Qu'une fine partie des concepts de ce langage n'a été abordée ici. Bien d'autre
-chose le rende bien différent des langages abordés lors de la licence. Nous 
-aurions pu voir par exemple, ce qu'apporte l'évaluation paresseuse du langage. 
+Qu'une fine partie des concepts de ce langage n'a été abordée ici. Bien d'autres
+choses le rende bien différent des langages abordés lors de la licence. Nous 
+aurions pû voir par exemple, ce qu'apporte l'évaluation paresseuse du langage. 
 Où encore, les optimisations agressives fournies par le compilateur 
 \textit{GHC}. De plus, la proximité entre ce langage et la 
-\textbf{théorie des catégories}, fait que de nombreux modules introduise des 
-notions pas encore implémenter. On peut notamment citée les \textit{Lens}.
+\textbf{théorie des catégories}, fait que de nombreux modules introduisent des 
+notions pas encore implémentées. On peut notamment citée les \textit{Lens}.

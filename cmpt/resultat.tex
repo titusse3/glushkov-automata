@@ -3,7 +3,7 @@
 \subsection{Bibliothèque d'automate et application graphique}
 
 Dans cette section, je présenterai les résultats finaux de mon travail, en
-détaillant les étapes de vérification et de test de performances. Nous
+détaillant les étapes de vérification et de tests de performances. Nous
 examinerons les différentes parties du projet, y compris l'implémentation de la    
 bibliothèque d'automate et l'application graphique qui a été développée.
 
@@ -13,7 +13,7 @@ L'objectif de ce stage était la réalisation d'une bibliothèque complète
 d'automate. J'ai donc mis en place, la conversion d'une expression vers un
 automate de \textit{Glushkov}. La conversion d'un fichier \textit{JSON} vers un
 automate. La représentation sous forme de graphique utilisant le langage
-\textit{Dot}. Ou encore des tests et conversion de diverses propriétés
+\textit{Dot}. Ou encore des tests et conversions de diverses propriétés
 d'automates, comme la standardisation ou encore les orbites maximales et leurs
 propriétés.
 
@@ -23,7 +23,7 @@ J'ai mis en place une première version de cette bibliothèque qui utilisait la
 structure de la figure~\ref{fig:codeNFAF}. Le point crucial de cette
 implémentation est la fonction \mintinline{haskell}{delta}. Celle-ci rend la
 structure identique à la spécification mathématique d'un automate. Les
-opérations d'ajout et de suppression sont implémenté par l'agrandissement de
+opérations d'ajout et de suppression sont implémentés par l'agrandissement de
 la fonction.
 
 \vphantom{}
@@ -51,21 +51,21 @@ section~\ref{section:bench}.
 
 \vphantom{}
 
-L'implémentation que j'ai mis en place après celle-ci est celle de la
+L'implémentation que j'ai mise en place après celle-ci est celle de la
 figure~\ref{fig:codeNFAG}. La principale contrainte du type
 \mintinline{haskell}{NFAF} était l'impossibilité de parcourir l'automate. J'ai
-donc eu l'idée d'utilisé un graphe du type \textit{fgl} pour ce faire. Ce module
+donc eu l'idée d'utiliser un graphe du type \textit{fgl} pour ce faire. Ce module
 fournissant une implémentation efficace à l'aide de \textit{Patricia Tree}
-appelle aussi \textit{Arbre radix}. Les éléments de types
+appellé aussi \textit{Arbre radix}. Les éléments de types
 \mintinline{haskell}{Int} permettent de faire la correspondance entre le n\oe ud
 du graphe et l'état. En effet, dans un graphe du module \textit{fgl}, un n\oe ud
-est composé d'un tuple entier label. Pour améliorer les performances du type,
+est composé d'un `tuple' entier label. Pour améliorer les performances du type,
 des entiers sont donc utilisés pour les ensembles d'états premier et final par
 exemple.
 
 \vphantom{}
 
-Le plus grand défaut de cette implémentation résidera dans l'utilisation
+Le plus grand défaut de cette implémentation réside dans l'utilisation
 mémoire plus grande pour ce type. La mise en place d'un graphe où chaque
 transition est présente en mémoire. Alors que pour l'implémentation utilisant
 une fonction, seul les cas de tests de la fonction grandirons ce qui aura un
@@ -89,9 +89,9 @@ impact bien moindre sur la mémoire.
 
 L'application permet d'obtenir un automate à partir d'une expression entrée
 par l'utilisateur. On peut importer un automate sous le format \textit{JSON}. Le
-format que doit vérifier le fichier est celui présenter sur la
+format que doit vérifier le fichier est celui présenté sur la
 figure~\ref{fig:jsonFormat}. On peut aussi choisir d'afficher l'automate avec
-les orbites affiché, et ceux à l'aide du menu déroulant que l'on obtient en
+les orbites affichées, et ce, à l'aide du menu déroulant que l'on obtient en
 appuyant sur le bouton options que l'on peut voir sur la
 figure~\ref{fig:cap1}.
 
@@ -115,15 +115,15 @@ suivantes~:
 
 \begin{itemize}
     \item[\textbullet] Est-ce que cette ensemble est une orbite.
-    \item[\textbullet] Est ce que si c'est une orbite elle est stable, transverse,
+    \item[\textbullet] Est-ce que l'orbite est stable, transverse,
         fortement stable ou bien encore hautement transverse.
     \item[\textbullet] Les portes d'entrée ou de sortie de ce groupe d'états.
 \end{itemize}
 
-Pour Choisir ce groupe d'états, deux choix s'offres à l'utilisateur. Le premier
+Pour choisir ce groupe d'états, deux choix s'offrent à l'utilisateur. Le premier
 est l'input manuel et le deuxième, le menu déroulant qui répertorie toutes les
-orbites maximales de l'automate actuellement choisie. De plus, une fois le
-groupe d'états choisie, on peut l'observé dans l'image à gauche des propriétés
+orbites maximales de l'automate actuellement choisi. De plus, une fois le
+groupe d'états choisis, on peut l'observer dans l'image à gauche des propriétés
 testées. Voir la deuxième capture de la figure~\ref{fig:cap1} pour une
 démonstration de ces fonctionnalités.
 
@@ -136,11 +136,11 @@ démonstration de ces fonctionnalités.
 \subsection{Phases de tests}
 
 Pour ce projet, la phase de test, je l'ai mis en place à la fin de ce stage. En
-effet, cette partie n'avait été prévue d'être réalisé que s'il restait assez de
+effet, cette partie n'avait été prévue d'être réalisée que s'il restait assez de
 temps pour ce faire. Les réunions hebdomadaires servaient entre autre à jouer en
 partie ce rôle. De plus à chaque ajout de fonctionnalités, j'essayai d'effectuer
-certain teste. Malgré cela, j'ai pu trouver le temps de mettre en place deux
-types de tests. Nous commencerons par voir la façon dont j'ai mis en place une
+certains teste. Malgré cela, j'ai pû trouver le temps de mettre en place deux
+types de tests. Nous commencerons par voir la façon dont j'ai mis en place
 des tests par propriétés. Puis nous verrons les testes de performances mises en
 place entre les deux implémentations d'automate.
 
@@ -148,7 +148,7 @@ place entre les deux implémentations d'automate.
 
 Les tests par propriétés, \textit{`property testing'} en anglais. Est une
 méthode de tests logicielle qui visent à tester les propriétés d'un résultat et
-non pas à comparer le résultat obtenu avec celui espérer~\cite{propertyTesting}.
+non pas à comparer le résultat obtenu avec celui espéré~\cite{propertyTesting}.
 De plus, cette méthode ne nécessite pas d'avoir une autre implémentation pour
 comparer les résultats ou même de calculer à la main les résultats des
 opérations que l'on veut tester (Cette méthode est celle communément utilisé,
@@ -157,29 +157,29 @@ des \textit{tests unitaires}).
 \vphantom{}
 
 Outre cela, cette méthode de test convient extrêmement bien à la production
-d'objet mathématique. Notamment en ce qui concerne les automates, ils existent
-de nombreuses propriétés connues qui permet de facilité ces testées. Plus
+d'objets mathématiques. Notamment en ce qui concerne les automates, ils existent
+de nombreuses propriétés connues qui permettent de faciliter ces tests. Plus
 précisément, on peut par exemple pour les \textit{automates de Glushkov} se
 référer à l'article \textit{Characterization of Glushkov Automata} de Pascal
 Caron et Djelloul Ziadi~\cite{CaronZiadi2001}. Bien évidemment, cette méthode ne
 montre pas que le programme fait exactement ce qu'il doit faire. Il faudrait
-pour cela effectue des preuves formelles mathématiques, tel que celle vue en
+pour cela effectuer des preuves formelles mathématiques, telles que celle vue en
 cours d'algorithmique lors de cette licence (par le biais de la logique de
-\textit{Hoare} par exemple). Seulement ces preuves se révélant très longue à
-écrire, les tests par propriétés suffisent donc.
+\textit{Hoare} par exemple). Seulement, ces preuves se révélant très longues à
+écrire, les tests par propriétés suffisent.
 
 \vphantom{}
 
 En \textit{Haskell}, c'est la bibliothèque \textit{QuickCheck} qui permet de
-mettre en place ce type de test. Une fois des propriétés définie, une génération
-aléatoire de cas de test sera effectuer, et ça sera sur ces cas que les
-propriétés se verrons testé. Pour générer ces cas de test aléatoire, il faut
+mettre en place ce type de test. Une fois des propriétés définies, une génération
+aléatoire de cas de test sera effectuée, et ça sera sur ces cas que les
+propriétés se verrons testées. Pour générer ces cas de test aléatoire, il faut
 que les objets en question dérive la classe \mintinline{haskell}{Arbitrary} du
-module. Le terme `dérivé' en signifie ici que notre classe doit implémenter la
+module. Le terme `dérivé' signifie ici que notre classe doit implémenter la
 méthode \mintinline{haskell}{arbitrary :: Gen a} avec \mintinline{haskell}{a},
 le type que l'on veut tester. C'est grâce à cette fonction
 \mintinline{haskell}{arbitrary} que seront généré de façon aléatoire les objets
-sur lequel seront testé les propriétés. Enfin, pour tester ces propriétés, il
+sur lesquels seront testé les propriétés. Enfin, pour tester ces propriétés, il
 faut appeler la fonction \mintinline{haskell}{quickCheck} qui prendra en
 paramètre une fonction qui doit avoir ce type
 \mintinline{haskell}{prop :: Arbitrary a => a -> Bool}. Cette fonction
@@ -197,8 +197,8 @@ Ce ne sont pas les types \mintinline{haskell}{NFAG} et
 \mintinline{haskell}{NFAF}, qui implémente cette méthode, mais des types
 enveloppes. Cela est dû à la seule utilité de ce type pour ces tests. Une
 convention du langage n'autorise pas l'implémentation d'une classe par un type
-or de son fichier d'implémentation. Et il n'y a aucun intérêt à ce que ces deux
-types implémente \mintinline{haskell}{arbitrary} or des tests. Finalement les
+hors de son fichier d'implémentation. Et il n'y a aucun intérêt à ce que ces deux
+types implémentent \mintinline{haskell}{arbitrary} or des tests. Finalement les
 propriétés testées sont celle de la table~\ref{tab:proprietes}.
 
 \begin{table}[H]
@@ -222,19 +222,19 @@ propriétés testées sont celle de la table~\ref{tab:proprietes}.
 \vphantom{}
 
 Enfin, les testes sur la partie de transformation d'expression régulière en
-automate de \textit{Glushkov} se fais sur l'implémentation
-\mintinline{haskell}{NFAG} (Se référé à la section suivante pour les raisons de
+automate de \textit{Glushkov} se fait sur l'implémentation
+\mintinline{haskell}{NFAG} (se référer à la section suivante pour les raisons de
 ce choix.). Comme pour la partie précédente, il faillait tout d'abord générer
-des expressions de manière aléatoires. Pour ce faire, j'ai utilisé le `parser'
-développé, permettant à partir d'une chaine de caractère d'obtenir l'expression
+des expressions de manière aléatoire. Pour ce faire, j'ai utilisé le `parser'
+développé, permettant à partir d'une chaine de caractères d'obtenir l'expression
 correspondante. Il m'a donc fallu créer une chaîne représentant une expression,
 et cela, de manière aléatoire. J'ai alors utilisé les fonctionnalités du module
 \textit{QuickCheck} pour cela. Après la génération de ces expressions régulière,
 une conversion vers un automate s'effectuer à l'aide de l'algorithmique de
-\textit{Glushkov}. C'est cette convention qui se voit être testé par les
+\textit{Glushkov}. C'est cette convention qui se voit être testée par les
 propriétés définies dans l'article~\cite{CaronZiadi2001}. Avec notamment la
 définition d'orbite et d'orbite maximale et des propriétés qu'ils doivent
-respecter dans le cas d'un automate de \textit{Glushkov} (Ces propriétés sont
+respecter dans le cas d'un automate de \textit{Glushkov} (ces propriétés sont
 les suivants, un automate de \textit{Glushkov} doit être \textbf{standard},
 toutes les orbites maximales de cette automate doivent être
 \textbf{fortement stable} et \textbf{hautement transverse}).
@@ -277,8 +277,8 @@ On obtient alors les résultats de la figure~\ref{fig:resTest} lors d'un appelle
 % Comment fonctionne les benchmarks en haskell
 Pour évaluer les performances des deux implémentations d'automates
 \mintinline{haskell}{NFAG} et \mintinline{haskell}{NFAF}, l'utilisation du
-module \textit{Criterion} a été faite. Pour rappels, la principale différence
-entre ces deux implémentations et que \mintinline{haskell}{NFAG}, utilise un
+module \textit{Criterion} a été faite. Pour rappel, la principale différence
+entre ces deux implémentations est que \mintinline{haskell}{NFAG}, utilise un
 graphe du module \textit{fgl} tandis que \mintinline{haskell}{NFAF} utilise une
 fonction. Nous commencerons par voir comment ce module de Benchmark fonctionne,
 puis nous comparerons les deux implémentations.
@@ -291,13 +291,13 @@ nombreuses répétitions des tests pour obtenir des mesures fiables et fournit d
 analyses statistiques sur les résultats, comme les moyennes et les écarts-types.
 De plus, ce module permet d'exporter les résultats des tests sous formes d'une
 page \textit{HTML}, avec notamment des graphiques. Le seul point négatif de ce
-module et que seul les temps d'exécutions sont mesuré, la mémoire utilisée ne
+module est que seul les temps d'exécutions sont mesurés, la mémoire utilisée ne
 l'était pas.
 
 \vphantom{}
 
-Pour tester les performances des deux implémentations les testes suivant ont été
-mises en place~:
+Pour tester les performances des deux implémentations les tests suivants ont été
+mis en place~:
 
 \begin{itemize}
     \item[\textbullet] \underline{\textbf{Ajout d'états}~:} Nous avons mesuré le
@@ -313,9 +313,9 @@ mises en place~:
         Il existe la réciproque des deux testes précédents, mais dans la suppression.
     \item[\textbullet] \underline{\textbf{Teste d'orbites maximales}~:} Après la
         création d'un automate de taille prédéfinie (dans les résultats présentés plus
-        tard, c'est un automate de 2000 état qui a été conçu) de façon aléatoire, un
-        test visant à savoir si chaque orbite maximal et fortement stable et hautement
-        transverse sera effectuer.
+        tard, c'est un automate de 2000 états qui a été conçu) de façon aléatoire, un
+        test visant à savoir si chaque orbite maximale et fortement stable et hautement
+        transverse sera effectué.
 \end{itemize}
 
 \vphantom{}
@@ -338,14 +338,14 @@ aller jusqu'à deux fois plus rapide selon les tests.
 
 \subsection{Les possibilités d'amélioration}
 
-Dans cette section, nous discutons des différentes possibilités d'amélioration
+Dans cette section, nous discuterons des différentes possibilités d'amélioration
 pour ce projet, visant à augmenter ces fonctionnalités, sa facilité
 d'utilisation et sa documentation.
 
 Une possibilité d'amélioration consiste à développer un site web,
 particulièrement en utilisant la \textit{Programmation Réactive Fonctionnelle
     (FRP)}, comme mentionné dans les difficultés rencontrées. Avec plus de temps, il
-aurait pu être possible de mettre en place cela et donc de répondre au problème
+aurait pû être possible de mettre en place cela et donc de répondre au problème
 rencontré.
 
 \vphantom{}
@@ -371,7 +371,7 @@ que celles présentées ici.
 Une spécification plus détaillée pourrait être fournie, en listant tous les
 algorithmes utilisés et en introduisant des exemples pour faciliter la
 compréhension du rapport. De plus, ce rapport technique étant l'un des premiers
-que je rédige, la rédaction d'autre permettrais l'amélioration de celui-ci par
+que je rédige, la rédaction d'autre permettrait l'amélioration de celui-ci par
 le biais de l'expérience acquise.
 
 \vphantom{}
@@ -388,5 +388,5 @@ que l'on peut retrouver le site référence
 Enfin, l'ajout d'un benchmark de mémoire utilisé serait une amélioration
 significative, bien que cela soit plus complexe que les benchmarks temporels et
 ne soit pas pris en charge par le module \textit{Criterion}. Il existe cependant
-des alternatives comme le module \textit{weigh} mais qui ne produise pas rapport
-tel que ce produit par le module \textit{Criterion}.
+des alternatives comme le module \textit{weigh} mais qui ne produisent pas de rapports
+tels que ceux produits par le module \textit{Criterion}.
