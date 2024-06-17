@@ -9,9 +9,9 @@ version:        0.1.0.0
 description:    Please see the README on GitHub at <https://github.com/githubuser/glushkov-automata#readme>
 homepage:       https://github.com/githubuser/glushkov-automata#readme
 bug-reports:    https://github.com/githubuser/glushkov-automata/issues
-author:         Author name here
+author:         Dot
 maintainer:     example@example.com
-copyright:      2024 Author name here
+copyright:      2024
 license:        BSD-3-Clause
 license-file:   LICENSE
 build-type:     Simple

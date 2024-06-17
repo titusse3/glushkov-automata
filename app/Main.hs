@@ -187,7 +187,7 @@ main = do
           Gtk.comboBoxTextRemoveAll maximalDropdown
           let orbits = N.maximalOrbits nfa
           mapM_ (\(n, x) -> Gtk.comboBoxTextAppendText maximalDropdown $ 
-                            T.pack (show n) <> ". " <> N.orbitToText x <> ". " <> N.orbitToText x) 
+                            T.pack (show n) <> ". " <> N.orbitToText x) 
                 $ zip ([1 .. ] :: [Int]) orbits
 
     let performAutomata = do

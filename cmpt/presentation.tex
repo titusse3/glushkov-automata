@@ -178,8 +178,23 @@ son mode de fonctionnement.
 Le deuxième problème, j'ai l'ai eu bien plus tard dans le développement. 
 Cependant celui-ci m’a fait perdre pratiquement deux voir trois semaines. Pour 
 la mise en place site web, il avait été convenu lors d'une réunion, d'utilisé 
-le paradigme de la \textit{Programmation fonctionnelle réactive}. 
-% finir cette partie
+le paradigme de la \textit{Programmation fonctionnelle réactive}. Ce paradigme, 
+se base sur l'idée d'un tableur. Lorsque l'on modifie le contenu d'une case, le 
+reste du tableau peut alors évoluer. C'est sur ce principe que repose la 
+\textit{programmation réactive}. En \textit{Haskell}, il existe de nombreux 
+modules qui permettent la mise en place de cette méthode de programmation. 
+Cependant, celui qui est utilisé aux interfaces Web \textit{Reflex}, nécessite 
+l'outil \textit{Obelisk}. Cet outil ma tout d'abord causée des problèmes quant 
+à son installation, puis son utilisation. L'utilisation de \textit{Nix} 
+par celui-ci, oblige à chaque installation, de compiler au moins une fois ce qui 
+a été installer. De ce fait, son utilisation été très longue à mettre en \oe 
+uvre. Après cela, il y a aussi l'utilisation du module \textit{Reflex}. Bien que
+ce soit un module \textit{Haskell}, son utilisation requière un apprentissage
+qui se rapproche a celui d'un langage. Notamment, car nous n'avons jamais vu ce 
+paradigme et que donc ces mécanismes me sont inconnus. De ce fait, après avoir 
+tout de même passer une semaine à essayé d'apprendre le \textit{frp}, je me suis 
+redirigé vers la mise en place d'une application \textit{Gtk} (implémentation 
+bien plus commune, qui permet donc un développement plus rapide).  
 
 \vphantom{}
 

@@ -2,6 +2,136 @@
 
 \subsection{Bibliothèque d'automate et application graphique}
 
+Dans cette section, je présenterai les résultats finaux de mon travail, en 
+détaillant les étapes de vérification et de test de performances. Nous 
+examinerons les différentes parties du projet, y compris l'implémentation de la 
+bibliothèque d'automate et l'application graphique qui a été développée.
+
+\subsubsection{Bibliothèque d'automate}
+
+L'objectif de ce stage était la réalisation d'une bibliothèque complète 
+d'automate. J'ai donc mis en place, la conversion d'une expression vers un 
+automate de \textit{Glushkov}. La conversion d'un fichier \textit{JSON} vers un 
+automate. La représentation sous forme de graphique utilisant le langage 
+\textit{Dot}. Ou encore des tests et conversion de diverses propriétés 
+d'automates, comme la standardisation ou encore les orbites maximales et leurs 
+propriétés.
+
+\vphantom{}
+
+J'ai mis en place une première version de cette bibliothèque qui utilisait la 
+structure de la figure~\ref{fig:codeNFAF}. Le point crucial de cette 
+implémentation est la fonction \mintinline{haskell}{delta}. Celle-ci rend la 
+structure identique à la spécification mathématique d'un automate. Les 
+opérations d'ajout et de suppression sont implémenté par l'agrandissement de 
+la fonction.
+
+\vphantom{}
+
+Le plus grand problème de cette implémentation réside dans le calcule des 
+orbites. N'aillant de structure à parcourir, il a donc fallu convertir cet 
+automate vers un graphe puis calculé ces orbites. C'est après avoir implémenté
+cette fonction que j'ai donc pris la décision de mettre en place une autre 
+implémentation. Une comparaison de performances des deux implémentations et de 
+la validité du développement d'une autre implémentation se trouve dans la 
+section~\ref{section:bench}.
+
+\begin{figure}[H]
+  \begin{minted}{haskell}
+    data NFAF state transition = NFAF
+      { sigma   :: Set.Set transition
+      , etats   :: Set.Set state
+      , premier :: Set.Set state
+      , final   :: Set.Set state
+      , delta   :: state -> transition -> Set.Set state
+      }
+  \end{minted}
+  \caption{Code du type \mintinline{haskell}{NFAF}.}\label{fig:codeNFAF}
+\end{figure}
+
+\vphantom{}
+
+L'implémentation que j'ai mis en place après celle-ci est celle de la 
+figure~\ref{fig:codeNFAG}. La principale contrainte du type 
+\mintinline{haskell}{NFAF} était l'impossibilité de parcourir l'automate. J'ai 
+donc eu l'idée d'utilisé un graphe du type \textit{fgl} pour ce faire. Ce module
+fournissant une implémentation efficace à l'aide de \textit{Patricia Tree} 
+appelle aussi \textit{Arbre radix}. Les éléments de types 
+\mintinline{haskell}{Int} permettent de faire la correspondance entre le n\oe ud
+du graphe et l'état. En effet, dans un graphe du module \textit{fgl}, un n\oe ud
+est composé d'un tuple entier label. Pour améliorer les performances du type, 
+des entiers sont donc utilisés pour les ensembles d'états premier et final par 
+exemple. 
+
+\vphantom{}
+
+Le plus grand défaut de cette implémentation résidera dans l'utilisation 
+mémoire plus grande pour ce type. La mise en place d'un graphe où chaque 
+transition est présente en mémoire. Alors que pour l'implémentation utilisant 
+une fonction, seul les cas de tests de la fonction grandirons ce qui aura un 
+impact bien moindre sur la mémoire.
+
+\begin{figure}[H]
+  \begin{minted}{haskell}
+    data NFAG state transition = NFAG
+      { sigma   :: Set.Set transition
+      , etats   :: Map.Map state Int
+      , premier :: Set.Set Int
+      , final   :: Set.Set Int
+      , graph   :: Gr.Gr state transition
+      , lastN   :: Int
+      }
+  \end{minted}
+  \caption{Code du type \mintinline{haskell}{NFAG}.}\label{fig:codeNFAG}
+\end{figure}
+
+\subsubsection{Application graphique}
+
+L'application permet d'obtenir un automate à partir d'une expression entrée 
+par l'utilisateur. On peut importer un automate sous le format \textit{JSON}. Le 
+format que doit vérifier le fichier est celui présenter sur la 
+figure~\ref{fig:jsonFormat}. On peut aussi choisir d'afficher l'automate avec 
+les orbites affiché, et ceux à l'aide du menu déroulant que l'on obtient en 
+appuyant sur le bouton options que l'on peut voir sur la 
+figure~\ref{fig:cap1}.
+
+\begin{figure}[H]
+  \begin{minted}{Json}
+  {
+    "nodes": [0, 1 ..],
+    "first": [0, ..],
+    "final": [1, ..],
+    "transitions": [[0, 1, "a"], ..] 
+  }
+  \end{minted}
+  \caption{Figure montrant le format d'un automate sous forme \textit{JSON}.}
+  \label{fig:jsonFormat}
+\end{figure}
+
+Une fois l'automate obtenu par la transformation d'expression en automate ou 
+bien par importation d'un fichier \textit{JSON}, on peut obtenir des 
+informations sur les ensembles d'états de l'automate. Ces informations sont les 
+suivantes~:
+
+\begin{itemize}
+  \item[\textbullet] Est-ce que cette ensemble est une orbite.
+  \item[\textbullet] Est ce que si c'est une orbite elle est stable, transverse,
+  fortement stable ou bien encore hautement transverse.
+  \item[\textbullet] Les portes d'entrée ou de sortie de ce groupe d'états.
+\end{itemize}
+
+Pour Choisir ce groupe d'états, deux choix s'offres à l'utilisateur. Le premier
+est l'input manuel et le deuxième, le menu déroulant qui répertorie toutes les 
+orbites maximales de l'automate actuellement choisie. De plus, une fois le 
+groupe d'états choisie, on peut l'observé dans l'image à gauche des propriétés 
+testées. Voir la deuxième capture de la figure~\ref{fig:cap1} pour une 
+démonstration de ces fonctionnalités.
+
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{cap1.png}
+  \includegraphics[width=\linewidth]{cap2.png}
+  \caption{Capture de l'application graphique.}\label{fig:cap1}
+\end{figure}
 
 \subsection{Phases de tests}
 
@@ -16,7 +146,6 @@ place entre les deux implémentations d'automate.
 
 \subsubsection{Test par propriétés}
 
-% explication de comment fonctionne les testes propriétés
 Les tests par propriétés, \textit{`property testing'} en anglais. Est une 
 méthode de tests logicielle qui visent à tester les propriétés d'un résultat et 
 non pas à comparer le résultat obtenu avec celui espérer~\cite{propertyTesting}. 
@@ -41,7 +170,6 @@ cours d'algorithmique lors de cette licence (par le biais de la logique de
 
 \vphantom{}
 
-% La façon dont ces mis en place en haskell
 En \textit{Haskell}, c'est la bibliothèque \textit{QuickCheck} qui permet de 
 mettre en place ce type de test. Une fois des propriétés définie, une génération 
 aléatoire de cas de test sera effectuer, et ça sera sur ces cas que les 
@@ -60,7 +188,6 @@ effectuera une génération de 100 objets et testera la fonction
 
 \vphantom{}
 
-% la façon dont j'ai tester les propriétés et le réulstat de celui-ci
 En ce qui concerne la mise en place des tests des deux implémentations de la 
 bibliothèque d'automates, la première étape a été l'implémentation de la méthode 
 \mintinline{haskell}{arbitrary} pour les types d'automates de la bibliothèque. 
@@ -145,7 +272,7 @@ On obtient alors les résultats de la figure~\ref{fig:resTest} lors d'un appelle
   \label{fig:resTest}
 \end{figure}
 
-\subsubsection{Benchmark des implémentations d'automates}
+\subsubsection{Benchmark des implémentations d'automates}\label{section:bench}
 
 % Comment fonctionne les benchmarks en haskell
 Pour évaluer les performances des deux implémentations d'automates 
