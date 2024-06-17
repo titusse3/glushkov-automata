@@ -1,0 +1,53 @@
+INFO:  latexindent version 3.20.1, 2023-01-07, a script to indent .tex files
+       latexindent lives here: /usr/share/texlive/texmf-dist/scripts/latexindent/
+       Mon Jun 17 11:22:37 2024
+       Filename: ./resultat.tex
+INFO:  Processing switches:
+       -l|--localSettings: Read localSettings YAML file
+       -m|--modifylinebreaks: modify line breaks
+INFO:  Directory for backup files and indent.log:
+       .
+INFO:  YAML settings read: defaultSettings.yaml
+       Reading defaultSettings.yaml from /usr/share/texlive/texmf-dist/scripts/latexindent/defaultSettings.yaml
+INFO:  YAML reading settings
+       Home directory is /home/renauth6
+       latexindent.pl didn't find indentconfig.yaml or .indentconfig.yaml
+       see all possible locations: https://latexindentpl.readthedocs.io/en/latest/sec-appendices.html#indentconfig-options)
+INFO:  YAML settings read: -l switch
+       Adding /home/renauth6/latex_format.yaml to YAML read paths
+INFO:  YAML settings, reading from the following files:
+       Reading USER settings from /home/renauth6/latex_format.yaml
+       ---
+       defaultIndent: '    '
+       environmentsToIndent:
+         any: '1'
+       lookForAlignDelims:
+         caption: '1'
+       modifyLineBreaks:
+         condenseMultipleBlankLinesInto: '1'
+         mandatoryArguments:
+           caption:
+             DBSFinishesWithLineBreak: '1'
+             MandArgBodyStartsOnOwnLine: '1'
+             RCuBStartsOnOwnLine: '1'
+         preserveBlankLines: '1'
+         textWrapOptions:
+           blocksBeginWith:
+             0-9: '1'
+             other: \\\(|\\begin{.*?}|\\end{.*?}
+           blocksFollow:
+             other: \\\\|\\\]|\\item(?:\h|\[)|\\caption(?:\h|\[)|\\begin{.*?}|\\end{.*?}
+           columns: '80'
+           keepIndent: '1'
+           multipleSpacesToSingle: '1'
+           when: after
+
+INFO:  Phase 1: searching for objects
+INFO:  Phase 2: finding surrounding indentation
+INFO:  Phase 3: indenting objects
+INFO:  Phase 4: final indentation check
+INFO:  Output routine:
+       Not outputting to file; see -w and -o switches for more options.
+       --------------
+INFO:  Please direct all communication/issues to:
+        https://github.com/cmhughes/latexindent.pl
