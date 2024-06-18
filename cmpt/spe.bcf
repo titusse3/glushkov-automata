@@ -2356,9 +2356,15 @@
     <bcf:citekey order="3" intorder="1">citationPureProg</bcf:citekey>
     <bcf:citekey order="4" intorder="1">citationFiboProg</bcf:citekey>
     <bcf:citekey order="5" intorder="1">citationMonadWiki</bcf:citekey>
-    <bcf:citekey order="6" intorder="1">propertyTesting</bcf:citekey>
-    <bcf:citekey order="7" intorder="1">CaronZiadi2001</bcf:citekey>
-    <bcf:citekey order="8" intorder="1">CaronZiadi2001</bcf:citekey>
+    <bcf:citekey order="6" intorder="1">lensHaskell</bcf:citekey>
+    <bcf:citekey order="7" intorder="1">arbreRadix</bcf:citekey>
+    <bcf:citekey order="8" intorder="1">propertyTesting</bcf:citekey>
+    <bcf:citekey order="9" intorder="1">CaronZiadi2001</bcf:citekey>
+    <bcf:citekey order="10" intorder="1">quiceck</bcf:citekey>
+    <bcf:citekey order="11" intorder="1">CaronZiadi2001</bcf:citekey>
+    <bcf:citekey order="12" intorder="1">criterion</bcf:citekey>
+    <bcf:citekey order="13" intorder="1">haddock</bcf:citekey>
+    <bcf:citekey order="14" intorder="1">weigh</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="none">

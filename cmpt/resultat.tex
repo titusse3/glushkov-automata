@@ -10,12 +10,17 @@ bibliothèque d'automate et l'application graphique qui a été développée.
 \subsubsection{Bibliothèque d'automate}
 
 L'objectif de ce stage était la réalisation d'une bibliothèque complète
-d'automate. J'ai donc mis en place, la conversion d'une expression vers un
-automate de \textit{Glushkov}. La conversion d'un fichier \textit{JSON} vers un
-automate. La représentation sous forme de graphique utilisant le langage
-\textit{Dot}. Ou encore des tests et conversions de diverses propriétés
-d'automates, comme la standardisation ou encore les orbites maximales et leurs
-propriétés.
+d'automate. J'ai donc mis en place, les fonctionnalités suivante~:
+\begin{itemize}
+    \item[\textbullet] La conversion d'une expression vers un automate de 
+    \textit{Glushkov}.
+    \item[\textbullet] La conversion d'un fichier \textit{JSON} vers un
+    automate.
+    \item[\textbullet] La représentation sous forme de graphique d'un automate 
+    (utilisant le langage \textit{Dot} pour ce faire). 
+    \item[\textbullet] Des tests et conversions de diverses propriétés
+    d'automates, comme la standardisation.
+\end{itemize} 
 
 \vphantom{}
 
@@ -23,14 +28,14 @@ J'ai mis en place une première version de cette bibliothèque qui utilisait la
 structure de la figure~\ref{fig:codeNFAF}. Le point crucial de cette
 implémentation est la fonction \mintinline{haskell}{delta}. Celle-ci rend la
 structure identique à la spécification mathématique d'un automate. Les
-opérations d'ajout et de suppression sont implémentés par l'agrandissement de
-la fonction.
+opérations d'ajout et de suppression sont implémentés par l'ajout de test sur 
+cette fonction.
 
 \vphantom{}
 
-Le plus grand problème de cette implémentation réside dans le calcule des
-orbites. N'aillant de structure à parcourir, il a donc fallu convertir cet
-automate vers un graphe puis calculé ces orbites. C'est après avoir implémenté
+Le plus grand problème de cette implémentation réside dans le calcul des
+orbites. N'ayant de structure à parcourir, il a donc fallu convertir cet
+automate vers un graphe puis calculer ces orbites. C'est après avoir implémenté
 cette fonction que j'ai donc pris la décision de mettre en place une autre
 implémentation. Une comparaison de performances des deux implémentations et de
 la validité du développement d'une autre implémentation se trouve dans la
@@ -54,22 +59,23 @@ section~\ref{section:bench}.
 L'implémentation que j'ai mise en place après celle-ci est celle de la
 figure~\ref{fig:codeNFAG}. La principale contrainte du type
 \mintinline{haskell}{NFAF} était l'impossibilité de parcourir l'automate. J'ai
-donc eu l'idée d'utiliser un graphe du type \textit{fgl} pour ce faire. Ce module
-fournissant une implémentation efficace à l'aide de \textit{Patricia Tree}
-appellé aussi \textit{Arbre radix}. Les éléments de types
+donc eu l'idée d'utiliser un graphe de la bibliothèque \textit{fgl} pour ce 
+faire. Ce module fournissant une implémentation efficace à l'aide de 
+\textit{Patricia Tree}
+appelé aussi \textit{Arbre radix}\cite{arbreRadix}. Les éléments de types
 \mintinline{haskell}{Int} permettent de faire la correspondance entre le n\oe ud
 du graphe et l'état. En effet, dans un graphe du module \textit{fgl}, un n\oe ud
 est composé d'un `tuple' entier label. Pour améliorer les performances du type,
-des entiers sont donc utilisés pour les ensembles d'états premier et final par
+des entiers sont donc utilisés pour les ensembles d'états initial et final par
 exemple.
 
 \vphantom{}
 
 Le plus grand défaut de cette implémentation réside dans l'utilisation
-mémoire plus grande pour ce type. La mise en place d'un graphe où chaque
-transition est présente en mémoire. Alors que pour l'implémentation utilisant
-une fonction, seul les cas de tests de la fonction grandirons ce qui aura un
-impact bien moindre sur la mémoire.
+mémoire plus grande pour ce type. Avec la représentation de tous les états et 
+transitions par un graphe. Alors que pour l'implémentation utilisant
+une fonction, seul la fonction delta se verra obtenir plus de test, ce qui aura 
+un impact bien moindre sur la mémoire.
 
 \begin{figure}[H]
     \begin{minted}{haskell}
@@ -98,10 +104,10 @@ figure~\ref{fig:cap1}.
 \begin{figure}[H]
     \begin{minted}{Json}
   {
-    "nodes": [0, 1 ..],
-    "first": [0, ..],
-    "final": [1, ..],
-    "transitions": [[0, 1, "a"], ..] 
+    "nodes": [0, 1, 2, 3],
+    "first": [0, 2],
+    "final": [1],
+    "transitions": [[0, 1, "a"], [1, 3, "b"], [2, 0, "a"], [3, 2, "b"]] 
   }
   \end{minted}
     \caption{Figure montrant le format d'un automate sous forme \textit{JSON}.}
@@ -114,14 +120,14 @@ informations sur les ensembles d'états de l'automate. Ces informations sont les
 suivantes~:
 
 \begin{itemize}
-    \item[\textbullet] Est-ce que cette ensemble est une orbite.
-    \item[\textbullet] Est-ce que l'orbite est stable, transverse,
+    \item[\textbullet] Connaître si un ensemble d'état est une orbite.
+    \item[\textbullet] La stabilité d'une orbite, est ce qu'elle est transverse,
         fortement stable ou bien encore hautement transverse.
     \item[\textbullet] Les portes d'entrée ou de sortie de ce groupe d'états.
 \end{itemize}
 
 Pour choisir ce groupe d'états, deux choix s'offrent à l'utilisateur. Le premier
-est l'input manuel et le deuxième, le menu déroulant qui répertorie toutes les
+est l'input manuel et le deuxième le menu déroulant qui répertorie toutes les
 orbites maximales de l'automate actuellement choisi. De plus, une fois le
 groupe d'états choisis, on peut l'observer dans l'image à gauche des propriétés
 testées. Voir la deuxième capture de la figure~\ref{fig:cap1} pour une
@@ -138,20 +144,20 @@ démonstration de ces fonctionnalités.
 Pour ce projet, la phase de test, je l'ai mis en place à la fin de ce stage. En
 effet, cette partie n'avait été prévue d'être réalisée que s'il restait assez de
 temps pour ce faire. Les réunions hebdomadaires servaient entre autre à jouer en
-partie ce rôle. De plus à chaque ajout de fonctionnalités, j'essayai d'effectuer
-certains teste. Malgré cela, j'ai pû trouver le temps de mettre en place deux
-types de tests. Nous commencerons par voir la façon dont j'ai mis en place
-des tests par propriétés. Puis nous verrons les testes de performances mises en
-place entre les deux implémentations d'automate.
+partie ce rôle. De plus à chaque ajout de fonctionnalités, j'essayais 
+d'effectuer certains tests. Malgré cela, j'ai pû trouver le temps de mettre en 
+place deux types de tests. Nous commencerons par voir la façon dont j'ai mis en 
+place des tests par propriétés. Puis nous verrons les testes de performances 
+mises en place entre les deux implémentations d'automate.
 
 \subsubsection{Test par propriétés}
 
-Les tests par propriétés, \textit{`property testing'} en anglais. Est une
+Les tests par propriétés, \textit{`property testing'} en anglais, est une
 méthode de tests logicielle qui visent à tester les propriétés d'un résultat et
 non pas à comparer le résultat obtenu avec celui espéré~\cite{propertyTesting}.
 De plus, cette méthode ne nécessite pas d'avoir une autre implémentation pour
 comparer les résultats ou même de calculer à la main les résultats des
-opérations que l'on veut tester (Cette méthode est celle communément utilisé,
+opérations que l'on veut tester (Cette méthode est celle communément utilisée,
 des \textit{tests unitaires}).
 
 \vphantom{}
@@ -165,21 +171,20 @@ Caron et Djelloul Ziadi~\cite{CaronZiadi2001}. Bien évidemment, cette méthode 
 montre pas que le programme fait exactement ce qu'il doit faire. Il faudrait
 pour cela effectuer des preuves formelles mathématiques, telles que celle vue en
 cours d'algorithmique lors de cette licence (par le biais de la logique de
-\textit{Hoare} par exemple). Seulement, ces preuves se révélant très longues à
-écrire, les tests par propriétés suffisent.
+\textit{Hoare} par exemple).
 
 \vphantom{}
 
-En \textit{Haskell}, c'est la bibliothèque \textit{QuickCheck} qui permet de
+En \textit{Haskell}, c'est la bibliothèque \textit{QuickCheck}\cite{quiceck} qui permet de
 mettre en place ce type de test. Une fois des propriétés définies, une génération
 aléatoire de cas de test sera effectuée, et ça sera sur ces cas que les
-propriétés se verrons testées. Pour générer ces cas de test aléatoire, il faut
+propriétés se verront testées. Pour générer ces cas de test aléatoire, il faut
 que les objets en question dérive la classe \mintinline{haskell}{Arbitrary} du
 module. Le terme `dérivé' signifie ici que notre classe doit implémenter la
 méthode \mintinline{haskell}{arbitrary :: Gen a} avec \mintinline{haskell}{a},
 le type que l'on veut tester. C'est grâce à cette fonction
-\mintinline{haskell}{arbitrary} que seront généré de façon aléatoire les objets
-sur lesquels seront testé les propriétés. Enfin, pour tester ces propriétés, il
+\mintinline{haskell}{arbitrary} que seront générés de façon aléatoire les objets
+sur lesquels seront testées les propriétés. Enfin, pour tester ces propriétés, il
 faut appeler la fonction \mintinline{haskell}{quickCheck} qui prendra en
 paramètre une fonction qui doit avoir ce type
 \mintinline{haskell}{prop :: Arbitrary a => a -> Bool}. Cette fonction
@@ -198,8 +203,8 @@ Ce ne sont pas les types \mintinline{haskell}{NFAG} et
 enveloppes. Cela est dû à la seule utilité de ce type pour ces tests. Une
 convention du langage n'autorise pas l'implémentation d'une classe par un type
 hors de son fichier d'implémentation. Et il n'y a aucun intérêt à ce que ces deux
-types implémentent \mintinline{haskell}{arbitrary} or des tests. Finalement les
-propriétés testées sont celle de la table~\ref{tab:proprietes}.
+types implémentent \mintinline{haskell}{arbitrary} hors des tests. Finalement 
+les propriétés testées sont celle de la table~\ref{tab:proprietes}.
 
 \begin{table}[H]
     \centering
@@ -221,27 +226,28 @@ propriétés testées sont celle de la table~\ref{tab:proprietes}.
 
 \vphantom{}
 
-Enfin, les testes sur la partie de transformation d'expression régulière en
+Enfin, les tests sur la partie de transformation d'expression régulière en
 automate de \textit{Glushkov} se fait sur l'implémentation
 \mintinline{haskell}{NFAG} (se référer à la section suivante pour les raisons de
-ce choix.). Comme pour la partie précédente, il faillait tout d'abord générer
+ce choix.). Comme pour la partie précédente, il fallait tout d'abord générer
 des expressions de manière aléatoire. Pour ce faire, j'ai utilisé le `parser'
 développé, permettant à partir d'une chaine de caractères d'obtenir l'expression
 correspondante. Il m'a donc fallu créer une chaîne représentant une expression,
 et cela, de manière aléatoire. J'ai alors utilisé les fonctionnalités du module
-\textit{QuickCheck} pour cela. Après la génération de ces expressions régulière,
-une conversion vers un automate s'effectuer à l'aide de l'algorithmique de
+\textit{QuickCheck} pour cela. Après la génération de ces expressions régulière
+(en convertissant les chaines précédemment générées),
+une conversion vers un automate s'effectue à l'aide de l'algorithmique de
 \textit{Glushkov}. C'est cette convention qui se voit être testée par les
 propriétés définies dans l'article~\cite{CaronZiadi2001}. Avec notamment la
 définition d'orbite et d'orbite maximale et des propriétés qu'ils doivent
 respecter dans le cas d'un automate de \textit{Glushkov} (ces propriétés sont
-les suivants, un automate de \textit{Glushkov} doit être \textbf{standard},
-toutes les orbites maximales de cette automate doivent être
-\textbf{fortement stable} et \textbf{hautement transverse}).
+les suivantes, un automate de \textit{Glushkov} doit être \textbf{standard},
+toutes les orbites maximales de cet automate doivent être
+\textbf{fortement stables} et \textbf{hautement transverses}).
 
 \vphantom{}
 
-On obtient alors les résultats de la figure~\ref{fig:resTest} lors d'un appelle
+On obtient alors les résultats de la figure~\ref{fig:resTest} lors d'un appel
 à ces tests. Ce qui certifie la validité des implémentations faites.
 
 \begin{figure}[H]
@@ -277,7 +283,7 @@ On obtient alors les résultats de la figure~\ref{fig:resTest} lors d'un appelle
 % Comment fonctionne les benchmarks en haskell
 Pour évaluer les performances des deux implémentations d'automates
 \mintinline{haskell}{NFAG} et \mintinline{haskell}{NFAF}, l'utilisation du
-module \textit{Criterion} a été faite. Pour rappel, la principale différence
+module \textit{Criterion}\cite{criterion} a été faite. Pour rappel, la principale différence
 entre ces deux implémentations est que \mintinline{haskell}{NFAG}, utilise un
 graphe du module \textit{fgl} tandis que \mintinline{haskell}{NFAF} utilise une
 fonction. Nous commencerons par voir comment ce module de Benchmark fonctionne,
@@ -306,9 +312,8 @@ mis en place~:
     \item[\textbullet] \underline{\textbf{Ajout de transitions}~:} Nous avons
         évalué les performances de l'ajout de transitions à un automate.
         Cette opération vise à ajouter une transition entre chaque n\oe ud de
-        l'automate (a titre informatif l'appelle de cette fonction sur un automate à
-        2000 états ou plus utilise tout met huit giga de RAM. Ce qui éteint mon
-        ordinateur).
+        l'automate (à titre informatif l'appel de cette fonction sur un automate à
+        2000 états ou plus utilise huit Giga de RAM).
     \item[\textbullet] \underline{\textbf{Suppression d'état et de transitions}~:}
         Il existe la réciproque des deux testes précédents, mais dans la suppression.
     \item[\textbullet] \underline{\textbf{Teste d'orbites maximales}~:} Après la
@@ -326,7 +331,7 @@ module \textit{Criterion}) peut être trouvé sur ce lien
 \href{run:./report_perf.html}{Rapport du Benchmark}. Sur cette capture, on voit
 deux couleurs, celle orange correspondant au type \mintinline{haskell}{NFAF} et
 le bleu au type \mintinline{haskell}{NFAG}. On peut alors observer que la
-deuxième implémentation est bien plus performante que la deuxième. Pouvant même
+deuxième implémentation est bien plus performante que la première. Pouvant même
 aller jusqu'à deux fois plus rapide selon les tests.
 
 \begin{figure}[H]
@@ -353,14 +358,14 @@ rencontré.
 Une autre amélioration serait de mettre en place une interface graphique plus
 avancée, permettant par exemple la création d'automates en temps réel. Que ce
 soit par l'ajout d'une autre page, avec un système qui pourrait être proche de
-celui de \textit{GeoGebra} par exemple. Cela permettrai d'utiliser des automates
+celui de \textit{GeoGebra} par exemple. Cela permettrait d'utiliser des automates
 autrement que par la rédaction d'un fichier \textit{JSON} qui peut se révéler
 très long en fonction de la structure de celui-ci.
 
 \phantom{}
 
 Il serait également bénéfique d'ajouter davantage d'opérations sur les
-automates. L'ajout d'algorithmes d'homogénéisation, de détermination du langage
+automates. L'ajout d'algorithmes d'homogénéisation, calcul du langage
 reconnu par l'automate ou encore des opérations de réduction d'état. Avec cet
 ajout de fonctionnalités, on obtiendra alors une bibliothèque hautement
 réutilisable. À voir encore s'il n'existerait pas de structure plus performante
@@ -378,7 +383,7 @@ le biais de l'expérience acquise.
 
 Il serait également utile de fournir une documentation complète sur le code des
 deux implémentations. Bien que la documentation en \textit{Haskell} diffère des
-autres langages, le module \textit{Haddock} pourrait être utilisé pour générer
+autres langages, le module \textit{Haddock}\cite{haddock} pourrait être utilisé pour générer
 cette documentation. Il génère un ensemble de page \textit{HTML} proche de ce
 que l'on peut retrouver le site référence
 \href{https://hackage.haskell.org/}{\textit{Hackage}}.
@@ -388,5 +393,5 @@ que l'on peut retrouver le site référence
 Enfin, l'ajout d'un benchmark de mémoire utilisé serait une amélioration
 significative, bien que cela soit plus complexe que les benchmarks temporels et
 ne soit pas pris en charge par le module \textit{Criterion}. Il existe cependant
-des alternatives comme le module \textit{weigh} mais qui ne produisent pas de rapports
+des alternatives comme le module \textit{weigh}\cite{weigh} mais qui ne produisent pas de rapports
 tels que ceux produits par le module \textit{Criterion}.

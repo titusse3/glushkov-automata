@@ -37,7 +37,7 @@ main = do
     case screen of
         Just scr -> Gtk.styleContextAddProviderForScreen scr provider 
                     (fromIntegral Gtk.STYLE_PROVIDER_PRIORITY_USER)
-        Nothing -> putStrLn "Error: Could not get default screen."
+        Nothing -> putStrLn "Erreur."
 
     mainVBox <- new Gtk.Box [#orientation := Gtk.OrientationVertical]
     contentVBox <- new Gtk.Box [#orientation := Gtk.OrientationVertical]
@@ -62,8 +62,8 @@ main = do
     orbitRef <- newIORef (Nothing :: Maybe (Set.Set Int))
 
     -- Initialize the combo box with "Non-clustered" as the default option
-    Gtk.comboBoxTextAppendText comboBox "Non-clustered"
-    Gtk.comboBoxTextAppendText comboBox "Clustered"
+    Gtk.comboBoxTextAppendText comboBox "Non-regroupés"
+    Gtk.comboBoxTextAppendText comboBox "Regroupés"
     Gtk.comboBoxSetActive comboBox 0 -- Set "Non-clustered" as the active item
 
     -- Initially hide the options box by not packing it into inputBox
@@ -71,9 +71,9 @@ main = do
 
     -- Create radio buttons for orbit selection
     radioButtonManual <- new Gtk.RadioButton []
-    #setLabel radioButtonManual "Orbit manuel"
+    #setLabel radioButtonManual "Orbite manuelle"
     radioButtonMaximal <- new Gtk.RadioButton [#group := radioButtonManual]
-    #setLabel radioButtonMaximal "Orbit maximal"
+    #setLabel radioButtonMaximal "Orbite maximale"
 
     -- Create input and dropdown for orbit selection
     manualInput <- new Gtk.Entry []
@@ -96,11 +96,11 @@ main = do
     #setBorderWidth propertiesGrid 10
 
     -- properties table
-    let properties = ["Orbit", "Stable", "Transverse", "Strongly Stable", 
-                      "Strongly Transverse", "In", "Out"]
+    let properties = ["Orbite", "Stable", "Transverse", "Fortement stable", 
+                      "Hautement Transverse", "Entrée", "Sortie"]
 
     propLabels <- mapM (\prop -> new Gtk.Label [#label := prop]) properties
-    valueLabels <- mapM (\_ -> new Gtk.Label [#label := "Unknown"]) properties
+    valueLabels <- mapM (\_ -> new Gtk.Label [#label := "Inconnu"]) properties
     mapM_ (\(i, (propLabel, valueLabel)) -> do
              Gtk.widgetSetName valueLabel "unknown"
              Gtk.widgetSetName propLabel "custom-label"

@@ -1,9 +1,9 @@
 \section{Objectif du Stage}
 
-Ce stage a pour objectif, le développement d'une bibliothèque traitant 
+Ce stage a pour objectif le développement d'une bibliothèque traitant 
 d'automates à partir d'expression rationnelle en \textit{Haskell}. De plus, 
-cette bibliothèque doit être accompagnée d'une description formelle. Que ce soit 
-des algorithmes et même des structures utilisées. Il a de plus été envisagé 
+cette bibliothèque doit être accompagnée d'une description formelle décrivant 
+les algorithmes et structures utilisées. Il a de plus été envisagé 
 assez tôt dans ce stage, la mise en place d'une interface graphique qui pourrait 
 améliorer l'accessibilité de cette bibliothèque.
 
@@ -19,9 +19,9 @@ d'un fichier \textit{JSON} vers un automate devait être mis en place.
 \vphantom{}
 
 Pour améliorer la lisibilité, une représentation graphique à l'aide du langage 
-\textit{dot} et de ces utilitaires devait être mis en place. Enfin, un site 
-web avait été prévue pour mettre en place une interface graphique améliorant 
-l'accessibilité de toutes les fonctionnalités citées précédemment. 
+\textit{dot} et de ces utilitaires devait être mis en place. Enfin, une 
+interface graphique a été prévue, celle-ci améliorant l'accessibilité de toutes 
+les fonctionnalités citées précédemment. 
 
 \subsection{Organisation du Travail}
 
@@ -33,7 +33,7 @@ trouvées.
 
 \vphantom{}
 
-L'organisation du travail pour ce stage, a été mis en place lors de notre 
+L'organisation du travail pour ce stage a été mis en place lors de notre 
 première réunion qui s'est tenu le premier jour de ce stage. Il a alors été 
 convenu de mettre en place une réunion hebdomadaire. Cette réunion servait à 
 évoquer les avancées et difficultés rencontrées lors de la semaine. De manière 
@@ -45,9 +45,9 @@ générale, de telles réunions avait un temps variable pouvant aller de 20 minu
 J'ai pour ma part après cette première réunion qui nous a donné les objectifs
 de ce stage, mis en place un diagramme de \textit{Gantt}, celui de la 
 figure~\ref{fig:gantfig}. Comme on peut le voir sur cette figure, chaque couleur 
-correspond à une tâche en particulier. Ce diagramme aillant été fait au début 
-de mon stage, certain objectif ont pu prendre plus de temps que prévue. La 
-correspondance couleur, objectifs est celle ci-dessous~:
+correspond à une tâche en particulier. Ce diagramme ayant été fait au début 
+de mon stage, certains objectifs ont pu prendre plus de temps que prévu. La 
+correspondance couleurs, objectifs est celle ci-dessous~:
 
 \vphantom{}
 
@@ -56,18 +56,18 @@ correspondance couleur, objectifs est celle ci-dessous~:
   d'\textbf{expression régulière}, ainsi que d'\textbf{automates}. Puis 
   implémenter la conversion d'expression vers automate à l'aide de l'algorithme 
   de \textit{Glushkov}.
-  \item[\textbullet] \textcolor{blue}{Bleu}~: Développement d'un \textbf{Lexer}, 
-  aillant pour but de convertir une chaine de caractère en \textbf{expression 
-  régulière}.
+  \item[\textbullet] \textcolor{blue}{Bleu}~: Développement d'un 
+  \textit{`parser'}, ayant pour but de convertir une chaine de caractère en 
+  \textbf{expression régulière}.
   \item[\textbullet] \textcolor{green}{Vert}~: Développement de diverses 
   fonctions sur des automates. Que ce soit des \textit{`getters'/ `setters'} ou 
   encore des tests de propriétés comme l'homogénéité ou encore savoir s'il 
   est standard (se référer au document technique).
   \item[\textbullet] \textcolor{yellow}{Jaune}~: Création d'une conversion d'un
   automate en \textit{Dot}, qui permet une représentation graphique.
-  \item[\textbullet] \textcolor{purple}{Violet}~: Mise en place du site web qui 
-  devait permettre d'obtenir une représentation graphique et une meilleure 
-  accessibilité.
+  \item[\textbullet] \textcolor{purple}{Violet}~: Mise en place d'une interface 
+  graphique permettant d'obtenir une représentation sous forme de graphe de 
+  l'automate obtenu.
   \item[\textbullet] \textcolor{orange}{Orange}~: Enfin, ces deux dernières 
   semaines ont été laissées pour peaufiner chacune des parties précédentes, mais 
   aussi de rédiger ce rapport de stage.
@@ -98,10 +98,12 @@ correspondance couleur, objectifs est celle ci-dessous~:
     \ganttmilestone[milestone/.append style={shape=rectangle, fill=black}]{}{2024-05-23}
     \ganttmilestone[milestone/.append style={shape=rectangle, fill=black}]{}{2024-06-06}
     \ganttmilestone[milestone/.append style={shape=rectangle, fill=black}]{}{2024-06-13}
+    \ganttmilestone[milestone/.append style={shape=rectangle, fill=black}]{}{2024-06-18}
+    \ganttmilestone[milestone/.append style={shape=rectangle, fill=black}]{}{2024-06-21}
   \end{ganttchart}
   \caption{
-    Diagramme de \textit{Gantt} mise en place pour le stage. Les rectangles 
-    noirs correspondent au jour de réunion.
+    Diagramme de \textit{Gantt} mis en place pour le stage. Les rectangles 
+    noirs correspondent aux jours de réunion.
   }\label{fig:gantfig}
 \end{figure}
 
@@ -118,26 +120,26 @@ stage.
 
 Ce stage constitue ma première expérience proche d'un travail en entreprise. De 
 ce fait, j'ai pu rencontrer les problèmes communs. La première semaine, nous 
-étions en télétravail.
+étions en travail à distance.
 De nombreux problèmes surviennent par ce mode de travail. Tout d'abord la façon 
 de gérer ces horaires. M. Mignot nous a laissé gérer nos horaires nous même ce 
-qui à fait en sorte que pendant le télétravail j'ai eu du mal à ne pas trop 
-travailler et même dans l'autre sens parfois. Ensuite, on a les problèmes du 
-quotidien comme des pertes de connexions qui rendent certaines journées
+qui a fait en sorte que pendant le travail à distance j'ai eu du mal à ne pas 
+trop travailler et même dans l'autre sens parfois. Ensuite, on a les problèmes 
+du quotidien comme des pertes de connexions qui rendent certaines journées
 pratiquement impossible à avancée. Enfin, je n'ai pas eu de chance lors de ces 
 derniers mois et je suis tombé malade, ce qui a accentué encore plus ce 
-télétravail.
+travail à distance.
 
 \newpage
 
 Un autre problème est survenu, celui-ci concernait le matériel. En effet, mon 
 ordinateur portable n'avait selon mon système d'exploitation plus de mémoire 
-vive. J'ai alors du réinstaller un nouvel \textit{OS}. Cependant, je n'avais pas
-prévue qu'il existait encore des systèmes qui ne se lançait pas sur 
-\textit{systemd}. Sans rentrer dans les détails, ce problème m’a pris énormément 
+vive. J'ai alors dû réinstaller un nouvel \textit{OS}. Cependant, je n'avais pas
+prévu qu'il existait encore des systèmes ne se lancent pas sur \textit{systemd}. 
+Sans rentrer dans les détails, ce problème m'a pris énormément 
 de temps à régler. C'est un problème, car le gestionnaire de paquets (si on peut 
-le nommer de la sorte) \textit{Nix} (qui est l'outil le plus utilisé pour la 
-création de site en \textit{Haskell} sous le paradigme de la 
+le nommer de la sorte) \textit{Nix} (un outil souvent utilisé pour la 
+création de site \textit{Haskell}, sous le paradigme de la 
 \textit{Programmation fonctionnelle réactive}) doit ce lancer à l'aide de 
 \textit{systemd}. C'est d'ailleurs une des raisons ayant poussé vers la 
 migration du développement d'un site web vers une application \textit{Gtk}. Se 
@@ -147,11 +149,11 @@ référer à la sous-section suivante et à la partie résultat de ce compte ren
 
 Avant tout, j'ai n'ai commencé à apprendre ce langage que depuis décembre. 
 Dès lors que j'ai obtenu ce stage et que j'ai appris que le sujet nécessite le 
-\textit{Haskell}. J'ai donc demandé des ressources à Mr Mignot et j'ai suivi 
-ces documentations. Notamment la lecture des livres 
+langage \textit{Haskell}. J'ai donc demandé des ressources à M. Mignot et j'ai 
+suivi ces documentations. Notamment la lecture des livres 
 \textit{Get Programming with Haskell} et \textit{Haskell in Depth}
-\cite{bookWithHaskell, haskellInDepth}. Pour combler celà, j'ai aussi suivie 
-certaines courtes vidéo disponibles sur \textit{Youtube}
+\cite{bookWithHaskell, haskellInDepth}. Pour combler cela, j'ai aussi suivi 
+certaines courtes vidéos disponibles sur \textit{Youtube}
 \cite{playHaksell1, playHaksell2}. De ce fait, malgré avoir commencé assez 
 tôt l'apprentissage de ce langage, comme évoqué dans de nombreuses ressources la 
 courbe d'apprentissage du \textit{Haskell} est exponentielle. Donc de nombreux 
@@ -164,36 +166,36 @@ Le premier problème a été rencontré lors de la mise en place du convertisseu
 chaine de caractères vers expression. Les modules utilisés ont été comme 
 conseillé par M. Mignot, \textit{Alex} et \textit{Happy}. Le problème a été la 
 documentation de ces modules. Cette manière de documentation basée uniquement 
-sur ce que font chaque fonction et non de comment on peut les utiliser et la 
-non-présence d'exemple a rendu ce développement bien plus long. Ce même problème 
-a été vu lors de l'utilisation des modules \textit{GraphViz} qui permet la 
-représentation d'un graphe. La documentation est totalement horrible. De plus, 
-le module étant très peu utilisé, il n'existe pratiquement aucun exemple sur 
-internet. J'ai donc dû programmer a taton et me référer au code source du module 
-pour comprendre son mode de fonctionnement.
+sur ce que fait chaque fonction et non sur comment on peut les utiliser et la 
+non-présence d'exemples a rendu ce développement bien plus long. Ce même 
+problème a été vu lors de l'utilisation des modules \textit{GraphViz} qui permet 
+la représentation d'un graphe. La documentation est totalement horrible. De 
+plus, le module étant très peu utilisé, il n'existe pratiquement aucun exemple 
+sur internet. J'ai donc dû programmer à tâtons et me référer au code source du 
+module pour comprendre son mode de fonctionnement.
 
 \vphantom{}
 
 Le deuxième problème, j'ai l'ai eu bien plus tard dans le développement. 
-Cependant celui-ci m’a fait perdre pratiquement deux voir trois semaines. Pour 
+Cependant celui-ci m'a fait perdre pratiquement deux voir trois semaines. Pour 
 la mise en place du site web, il avait été convenu lors d'une réunion, 
 d'utiliser le paradigme de la \textit{Programmation fonctionnelle réactive}. Ce 
-paradigme, se base sur l'idée d'un tableur. Lorsque l'on modifie le contenu 
+paradigme peut être visualisé par un tableur. Lorsque l'on modifie le contenu 
 d'une case, le reste du tableau peut alors évoluer. C'est sur ce principe que 
 repose la \textit{programmation réactive}. En \textit{Haskell}, il existe de 
 nombreux modules qui permettent la mise en place de cette méthode de 
 programmation. 
-Cependant, celui qui est utilisé dans les interfaces Web, \textit{Reflex}, 
-nécessite l'outil \textit{Obelisk}. Cet outil ma tout d'abord causé des 
+Cependant, celui le souvent utilisé dans les interfaces Web, \textit{Reflex}, 
+nécessite l'outil \textit{Obelisk}. Cet outil m'a tout d'abord causé des 
 problèmes quant à son installation, puis son utilisation. L'utilisation de 
-\textit{Nix} par celui-ci, oblige à chaque installation, de compiler au moins 
+\textit{Nix} par celui-ci oblige à chaque installation de compiler au moins 
 une fois ce qui a été installé. De ce fait, son utilisation était très longue à 
 mettre en \oe uvre. Après cela, il y a aussi l'utilisation du module 
-\textit{Reflex}. Bien que ce soit un module \textit{Haskell}, son utilisation 
-requière un apprentissage qui se rapproche de celui d'un langage. Notamment, car 
+\textit{Reflex}. Bien que ce soit un module Haskell, son utilisation requiert un 
+apprentissage similaire à celui d'un langage. Notamment, car 
 nous n'avions jamais vu ce paradigme et donc ces mécanismes m'étaient inconnus. 
 De ce fait, après avoir passé une semaine à essayer d'apprendre le 
-\textit{frp}, je me suis redirigé vers la mise en place d'une application 
+\textit{FRP}, je me suis redirigé vers la mise en place d'une application 
 \textit{Gtk} (implémentation bien plus commune, qui permet donc un développement 
 plus rapide).  
 
@@ -203,7 +205,7 @@ Enfin la dernière difficulté rencontrée à été la rédaction du rapport for
 dans un premier temps. Bien que j'ai entrepris son écriture en même temps que 
 le développement de la bibliothèque. Le formalisme nécessaire et les définitions 
 qu'il faut introduire pour que le document se suffise à lui-même a rendu cette 
-tâche très chronophage. De plus, n'aillant jamais réellement été confronté à 
+tâche très chronophage. De plus, n'ayant jamais réellement été confronté à 
 cet exercice lors de la licence, il a été dur de s'y adapter. Je me suis 
 d'ailleurs rendu compte du nombre de relectures nécessaires pour un tel 
 document. Je ne pensais pas qu'il fallait en faire autant. De même pour la 
@@ -212,9 +214,9 @@ que ceux du document.
 
 Cette difficulté de rédaction s'est aussi vue sur la fin de ce stage, lors de la 
 rédaction de ce rapport. Ayant maintenant l'habitude des rapports de projet 
-avec tous ceux rédigés lors de la licence, je ne pensais pas que celui-ci allait 
-être si dure. La différence entre ce rapport et ceux précédents est surtout la 
-différence de contenu. L'objectif de celui-ci ne vise pas à montrer toutes les 
-facettes du projet sur lequel j'ai travaillé, mais plutôt la manière dont j'ai 
-travaillé dessus et ce que j'ai appris. 
+grâce à tous ceux rédigés lors de la licence, je ne pensais pas que celui-ci 
+serait si compliqué. La différence entre ce rapport et ceux précédents est 
+surtout la différence de contenu. L'objectif de celui-ci ne vise pas à montrer 
+toutes les facettes du projet sur lequel j'ai travaillé, mais plutôt la manière 
+dont j'ai travaillé dessus et ce que j'ai appris. 
 
