@@ -1,0 +1,11 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{+w}{            }\PYG{c+cp}{\PYGZsh{}[derive(Debug)]}
+\PYG{+w}{            }\PYG{k}{pub}\PYG{+w}{ }\PYG{k}{struct} \PYG{n+nc}{State}\PYG{o}{\PYGZlt{}\PYGZsq{}}\PYG{n+na}{a}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{T}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{V}\PYG{o}{\PYGZgt{}}
+\PYG{+w}{            }\PYG{k}{where}
+\PYG{+w}{                }\PYG{n}{T}: \PYG{n+nb}{Eq} \PYG{o}{+}\PYG{+w}{ }\PYG{n}{Hash}\PYG{p}{,}
+\PYG{+w}{            }\PYG{p}{\PYGZob{}}
+\PYG{+w}{                }\PYG{n}{value}: \PYG{n+nc}{V}\PYG{p}{,}
+\PYG{+w}{                }\PYG{n}{previous}: \PYG{n+nc}{HashMap}\PYG{o}{\PYGZlt{}}\PYG{n}{T}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{HashSet}\PYG{o}{\PYGZlt{}}\PYG{n}{RefState}\PYG{o}{\PYGZlt{}\PYGZsq{}}\PYG{n+na}{a}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{T}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{V}\PYG{o}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}\PYG{p}{,}
+\PYG{+w}{                }\PYG{n}{follow}: \PYG{n+nc}{HashMap}\PYG{o}{\PYGZlt{}}\PYG{n}{T}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{HashSet}\PYG{o}{\PYGZlt{}}\PYG{n}{RefState}\PYG{o}{\PYGZlt{}\PYGZsq{}}\PYG{n+na}{a}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{T}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{V}\PYG{o}{\PYGZgt{}\PYGZgt{}\PYGZgt{}}\PYG{p}{,}
+\PYG{+w}{            }\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

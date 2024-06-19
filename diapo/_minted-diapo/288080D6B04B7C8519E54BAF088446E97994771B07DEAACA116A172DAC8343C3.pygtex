@@ -1,0 +1,9 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{+w}{            }\PYG{k+kr}{data}\PYG{+w}{ }\PYG{k+kt}{NFAF}\PYG{+w}{ }\PYG{n}{state}\PYG{+w}{ }\PYG{n}{transition}\PYG{+w}{ }\PYG{o+ow}{=}\PYG{+w}{ }\PYG{k+kt}{NFAF}
+\PYG{+w}{                }\PYG{p}{\PYGZob{}}\PYG{+w}{ }\PYG{n}{sigma}\PYG{+w}{   }\PYG{o+ow}{::}\PYG{+w}{ }\PYG{k+kt}{Set}\PYG{o}{.}\PYG{k+kt}{Set}\PYG{+w}{ }\PYG{n}{transition}
+\PYG{+w}{                }\PYG{p}{,}\PYG{+w}{ }\PYG{n}{etats}\PYG{+w}{   }\PYG{o+ow}{::}\PYG{+w}{ }\PYG{k+kt}{Set}\PYG{o}{.}\PYG{k+kt}{Set}\PYG{+w}{ }\PYG{n}{state}
+\PYG{+w}{                }\PYG{p}{,}\PYG{+w}{ }\PYG{n}{premier}\PYG{+w}{ }\PYG{o+ow}{::}\PYG{+w}{ }\PYG{k+kt}{Set}\PYG{o}{.}\PYG{k+kt}{Set}\PYG{+w}{ }\PYG{n}{state}
+\PYG{+w}{                }\PYG{p}{,}\PYG{+w}{ }\PYG{n}{final}\PYG{+w}{   }\PYG{o+ow}{::}\PYG{+w}{ }\PYG{k+kt}{Set}\PYG{o}{.}\PYG{k+kt}{Set}\PYG{+w}{ }\PYG{n}{state}
+\PYG{+w}{                }\PYG{p}{,}\PYG{+w}{ }\PYG{n}{delta}\PYG{+w}{   }\PYG{o+ow}{::}\PYG{+w}{ }\PYG{n}{state}\PYG{+w}{ }\PYG{o+ow}{\PYGZhy{}\PYGZgt{}}\PYG{+w}{ }\PYG{n}{transition}\PYG{+w}{ }\PYG{o+ow}{\PYGZhy{}\PYGZgt{}}\PYG{+w}{ }\PYG{k+kt}{Set}\PYG{o}{.}\PYG{k+kt}{Set}\PYG{+w}{ }\PYG{n}{state}
+\PYG{+w}{                }\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

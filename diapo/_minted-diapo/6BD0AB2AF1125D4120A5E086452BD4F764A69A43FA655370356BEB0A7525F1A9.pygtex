@@ -1,0 +1,21 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{+w}{            }\PYG{p}{\PYGZob{}}
+\PYG{+w}{                }\PYG{n+nt}{\PYGZdq{}states\PYGZdq{}}\PYG{p}{:[}\PYG{l+m+mi}{6}\PYG{p}{,}\PYG{l+m+mi}{5}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{,}\PYG{l+m+mi}{4}\PYG{p}{,}\PYG{l+m+mi}{2}\PYG{p}{,}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{l+m+mi}{0}\PYG{p}{],}
+\PYG{+w}{                }\PYG{n+nt}{\PYGZdq{}inputs\PYGZdq{}}\PYG{p}{:[}\PYG{l+m+mi}{0}\PYG{p}{],}
+\PYG{+w}{                }\PYG{n+nt}{\PYGZdq{}outputs\PYGZdq{}}\PYG{p}{:[}\PYG{l+m+mi}{6}\PYG{p}{,}\PYG{l+m+mi}{2}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{,}\PYG{l+m+mi}{4}\PYG{p}{],}
+\PYG{+w}{                }\PYG{n+nt}{\PYGZdq{}follows\PYGZdq{}}\PYG{p}{:[}
+\PYG{+w}{                    }\PYG{p}{[}\PYG{l+m+mi}{6}\PYG{p}{,}\PYG{l+s+s2}{\PYGZdq{}a\PYGZdq{}}\PYG{p}{,}\PYG{l+m+mi}{5}\PYG{p}{],}
+\PYG{+w}{                    }\PYG{p}{[}\PYG{l+m+mi}{5}\PYG{p}{,}\PYG{l+s+s2}{\PYGZdq{}b\PYGZdq{}}\PYG{p}{,}\PYG{l+m+mi}{6}\PYG{p}{],}
+\PYG{+w}{                    }\PYG{p}{[}\PYG{l+m+mi}{3}\PYG{p}{,}\PYG{l+s+s2}{\PYGZdq{}b\PYGZdq{}}\PYG{p}{,}\PYG{l+m+mi}{4}\PYG{p}{],}
+\PYG{+w}{                    }\PYG{p}{[}\PYG{l+m+mi}{3}\PYG{p}{,}\PYG{l+s+s2}{\PYGZdq{}a\PYGZdq{}}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{],}
+\PYG{+w}{                    }\PYG{p}{[}\PYG{l+m+mi}{3}\PYG{p}{,}\PYG{l+s+s2}{\PYGZdq{}a\PYGZdq{}}\PYG{p}{,}\PYG{l+m+mi}{5}\PYG{p}{],}
+\PYG{+w}{                    }\PYG{p}{[}\PYG{l+m+mi}{4}\PYG{p}{,}\PYG{l+s+s2}{\PYGZdq{}a\PYGZdq{}}\PYG{p}{,}\PYG{l+m+mi}{5}\PYG{p}{],}
+\PYG{+w}{                    }\PYG{p}{[}\PYG{l+m+mi}{4}\PYG{p}{,}\PYG{l+s+s2}{\PYGZdq{}b\PYGZdq{}}\PYG{p}{,}\PYG{l+m+mi}{4}\PYG{p}{],}
+\PYG{+w}{                    }\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{,}\PYG{l+s+s2}{\PYGZdq{}b\PYGZdq{}}\PYG{p}{,}\PYG{l+m+mi}{4}\PYG{p}{],}
+\PYG{+w}{                    }\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{,}\PYG{l+s+s2}{\PYGZdq{}a\PYGZdq{}}\PYG{p}{,}\PYG{l+m+mi}{5}\PYG{p}{],}
+\PYG{+w}{                    }\PYG{p}{[}\PYG{l+m+mi}{2}\PYG{p}{,}\PYG{l+s+s2}{\PYGZdq{}a\PYGZdq{}}\PYG{p}{,}\PYG{l+m+mi}{3}\PYG{p}{],}
+\PYG{+w}{                    }\PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{,}\PYG{l+s+s2}{\PYGZdq{}b\PYGZdq{}}\PYG{p}{,}\PYG{l+m+mi}{2}\PYG{p}{],}
+\PYG{+w}{                    }\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{,}\PYG{l+s+s2}{\PYGZdq{}a\PYGZdq{}}\PYG{p}{,}\PYG{l+m+mi}{1}\PYG{p}{]}
+\PYG{+w}{                }\PYG{p}{]}
+\PYG{+w}{            }\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

@@ -1,0 +1,16 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{+w}{            }\PYG{k+kr}{class}\PYG{+w}{ }\PYG{k+kt}{NFA}\PYG{+w}{ }\PYG{n}{nfa}\PYG{+w}{ }\PYG{k+kr}{where}
+\PYG{+w}{                }\PYG{k+kr}{type}\PYG{+w}{ }\PYG{k+kt}{StateType}\PYG{+w}{ }\PYG{n}{nfa}\PYG{+w}{ }\PYG{o+ow}{::}\PYG{+w}{ }\PYG{k+kt}{Type}
+\PYG{+w}{                }\PYG{k+kr}{type}\PYG{+w}{ }\PYG{k+kt}{TransitionType}\PYG{+w}{ }\PYG{n}{nfa}\PYG{+w}{ }\PYG{o+ow}{::}\PYG{+w}{ }\PYG{k+kt}{Type}
+\PYG{+w}{                }\PYG{c+c1}{\PYGZhy{}\PYGZhy{} ..}
+\PYG{+w}{                }\PYG{n}{isStandard}\PYG{+w}{ }\PYG{o+ow}{::}\PYG{+w}{ }\PYG{n}{nfa}\PYG{+w}{ }\PYG{o+ow}{\PYGZhy{}\PYGZgt{}}\PYG{+w}{ }\PYG{k+kt}{Bool}
+\PYG{+w}{                }\PYG{n}{isHomogeneous}\PYG{+w}{ }\PYG{o+ow}{::}\PYG{+w}{ }\PYG{n}{nfa}\PYG{+w}{ }\PYG{o+ow}{\PYGZhy{}\PYGZgt{}}\PYG{+w}{ }\PYG{k+kt}{Bool}
+\PYG{+w}{                }\PYG{n}{makeStandard}\PYG{+w}{ }\PYG{o+ow}{::}\PYG{+w}{ }\PYG{p}{(}\PYG{k+kt}{Enum}\PYG{+w}{ }\PYG{p}{(}\PYG{k+kt}{StateType}\PYG{+w}{ }\PYG{n}{nfa}\PYG{p}{))}\PYG{+w}{ }\PYG{o+ow}{=\PYGZgt{}}\PYG{+w}{ }\PYG{n}{nfa}\PYG{+w}{ }\PYG{o+ow}{\PYGZhy{}\PYGZgt{}}\PYG{+w}{ }\PYG{n}{nfa}
+\PYG{+w}{                }\PYG{c+c1}{\PYGZhy{}\PYGZhy{}}
+\PYG{+w}{                }\PYG{n}{maximalOrbits}\PYG{+w}{ }\PYG{o+ow}{::}\PYG{+w}{ }\PYG{n}{nfa}\PYG{+w}{ }\PYG{o+ow}{\PYGZhy{}\PYGZgt{}}\PYG{+w}{ }\PYG{p}{[}\PYG{k+kt}{Set}\PYG{o}{.}\PYG{k+kt}{Set}\PYG{+w}{ }\PYG{p}{(}\PYG{k+kt}{StateType}\PYG{+w}{ }\PYG{n}{nfa}\PYG{p}{)]}
+\PYG{+w}{                }\PYG{c+c1}{\PYGZhy{}\PYGZhy{}}
+\PYG{+w}{                }\PYG{n}{automatonToDot}\PYG{+w}{ }\PYG{o+ow}{::}
+\PYG{+w}{                    }\PYG{p}{(}\PYG{k+kt}{Show}\PYG{+w}{ }\PYG{p}{(}\PYG{k+kt}{StateType}\PYG{+w}{ }\PYG{n}{nfa}\PYG{p}{),}\PYG{+w}{ }\PYG{k+kt}{Show}\PYG{+w}{ }\PYG{p}{(}\PYG{k+kt}{TransitionType}\PYG{+w}{ }\PYG{n}{nfa}\PYG{p}{))}
+\PYG{+w}{                    }\PYG{o+ow}{=\PYGZgt{}}\PYG{+w}{ }\PYG{n}{nfa}
+\PYG{+w}{                    }\PYG{o+ow}{\PYGZhy{}\PYGZgt{}}\PYG{+w}{ }\PYG{k+kt}{DotGraph}\PYG{+w}{ }\PYG{k+kt}{Gr}\PYG{o}{.}\PYG{k+kt}{Node}
+\end{Verbatim}

@@ -1,0 +1,10 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{+w}{        }\PYG{k+kr}{data}\PYG{+w}{ }\PYG{k+kt}{Exp}\PYG{+w}{ }\PYG{n}{a}
+\PYG{+w}{            }\PYG{o+ow}{=}\PYG{+w}{ }\PYG{k+kt}{Empty}
+\PYG{+w}{            }\PYG{o}{|}\PYG{+w}{ }\PYG{k+kt}{Epsilon}
+\PYG{+w}{            }\PYG{o}{|}\PYG{+w}{ }\PYG{k+kt}{Star}\PYG{+w}{ }\PYG{p}{(}\PYG{k+kt}{Exp}\PYG{+w}{ }\PYG{n}{a}\PYG{p}{)}
+\PYG{+w}{            }\PYG{o}{|}\PYG{+w}{ }\PYG{k+kt}{Plus}\PYG{+w}{ }\PYG{p}{(}\PYG{k+kt}{Exp}\PYG{+w}{ }\PYG{n}{a}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{(}\PYG{k+kt}{Exp}\PYG{+w}{ }\PYG{n}{a}\PYG{p}{)}
+\PYG{+w}{            }\PYG{o}{|}\PYG{+w}{ }\PYG{k+kt}{Point}\PYG{+w}{ }\PYG{p}{(}\PYG{k+kt}{Exp}\PYG{+w}{ }\PYG{n}{a}\PYG{p}{)}\PYG{+w}{ }\PYG{p}{(}\PYG{k+kt}{Exp}\PYG{+w}{ }\PYG{n}{a}\PYG{p}{)}
+\PYG{+w}{            }\PYG{o}{|}\PYG{+w}{ }\PYG{k+kt}{Sym}\PYG{+w}{ }\PYG{n}{a}
+\PYG{+w}{            }\PYG{k+kr}{deriving}\PYG{+w}{ }\PYG{p}{(}\PYG{k+kt}{Foldable}\PYG{p}{,}\PYG{+w}{ }\PYG{k+kt}{Functor}\PYG{p}{,}\PYG{+w}{ }\PYG{k+kt}{Traversable}\PYG{p}{)}
+\end{Verbatim}

@@ -1,0 +1,10 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{+w}{            }\PYG{c+cp}{\PYGZsh{}[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]}
+\PYG{+w}{            }\PYG{k}{pub}\PYG{+w}{ }\PYG{k}{enum} \PYG{n+nc}{RegExp}\PYG{o}{\PYGZlt{}}\PYG{n}{T}\PYG{o}{\PYGZgt{}}\PYG{+w}{ }\PYG{p}{\PYGZob{}}
+\PYG{+w}{                }\PYG{n}{Epsilon}\PYG{p}{,}
+\PYG{+w}{                }\PYG{n}{Symbol}\PYG{p}{(}\PYG{n}{T}\PYG{p}{),}
+\PYG{+w}{                }\PYG{n}{Repeat}\PYG{p}{(}\PYG{n+nb}{Box}\PYG{o}{\PYGZlt{}}\PYG{n}{RegExp}\PYG{o}{\PYGZlt{}}\PYG{n}{T}\PYG{o}{\PYGZgt{}\PYGZgt{}}\PYG{p}{),}
+\PYG{+w}{                }\PYG{n}{Concat}\PYG{p}{(}\PYG{n+nb}{Box}\PYG{o}{\PYGZlt{}}\PYG{n}{RegExp}\PYG{o}{\PYGZlt{}}\PYG{n}{T}\PYG{o}{\PYGZgt{}\PYGZgt{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nb}{Box}\PYG{o}{\PYGZlt{}}\PYG{n}{RegExp}\PYG{o}{\PYGZlt{}}\PYG{n}{T}\PYG{o}{\PYGZgt{}\PYGZgt{}}\PYG{p}{),}
+\PYG{+w}{                }\PYG{n}{Or}\PYG{p}{(}\PYG{n+nb}{Box}\PYG{o}{\PYGZlt{}}\PYG{n}{RegExp}\PYG{o}{\PYGZlt{}}\PYG{n}{T}\PYG{o}{\PYGZgt{}\PYGZgt{}}\PYG{p}{,}\PYG{+w}{ }\PYG{n+nb}{Box}\PYG{o}{\PYGZlt{}}\PYG{n}{RegExp}\PYG{o}{\PYGZlt{}}\PYG{n}{T}\PYG{o}{\PYGZgt{}\PYGZgt{}}\PYG{p}{),}
+\PYG{+w}{            }\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

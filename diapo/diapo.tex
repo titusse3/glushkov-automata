@@ -1,0 +1,528 @@
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND THEMES
+%----------------------------------------------------------------------------------------
+\documentclass[aspectratio=169,xcolor=dvipsnames]{beamer}
+\usetheme{SimplePlus}
+
+\usepackage{hyperref}
+\usepackage{graphicx} % Allows including images
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage[french]{babel}
+\usepackage{pgfgantt}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{calc}
+\usepackage{minted}
+\usepackage{svg}
+\usepackage{subcaption}
+
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\title[short title]{Stage en laboratoire de recherche}
+\subtitle{
+    Mise en place d'une bibliothèque complète traitant des automates\\ 
+    en \textit{Rust} et en \textit{Haskell}
+}
+
+\author[E. HADDAG, T. RENAUX VERDIRE] {E. HADDAG, T. RENAUX VERDIRE}
+
+\institute[Université de Rouen] 
+{
+    Université de Rouen Normandie \\
+    UFR Science \& Technique, campus du Madrillet
+}
+\date{\today} % Date, can be changed to a custom date
+
+% PLAN : 
+% - présentation du labo/ du sujet du stage
+%   * présentation du labo (un projet suqr lequel il ont travailler, avec un lien)
+%   * sujet du stage
+%   * Organisation (diag de gantt)
+% - présentation d'un peu de tdl:
+%   * Exp
+%   * automate
+%   * autoamte de glushkov
+%   * orbites
+%   * prop orbites
+%   * prop orbites de glushkov
+% - Implémentation
+%   * Rust
+%   * Haskell
+% - small benchmakr de nos deux applis 
+% - Démonstration application
+%   * Rust
+%   * Haskell
+% - Bilan
+%   * Comment la licence nous a aidé pendant ce stage
+%   * Ce que sa nous a apporté
+%   * affinment projet pro
+% - Fin
+
+\begin{document}
+
+%------------------------------------------------
+
+\begin{frame}
+    \titlepage
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{Contexte du stage}
+    \begin{figure}
+        \centering
+        \begin{minipage}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{logo_GR2IF.png}
+            \caption{Logo du laboratoire}
+            \centering
+        \end{minipage}
+        \hfill
+        \begin{minipage}{0.45\textwidth}
+            \centering
+            \includegraphics[width=\textwidth]{logo_moustique.png}
+            \caption{Un des projets du laboratoire}
+        \end{minipage}
+    \end{figure}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+    \begin{block}{Sujet du stage}
+        Étude de la conversion d'expression rationnelle en automates de 
+        \textit{Glushkov}.
+        Production d'une bibliothèque Haskell de manipulation de cette 
+        conversion.    
+    \end{block}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+    \begin{figure}        
+        \begin{ganttchart}[
+            hgrid,
+            vgrid,
+            expand chart=\linewidth,
+            time slot format=isodate
+            ]{2024-04-22}{2024-06-22}
+            \gantttitlecalendar{month} \\
+            \ganttbar[bar/.append style={fill=red}]{}{2024-04-22}{2024-04-26} 
+            \ganttbar[bar/.append style={fill=red}]{}{2024-04-29}{2024-05-03} 
+            \ganttbar[bar/.append style={fill=blue}]{}{2024-05-06}{2024-05-07} 
+            \ganttbar[bar/.append style={fill=green}]{}{2024-05-13}{2024-05-17} 
+            \ganttbar[bar/.append style={fill=green}]{}{2024-05-21}{2024-05-22} 
+            \ganttbar[bar/.append style={fill=yellow}]{}{2024-05-23}{2024-05-24}
+            \ganttbar[bar/.append style={fill=yellow}]{}{2024-05-27}{2024-05-31} 
+            \ganttbar[bar/.append style={fill=purple}]{}{2024-06-03}{2024-06-07} 
+            \ganttbar[bar/.append style={fill=orange}]{}{2024-06-10}{2024-06-14}
+            \ganttbar[bar/.append style={fill=orange}]{}{2024-06-17}{2024-06-21} \\
+            \ganttmilestone[milestone/.append style={shape=rectangle, fill=black}]{}{2024-04-22}
+            \ganttmilestone[milestone/.append style={shape=rectangle, fill=black}]{}{2024-04-26}
+            \ganttmilestone[milestone/.append style={shape=rectangle, fill=black}]{}{2024-05-02}
+            \ganttmilestone[milestone/.append style={shape=rectangle, fill=black}]{}{2024-05-14}
+            \ganttmilestone[milestone/.append style={shape=rectangle, fill=black}]{}{2024-05-23}
+            \ganttmilestone[milestone/.append style={shape=rectangle, fill=black}]{}{2024-06-06}
+            \ganttmilestone[milestone/.append style={shape=rectangle, fill=black}]{}{2024-06-13}
+            \ganttmilestone[milestone/.append style={shape=rectangle, fill=black}]{}{2024-06-18}
+            \ganttmilestone[milestone/.append style={shape=rectangle, fill=black}]{}{2024-06-21} \\
+
+            \ganttbar[bar/.append style={fill=blue}]{}{2024-04-22}{2024-04-26}
+            \ganttbar[bar/.append style={fill=blue}]{}{2024-04-29}{2024-05-03}
+            \ganttbar[bar/.append style={fill=blue}]{}{2024-05-06}{2024-05-07}
+            \ganttbar[bar/.append style={fill=blue}]{}{2024-05-13}{2024-05-14}
+            \ganttbar[bar/.append style={fill=blue}]{}{2024-05-16}{2024-05-17}
+            \ganttbar[bar/.append style={fill=blue}]{}{2024-05-21}{2024-05-24}
+            \ganttbar[bar/.append style={fill=blue}]{}{2024-05-27}{2024-05-31}
+            \ganttbar[bar/.append style={fill=blue}]{}{2024-06-11}{2024-06-11}
+            \ganttbar[bar/.append style={fill=blue}]{}{2024-06-13}{2024-06-13} \\
+
+            \ganttbar[bar/.append style={fill=pink}]{}{2024-05-14}{2024-05-17}
+            \ganttbar[bar/.append style={fill=pink}]{}{2024-05-21}{2024-05-24}
+            \ganttbar[bar/.append style={fill=pink}]{}{2024-06-03}{2024-06-03}
+            \ganttbar[bar/.append style={fill=pink}]{}{2024-06-05}{2024-06-07}
+            \ganttbar[bar/.append style={fill=pink}]{}{2024-06-12}{2024-06-13} \\
+
+            \ganttbar[bar/.append style={fill=purple}]{}{2024-05-03}{2024-05-03}
+            \ganttbar[bar/.append style={fill=purple}]{}{2024-05-06}{2024-05-07}
+            \ganttbar[bar/.append style={fill=purple}]{}{2024-05-13}{2024-05-13}
+            \ganttbar[bar/.append style={fill=purple}]{}{2024-05-16}{2024-05-17}
+            \ganttbar[bar/.append style={fill=purple}]{}{2024-05-23}{2024-05-24}
+            \ganttbar[bar/.append style={fill=purple}]{}{2024-06-03}{2024-06-05}
+            \ganttbar[bar/.append style={fill=purple}]{}{2024-06-07}{2024-06-08}
+            \ganttbar[bar/.append style={fill=purple}]{}{2024-06-10}{2024-06-14}
+        \end{ganttchart}
+        \caption{Diagramme de \textit{Gantt}.}
+    \end{figure}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}{TDL}
+    
+\end{frame}
+
+% Plan : 
+%   - présentation du langage
+%   - expression, parseurs
+%   - automate (parler de la représentation Json)
+%   - (test)
+%   - (benchmark mes deux implémentations)
+
+%------------------------------------------------
+
+\begin{frame}{Implémentation}
+    \begin{textblock*}{20pt}(\textwidth-70pt,0pt)
+        \includegraphics[width=100pt]{crabe.png}
+    \end{textblock*}
+    \begin{itemize}
+        \item[\textbullet] Langage proche de la machine, au même niveau que le 
+        \textit{C}
+        \item[\textbullet] Crée en 2006 par un employer de chez Mozilla qui a 
+            repris le projet après.
+        \item[\textbullet] Avec des systèmes de sécurisation du code
+        \item[\textbullet] Utilisé dans des domaines tels que~:
+            \begin{itemize}
+                \item[\textbullet] Développement de Systèmes
+                \item[\textbullet] Développement d'application
+                \item[\textbullet] Dans des appareils embarqués
+            \end{itemize} 
+    \end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}[fragile]
+    \begin{textblock*}{20pt}(\textwidth-70pt,0pt)
+        \includegraphics[width=100pt]{crabe.png}
+    \end{textblock*}
+    \begin{figure}  
+        \begin{minted}{rust}
+            #[derive(Clone, Debug, PartialEq)]
+            pub enum RegExp<T> {
+                Epsilon,
+                Symbol(T),
+                Repeat(Box<RegExp<T>>),
+                Concat(Box<RegExp<T>>, Box<RegExp<T>>),
+                Or(Box<RegExp<T>>, Box<RegExp<T>>),
+            }
+        \end{minted}
+        \caption{
+            Définition du type \mintinline{rust}{RegExp}, représentant une 
+            expression rationnelle.
+        }
+    \end{figure}  
+\end{frame}
+
+%------------------------------------------------
+
+%------------------------------------------------
+
+\begin{frame}[fragile]
+    \begin{textblock*}{20pt}(\textwidth-70pt,0pt)
+        \includegraphics[width=100pt]{crabe.png}
+    \end{textblock*}
+    \begin{figure}  
+        \begin{minted}{rust}
+            #[derive(Debug)]
+            pub struct State<'a, T, V>
+            where
+                T: Eq + Hash,
+            {
+                value: V,
+                previous: HashMap<T, HashSet<RefState<'a, T, V>>>,
+                follow: HashMap<T, HashSet<RefState<'a, T, V>>>,
+            }
+        \end{minted}
+        \caption{
+            Définition du type \mintinline{rust}{State}, représentant un 
+            état.
+        }
+    \end{figure}  
+\end{frame}
+
+%------------------------------------------------
+
+
+%------------------------------------------------
+
+\begin{frame}[fragile]
+    \begin{textblock*}{20pt}(\textwidth-70pt,0pt)
+        \includegraphics[width=100pt]{crabe.png}
+    \end{textblock*}
+    \begin{figure}  
+        \begin{minted}{rust}
+            #[derive(Debug)]
+            pub struct InnerAutomata<'a, T, V>
+            where
+                T: Eq + Hash + Clone,
+            {
+                states: HashSet<RefState<'a, T, V>>,
+                inputs: HashSet<RefState<'a, T, V>>,
+                outputs: HashSet<RefState<'a, T, V>>,
+            }
+        \end{minted}
+        \caption{
+            Définition du type \mintinline{rust}{InnerAutomata}, représentant
+            un automate.
+        }
+    \end{figure}  
+\end{frame}
+
+%------------------------------------------------
+
+%------------------------------------------------
+
+\begin{frame}[fragile]
+    \begin{textblock*}{20pt}(\textwidth-70pt,0pt)
+        \includegraphics[width=100pt]{crabe.png}
+    \end{textblock*}
+    \begin{figure}  
+        \begin{minted}{json}
+            {
+                "states":[6,5,3,4,2,1,0],
+                "inputs":[0],
+                "outputs":[6,2,3,4],
+                "follows":[
+                    [6,"a",5],
+                    [5,"b",6],
+                    [3,"b",4],
+                    [3,"a",3],
+                    [3,"a",5],
+                    [4,"a",5],
+                ]
+            }
+        \end{minted}
+        \caption{
+            Représentation d'un automate au format \textit{JSON} 
+        }
+    \end{figure}  
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+    \begin{textblock*}{20pt}(\textwidth-70pt,0pt)
+        \includegraphics[width=100pt]{crabe.png}
+    \end{textblock*}
+    \begin{figure}
+        \includesvg[width=\linewidth]{rust_dot.svg}
+        \caption{
+            Représentation d'un automate au format \textit{Dot} 
+        }
+    \end{figure}
+\end{frame}
+
+%------------------------------------------------
+
+%------------------------------------------------
+
+\begin{frame}{Implémentation}
+    \begin{textblock*}{20pt}(\textwidth-50pt,10pt)
+        \includegraphics[width=70pt]{haskell.png}
+    \end{textblock*}
+    \begin{itemize}
+        \item[\textbullet] Langage fonctionnel \textbf{pur}
+        \item[\textbullet] Utilise des concepts de la 
+        \textbf{théorie des catégories}
+        \item[\textbullet] Très forte abstraction qui mène à une sûreté 
+        d'exécution
+        \item[\textbullet] Utilisé dans des domaines tels que~:
+            \begin{itemize}
+                \item[\textbullet] La finance
+                \item[\textbullet] Le militaire
+                \item[\textbullet] La recherche  
+            \end{itemize} 
+    \end{itemize}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}[fragile]
+    \begin{textblock*}{20pt}(\textwidth-50pt,10pt)
+        \includegraphics[width=70pt]{haskell.png}
+    \end{textblock*}
+    \begin{figure}        
+        \begin{minted}{haskell}
+            data Exp a
+                = Empty
+                | Epsilon
+                | Star (Exp a)
+                | Plus (Exp a) (Exp a)
+                | Point (Exp a) (Exp a)
+                | Sym a
+                deriving (Foldable, Functor, Traversable)
+        \end{minted}
+        \caption{
+            Définition du type \mintinline{haskell}{Exp}, représentant une 
+            expression rationnelle.
+        }
+    \end{figure}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}[fragile]
+    \begin{textblock*}{20pt}(\textwidth-50pt,10pt)
+        \includegraphics[width=70pt]{haskell.png}
+    \end{textblock*}
+    \begin{figure}
+        \begin{minted}{haskell}
+            class NFA nfa where
+                type StateType nfa :: Type
+                type TransitionType nfa :: Type
+                -- Exemple de fonction de cette classe de type 
+                accept :: [TransitionType nfa] -> nfa -> Bool
+                automatonToDot ::
+                    (Show (StateType nfa), Show (TransitionType nfa))
+                    => nfa
+                    -> DotGraph Gr.Node
+        \end{minted}
+        \caption{Classe de type \mintinline{haskell}{NFA}.}
+    \end{figure}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}[fragile]
+    \begin{textblock*}{20pt}(\textwidth-50pt,10pt)
+        \includegraphics[width=70pt]{haskell.png}
+    \end{textblock*}
+    \begin{figure}
+        \begin{minted}{haskell}
+            data NFAF state transition = NFAF
+                { sigma   :: Set.Set transition
+                , etats   :: Set.Set state
+                , premier :: Set.Set state
+                , final   :: Set.Set state
+                , delta :: state -> transition -> Set.Set state
+                }
+        \end{minted}
+        \caption{Définition du type \mintinline{haskell}{NFAF}.}
+    \end{figure}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}[fragile]
+    \begin{textblock*}{20pt}(\textwidth-50pt,10pt)
+        \includegraphics[width=70pt]{haskell.png}
+    \end{textblock*}
+    \begin{figure}
+        \begin{minted}{haskell}
+            data NFAG state transition = NFAG
+                { sigma   :: Set.Set transition
+                , etats   :: Map.Map state Int
+                , premier :: Set.Set Int
+                , final   :: Set.Set Int
+                , graph   :: Gr.Gr state transition
+                , lastN   :: Int
+                }
+        \end{minted}
+        \caption{Définition du type \mintinline{haskell}{NFAG}.}
+    \end{figure}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}[fragile]
+    \begin{textblock*}{20pt}(\textwidth-50pt,10pt)
+        \includegraphics[width=70pt]{haskell.png}
+    \end{textblock*}
+    \begin{figure}
+        \begin{minted}{json}
+                    {
+                        "nodes": [0, 1, 2, 3],
+                        "first": [0, 2],
+                        "final": [1],
+                        "transitions": [
+                            [0, 1, "a"], 
+                            [1, 3, "b"], 
+                            [2, 0, "a"], 
+                            [3, 2, "b"]] 
+                    }
+        \end{minted}
+        \caption{Exemple de fichier \textit{JSON} représentant un automate.}
+    \end{figure}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+    \begin{textblock*}{20pt}(\textwidth-50pt,10pt)
+        \includegraphics[width=70pt]{haskell.png}
+    \end{textblock*}
+    \begin{figure}
+        \includesvg[width=\linewidth]{automate_haskell.svg}
+        \caption{
+            Représentation graphique de l'automate du fichier \textit{JSON}.
+        }
+    \end{figure}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}[fragile]
+    \begin{textblock*}{20pt}(\textwidth-50pt,10pt)
+        \includegraphics[width=70pt]{haskell.png}
+    \end{textblock*}
+    \begin{figure}
+        \begin{minted}[frame=lines, fontsize=\tiny]{bash}
+        $ stack test
+        Testing NG.NFAG implementation...
+        +++ OK, passed 100 tests.
+        +++ OK, passed 100 tests.
+        +++ OK, passed 100 tests.
+        +++ OK, passed 100 tests.
+        +++ OK, passed 100 tests.
+        +++ OK, passed 100 tests.
+        +++ OK, passed 100 tests.
+        Testing NF.NFAF implementation...
+        +++ OK, passed 100 tests.
+        +++ OK, passed 100 tests.
+        +++ OK, passed 100 tests.
+        +++ OK, passed 100 tests.
+        +++ OK, passed 100 tests.
+        +++ OK, passed 100 tests.
+        +++ OK, passed 100 tests.
+        
+        Testing Gluskov properties...
+        +++ OK, passed 100 tests.
+        
+      \end{minted}
+        \caption{
+            Résultat des tests par propriétés des types 
+            \mintinline{haskell}{NFAG} et \mintinline{haskell}{NFAF}.
+        }
+    \end{figure}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}[fragile]
+    \begin{textblock*}{20pt}(\textwidth-50pt,10pt)
+        \includegraphics[width=70pt]{haskell.png}
+    \end{textblock*}
+    \begin{center}
+        \href{run:./report_perf.html}{Rapport du Benchmark}
+    \end{center}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+    \begin{textblock*}{20pt}(\textwidth-130pt,10pt)
+        \includegraphics[width=160pt]{haskell_rust.png}
+    \end{textblock*}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+    \Huge{\centerline{\textbf{Merci de nous avoir écoutés.}}}
+\end{frame}
+
+%------------------------------------------------
+
+\end{document}
