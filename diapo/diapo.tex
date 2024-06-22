@@ -1,4 +1,10 @@
 %----------------------------------------------------------------------------------------
+
+
+
+
+
+
 %	PACKAGES AND THEMES
 %----------------------------------------------------------------------------------------
 \documentclass[aspectratio=169,xcolor=dvipsnames]{beamer}
@@ -21,16 +27,16 @@
 
 \title[short title]{Stage en laboratoire de recherche}
 \subtitle{
-    Mise en place d'une bibliothèque complète traitant des automates\\ 
+    Mise en place d'une bibliothèque traitant des automates\\ 
     en \textit{Rust} et en \textit{Haskell}
 }
 
-\author[E. HADDAG, T. RENAUX VERDIRE] {E. HADDAG, T. RENAUX VERDIRE}
+\author[E. HADDAG, T. RENAUX VERDIERE] {E. HADDAG, T. RENAUX VERDIERE}
 
 \institute[Université de Rouen] 
 {
     Université de Rouen Normandie \\
-    UFR Science \& Technique, campus du Madrillet
+    UFR Sciences \& Techniques, campus du Madrillet
 }
 \date{\today} % Date, can be changed to a custom date
 
@@ -79,9 +85,16 @@
         \end{minipage}
         \hfill
         \begin{minipage}{0.45\textwidth}
-            \centering
-            \includegraphics[width=\textwidth]{logo_moustique.png}
-            \caption{Un des projets du laboratoire}
+            \begin{itemize}
+                \item Composer des dix enseignants chercheurs et de deux personnels administratif
+                \item Ces domaines~:
+                    \begin{itemize}
+                        \item Informatique Quantique
+                        \item Théorie des langages
+                        \item Combinatoire 
+                        \item Génie logiciel
+                    \end{itemize}
+            \end{itemize}
         \end{minipage}
     \end{figure}
 \end{frame}
@@ -92,8 +105,8 @@
     \begin{block}{Sujet du stage}
         Étude de la conversion d'expression rationnelle en automates de 
         \textit{Glushkov}.
-        Production d'une bibliothèque Haskell de manipulation de cette 
-        conversion.    
+        Production d'une bibliothèque \textit{Haskell} et \textit{Rust} de 
+        manipulation de cette conversion.    
     \end{block}
 \end{frame}
 
@@ -159,9 +172,113 @@
 
 %------------------------------------------------
 
-\begin{frame}{TDL}
-    
+\begin{frame}{Mise en contexte}
+    \begin{block}{Expression régulière}
+        Si \(E\) est une \textbf{expression régulière} sur \(\Sigma\) (un 
+        alphabet) elle peut être égale à~:
+        \begin{itemize}
+            \item \(E = \varnothing\)
+            \item \(E = \varepsilon\)
+            \item \(E = a \in \Sigma\)
+            \item \(E = F + G\)
+            \item \(E = F . G\)
+            \item \(E = F^*\)
+        \end{itemize}
+        Avec \(F, G\) deux expressions régulières sur l'alphabet \(\Sigma\).
+    \end{block}
+    \begin{examples}{Exemples}
+        \(E = (a + b)^*.\varepsilon + \varnothing\)
+    \end{examples}
 \end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+    \begin{block}{Automate}
+        Un \textbf{automate} est un 5-uplet \((\Sigma, Q, I, F, \delta)\) qui 
+        peut être représenté graphiquement de la sorte~: 
+    \end{block}
+    \begin{figure}
+        \includegraphics[width=\linewidth]{automate_haskell.png}
+    \end{figure}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+    \begin{block}{Propriétés d'automates}
+        Certaine propriété des automates définie par M.Caron et M.Ziadi~:
+        \begin{itemize}
+            \item une \textbf{orbite}
+            \item une \textbf{orbite maximale}
+        \end{itemize}
+    \end{block}
+    \begin{figure}
+        \includegraphics[width=\linewidth]{exemple_orbite.png}
+    \end{figure}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+    \begin{block}{Propriétés d'automates}
+        Certaine propriété des automates définie par M.Caron et M.Ziadi~:
+        \begin{itemize}
+            \item les \textbf{portes d'une orbite}
+            % \item propriété de \textbf{stabilité} et \textbf{transversalité} 
+            % (respectivement \textbf{fortement}).
+        \end{itemize}
+    \end{block}
+    \begin{figure}
+        \includegraphics[width=\linewidth]{automate_porte.png}
+    \end{figure}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+    \begin{block}{Propriétés d'automates}
+        Certaine propriété des automates définie par M.Caron et M.Ziadi~:
+        \begin{itemize}
+            % \item les \textbf{portes d'une orbite}
+            \item propriété de \textbf{stabilité} et \textbf{transversalité} 
+            (respectivement \textbf{fortement}).
+        \end{itemize}
+    \end{block}
+    \begin{figure}
+        \includegraphics[width=\linewidth]{exemple_orbite.png}
+    \end{figure}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+    \begin{block}{Glushkov et ces propriés}
+        \begin{itemize}
+            \item[\textbullet] Il existe un algorithme de transformation 
+                d'expressions régulières en automate qui est celui de 
+                \textit{Glushkov}
+            
+            \item[\textbullet] Toutes les orbites maximales des automates de 
+                Glushkov sont fortement stables et transversal
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+%------------------------------------------------
+
+%------------------------------------------------
+
+\begin{frame}
+    \begin{block}{Automate}
+        Automate de l'expression régulière \((a.b).a*.b*.(a+b)*\)~: 
+    \end{block}
+    \begin{figure}
+        \includegraphics[width=\linewidth]{glushkov.png}
+    \end{figure}
+\end{frame}
+
+%------------------------------------------------
 
 % Plan : 
 %   - présentation du langage
@@ -325,9 +442,9 @@
     \begin{itemize}
         \item[\textbullet] Langage fonctionnel \textbf{pur}
         \item[\textbullet] Utilise des concepts de la 
-        \textbf{théorie des catégories}
+        \textbf{théorie des catégories} (\textbf{Monade})
         \item[\textbullet] Très forte abstraction qui mène à une sûreté 
-        d'exécution
+        d'exécution (Monade \mintinline{haskell}{IO})
         \item[\textbullet] Utilisé dans des domaines tels que~:
             \begin{itemize}
                 \item[\textbullet] La finance
@@ -454,7 +571,7 @@
         \includegraphics[width=70pt]{haskell.png}
     \end{textblock*}
     \begin{figure}
-        \includesvg[width=\linewidth]{automate_haskell.svg}
+        \includegraphics[width=\linewidth]{automate_haskell.png}
         \caption{
             Représentation graphique de l'automate du fichier \textit{JSON}.
         }
@@ -487,7 +604,7 @@
         +++ OK, passed 100 tests.
         +++ OK, passed 100 tests.
         
-        Testing Gluskov properties...
+        Testing Glushkov properties...
         +++ OK, passed 100 tests.
         
       \end{minted}
@@ -505,7 +622,7 @@
         \includegraphics[width=70pt]{haskell.png}
     \end{textblock*}
     \begin{center}
-        \href{run:./report_perf.html}{Rapport du Benchmark}
+        \href{run:report_perf.html}{Rapport du Benchmark}
     \end{center}
 \end{frame}
 
@@ -515,6 +632,13 @@
     \begin{textblock*}{20pt}(\textwidth-130pt,10pt)
         \includegraphics[width=160pt]{haskell_rust.png}
     \end{textblock*}
+    \Huge{\centerline{\textbf{Démonstration des applications.}}}
+\end{frame}
+
+%------------------------------------------------
+
+\begin{frame}
+    \Huge{\centerline{\textbf{Bilan}}}
 \end{frame}
 
 %------------------------------------------------

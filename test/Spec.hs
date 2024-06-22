@@ -33,5 +33,5 @@ main = do
   quickCheck $ flip (propDirectSucc :: Int -> NF.NFAF Int Char -> Bool) . af
   quickCheck $ flip (propDirectPred :: Int -> NF.NFAF Int Char -> Bool) . af
   quickCheck $ (propStandard :: NF.NFAF Int Char -> Bool) . af
-  putStrLn "\nTesting Gluskov properties..."
+  putStrLn "\nTesting Glushkov properties..."
   quickCheck propGlushkov

@@ -51,7 +51,7 @@ main = do
     entry <- new Gtk.Entry []
     button <- new Gtk.Button [#label := "Envoyer"]
     importButton <- new Gtk.Button [#label := "Importer"]
-    label <- new Gtk.Label [#label := "Entrée une expression régulière"]
+    label <- new Gtk.Label [#label := "Entrez une expression régulière"]
     choiceButton <- new Gtk.Button [#label := "Options"]
     comboBox <- new Gtk.ComboBoxText []
 
@@ -97,7 +97,7 @@ main = do
 
     -- properties table
     let properties = ["Orbite", "Stable", "Transverse", "Fortement stable", 
-                      "Hautement Transverse", "Entrée", "Sortie"]
+                      "Fortement Transverse", "Entrée", "Sortie"]
 
     propLabels <- mapM (\prop -> new Gtk.Label [#label := prop]) properties
     valueLabels <- mapM (\_ -> new Gtk.Label [#label := "Inconnu"]) properties
@@ -202,7 +202,7 @@ main = do
             Gtk.labelSetText label "Voici votre Automate"
             activeText <- Gtk.comboBoxTextGetActiveText comboBox
             let clustered = case activeText of
-                              Just "Clustered" -> True
+                              Just "Regroupés" -> True
                               _ -> False
             let automate = E.glushkov validText
             writeIORef automataRef (Just automate)
@@ -247,7 +247,7 @@ main = do
                     Gtk.labelSetText label "Automate importé"
                     activeText <- Gtk.comboBoxTextGetActiveText comboBox
                     let clustered = case activeText of
-                                      Just "Clustered" -> True
+                                      Just "Regroupés" -> True
                                       _ -> False
                     let automataDot = if clustered
                                       then N.automatonToDotClustered 
@@ -256,7 +256,7 @@ main = do
                     let svgFile = "imported_automate.svg"
                     _ <- addExtension (runGraphviz automataDot) Svg 
                         "imported_automate"
-                    callCommand $ "rsvg-convert -w 700 " ++ svgFile ++ " -o " 
+                    callCommand $ "rsvg-convert -w 600 " ++ svgFile ++ " -o " 
                                   ++ svgFile
                     updateImage svgFile
 
@@ -307,12 +307,12 @@ main = do
             case parsed of
               Just orbit -> do
                 Gtk.labelSetText manualInputMessage $ 
-                                 "Orbit possiblement valide : " 
+                                 "Orbite possiblement valide : " 
                                  <> N.orbitToText orbit 
                 writeIORef orbitRef (Just orbit)
                 onOrbitChange orbit
               _ -> do
-                Gtk.labelSetText manualInputMessage "Erreur : Orbit invalide."
+                Gtk.labelSetText manualInputMessage "Erreur : Orbite invalide."
                 writeIORef orbitRef Nothing
 
     let onMaximalDropdownChanged = do
@@ -323,12 +323,12 @@ main = do
                 case parsed of
                   Just orbit -> do
                     Gtk.labelSetText manualInputMessage $ 
-                                    "Orbit valide : " <> N.orbitToText orbit 
+                                    "Orbite valide : " <> N.orbitToText orbit 
                     writeIORef orbitRef (Just orbit)
                     onOrbitChange orbit
                   _ -> do
                     Gtk.labelSetText manualInputMessage 
-                      "Erreur : Orbit invalide."
+                      "Erreur : Orbite invalide."
                     writeIORef orbitRef Nothing
               _ -> return ()
 
